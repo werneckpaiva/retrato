@@ -2,3 +2,10 @@
 *.pot
 *.pyc
 local_settings.py
+
+local.py
+prod.py
+
+run.sh
+
+passenger_wsgi.py
