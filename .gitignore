@@ -2,9 +2,7 @@
 *.pot
 *.pyc
 local_settings.py
-
-local.py
-prod.py
+prod_settings.py
 
 run.sh
 
