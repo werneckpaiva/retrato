@@ -7,12 +7,20 @@
 <script type="text/javascript">
 
    $(function(){
-	    $("body").append("Funcionou!")
+	    $("#result").html("Funcionou!")
    })
 
 </script>
+<style type="text/css">
+    #result{
+        padding:10px;
+        border:1px solid #cccccc;
+    }
+</style>
 </head>
 <body>
-Hello world! 
+<p>Hello world</p> 
+<p>Django version: {{ version }}</p>
+<p><span id="result"></span></p>
 </body>
 </html>

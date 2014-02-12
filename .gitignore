@@ -7,3 +7,5 @@ prod_settings.py
 run.sh
 
 passenger_wsgi.py
+
+tmp
