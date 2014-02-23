@@ -9,3 +9,5 @@ run.sh
 passenger_wsgi.py
 
 tmp
+
+.pydevproject
