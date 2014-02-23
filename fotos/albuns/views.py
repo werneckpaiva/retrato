@@ -22,4 +22,4 @@ class AlbumView(View):
         return HttpResponse(json.dumps(content), content_type="application/json")
 
     def _load_pictures(self):
-        
+        pass
