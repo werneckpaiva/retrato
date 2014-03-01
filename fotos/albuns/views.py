@@ -3,6 +3,8 @@ from django.http import HttpResponse
 import json
 import django
 from django.views.generic.base import View
+from fotos.albuns.models import Album
+import time
 
 
 def index(request):
@@ -15,11 +17,23 @@ def index(request):
 
 class AlbumView(View):
 
-    def get(self, request, album_name=''):
+    def get(self, request, album_path=''):
+        self.album = Album(album_path)
         content = {
-            'album': '/%s' % album_name
+            'album': '/%s' % album_path,
+            'pictures': self._load_pictures(),
+            'albuns': self._load_albuns()
         }
         return HttpResponse(json.dumps(content), content_type="application/json")
 
     def _load_pictures(self):
-        pass
+        pictures = [{'name': p.name,
+                     'filename':p.filename,
+                     'width':p.width,
+                     'height':p.height,
+                     'date': time.strftime('%Y-%m-%d %H:%M:%S', p.date_taken)} \
+                   for p in self.album.get_pictures()]
+        return pictures
+
+    def _load_albuns(self):
+        return self.album.get_albuns()
