@@ -31,7 +31,8 @@ class AlbumView(View):
                      'filename':p.filename,
                      'width':p.width,
                      'height':p.height,
-                     'date': time.strftime('%Y-%m-%d %H:%M:%S', p.date_taken)} \
+                     'date': time.strftime('%Y-%m-%d %H:%M:%S', p.date_taken),
+                     'url': p.url} \
                    for p in self.album.get_pictures()]
         return pictures
 

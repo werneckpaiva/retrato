@@ -1,17 +1,5 @@
-from django.conf import settings
 from django.test import TestCase
-from fotos.albuns.models import Album, Picture
-import os
-
-
-class TestPictureModelIntegration(TestCase):
-
-    def test_create_picture(self):
-        PHOTOS_ROOT_DIR = getattr(settings, 'PHOTOS_ROOT_DIR', '/')
-        filename = os.path.join(PHOTOS_ROOT_DIR, 'album2/photo_first.JPG')
-        picture = Picture(filename)
-        self.assertEquals(picture.filename, 'photo_first.JPG')
-        self.assertEquals(picture.name, 'photo first')
+from fotos.albuns.models import Album
 
 
 class TestAlbumModelIntegration(TestCase):

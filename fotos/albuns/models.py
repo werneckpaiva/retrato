@@ -3,9 +3,8 @@ import os
 from os import listdir
 from os.path import isfile, join, isdir
 import re
-from PIL import Image
-from PIL.ExifTags import TAGS
 import time
+from fotos.photo.models import Photo
 
 
 class Album(object):
@@ -33,8 +32,8 @@ class Album(object):
             realfile = os.path.join(self._realpath, f)
             if isfile(realfile) and \
                 extension_re.search(f):
-                pictures_name.append(realfile)
-        pictures = [Picture(f) for f in pictures_name]
+                pictures_name.append(f)
+        pictures = [Photo(self._path, f) for f in pictures_name]
         pictures = self._sort_by_date(pictures)
         return pictures
 
@@ -62,52 +61,3 @@ class Album(object):
         path = re.sub('\.+\./', '', path, flags=re.IGNORECASE)
         path = re.sub('/+/', '/', path, flags=re.IGNORECASE)
         return path
-
-
-class Picture(object):
-
-    _path = None
-
-    name = None
-    filename = None
-    width = 0
-    height = 0
-    date_taken = None
-
-    def __init__(self, path):
-        self._path = path
-        self._load_image_data()
-
-    def _load_image_data(self):
-        try:
-            img = Image.open(self._path)
-            exif = img._getexif()
-        except:
-            return
-        self._load_image_size(img)
-        self._load_date_taken(exif)
-        self._load_name()
-
-    def _load_date_taken(self, exif):
-        str_date = exif.get(306, None)
-        if str_date:
-            date = time.strptime(str_date, "%Y:%m:%d %H:%M:%S")
-        else:
-            date = os.path.getmtime(self._path)
-        self.date_taken = date
-
-    def _load_name(self):
-        fileparts = self._path.split(os.sep)
-        filename = fileparts[-1]
-        self.filename = filename
-        name = re.sub('.jpg', '', filename, flags=re.IGNORECASE)
-        name = re.sub('_', ' ', name, flags=re.IGNORECASE)
-        self.name = name
-
-    def _load_image_size(self, img):
-        size = img.size
-        self.width = size[0]
-        self.height = size[1]
-
-    def __str__(self):
-        return self.name
