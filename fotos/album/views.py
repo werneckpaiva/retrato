@@ -3,7 +3,7 @@ from django.http import HttpResponse
 import json
 import django
 from django.views.generic.base import View
-from fotos.albuns.models import Album
+from fotos.album.models import Album
 import time
 
 
@@ -24,7 +24,7 @@ class AlbumView(View):
             'pictures': self._load_pictures(),
             'albuns': self._load_albuns()
         }
-        return HttpResponse(json.dumps(content), content_type="application/json")
+        return HttpResponse(json.dumps(content), content_type="application/album")
 
     def _load_pictures(self):
         pictures = [{'name': p.name,

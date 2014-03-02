@@ -1,5 +1,5 @@
 from django.test import TestCase
-from fotos.albuns.models import Photo
+from fotos.album.models import Photo
 
 
 class TestPhotoModelIntegration(TestCase):
