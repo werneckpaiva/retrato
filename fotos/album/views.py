@@ -8,7 +8,7 @@ import time
 
 
 def index(request):
-    t = loader.get_template('albuns/index.html')
+    t = loader.get_template('album/index.html')
     c = Context({
         'version': django.get_version()
     })
@@ -24,7 +24,7 @@ class AlbumView(View):
             'pictures': self._load_pictures(),
             'albuns': self._load_albuns()
         }
-        return HttpResponse(json.dumps(content), content_type="application/album")
+        return HttpResponse(json.dumps(content), content_type="application/json")
 
     def _load_pictures(self):
         pictures = [{'name': p.name,
