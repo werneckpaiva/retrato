@@ -18,6 +18,7 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, "public")]
 
 PHOTOS_ROOT_DIR = os.path.join(BASE_DIR, "fotos-sample")
 
+JASMINE_TEST_DIRECTORY = os.path.join(BASE_DIR, "fotos/album/tests/js")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
@@ -40,7 +41,8 @@ INSTALLED_APPS = (
 #     'django.contrib.messages',
     'django.contrib.staticfiles',
     'fotos.album',
-    'fotos.photo'
+    'fotos.photo',
+    'django_jasmine'
 )
 
 MIDDLEWARE_CLASSES = (

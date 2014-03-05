@@ -6,4 +6,4 @@ Inspirado pelo projeto http://www.chromatic.io/
 Requirements:
 
 Django==1.6.2
-PIL
+Pillow=2.3.0

@@ -4,11 +4,13 @@
 <head>
 <title>Home</title>
 <script type="text/javascript" src="{% static 'js/jquery.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/album.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/resize.js' %}"></script>
 <script type="text/javascript">
 
-   $(function(){
-	    $("#result").html("Funcionou!")
-   })
+    $(function(){
+        var album = new AlbumPage()
+    })
 
 </script>
 <style type="text/css">
@@ -19,8 +21,7 @@
 </style>
 </head>
 <body>
-<p>Hello world</p> 
-<p>Django version: {{ version }}</p>
-<p><span id="result"></span></p>
+<section id="albuns"></section>
+<section id="photos"></section>
 </body>
 </html>

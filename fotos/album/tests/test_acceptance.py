@@ -6,10 +6,10 @@ class TestAlbumAcceptance(TestCase):
 
     def test_home(self):
         response = self.client.get('/')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 301)
 
     def test_load_default_album(self):
-        response = self.client.get('/album/')
+        response = self.client.get('/album-data/')
 
         self.assertEqual(response.status_code, 200)
 
@@ -20,7 +20,7 @@ class TestAlbumAcceptance(TestCase):
         self.assertEquals(content['pictures'], [])
 
     def test_load_test_album__no_pictures(self):
-        response = self.client.get('/album/album1/')
+        response = self.client.get('/album-data/album1/')
 
         self.assertEqual(response.status_code, 200)
 
@@ -31,7 +31,7 @@ class TestAlbumAcceptance(TestCase):
         self.assertEquals(len(content['pictures']), 0)
 
     def test_load_test_album__4_pictures(self):
-        response = self.client.get('/album/album2/')
+        response = self.client.get('/album-data/album2/')
 
         self.assertEqual(response.status_code, 200)
 
