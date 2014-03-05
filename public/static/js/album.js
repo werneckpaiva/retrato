@@ -23,21 +23,25 @@ function AlbumPage(){
         if (!albumPath){
             albumPath = "/"
         }
-        self.loadAlbum(albumPath)
+        loadAlbum(albumPath)
     }
 
-    function changeToAlbum(album){
+    function changeUrl(album){
         history.pushState(null, null, URL_PREFIX+album)
     }
 
-    this.loadAlbum = function(album){
+    this.changeAlbum = function(album){
         if (currentAlbum == album){
             return;
         }
+        changeUrl(album)
+        loadAlbum(album)
+    }
+
+    function loadAlbum(album){
         currentAlbum = album
         url = URL_DATA_PREFIX + album
         $.get(url, function(content) {
-            console.log(content)
             if (!content){
                 displayInvalidAlbum()
             } else {
@@ -50,7 +54,7 @@ function AlbumPage(){
     function displayAlbuns(albuns){
         html = "<ul>"
         for (i in albuns){
-            fullAlbum = currentAlbum + albuns[i]
+            fullAlbum = currentAlbum + albuns[i] + "/"
             html += "<li><a data-album=\""+fullAlbum+"\" href=\""+URL_PREFIX+fullAlbum+"\">"+albuns[i]+"</a></li>"
         }
         html += "</ul>"
@@ -58,7 +62,8 @@ function AlbumPage(){
         $("#albuns")
             .html(html)
             .find("a").click(function(){
-                changeUrl($(this).attr("data-album"))
+                self.changeAlbum($(this).attr("data-album"))
+                return false;
             })
     }
 
