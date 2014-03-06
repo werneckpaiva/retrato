@@ -70,6 +70,7 @@ function AlbumPage(){
     function displayPictures(pictures){
         html = ""
         for (i in pictures){
+            p = pictures[i]
             html += "<div><img src=\""+pictures[i].url  +"\" /></div>"
         }
         html += ""

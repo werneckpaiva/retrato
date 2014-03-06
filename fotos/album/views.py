@@ -31,6 +31,7 @@ class AlbumView(View):
                      'filename':p.filename,
                      'width':p.width,
                      'height':p.height,
+                     'ratio': round(float(p.width) / float(p.height), 3),
                      'date': time.strftime('%Y-%m-%d %H:%M:%S', p.date_taken),
                      'url': p.url} \
                    for p in self.album.get_pictures()]
