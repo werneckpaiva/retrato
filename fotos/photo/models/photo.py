@@ -5,6 +5,7 @@ import re
 from PIL import Image
 from PIL.ExifTags import TAGS
 import time
+from django.http import HttpResponse
 
 
 class Photo(object):
@@ -32,13 +33,10 @@ class Photo(object):
         self.real_filename = os.path.join(folder, self.filename)
 
     def open_image(self):
-        # is image alreasy opened?
+        # is image already opened?
         if self.image:
             return
-        try:
-            self.image = Image.open(self.real_filename)
-        except:
-            return
+        self.image = Image.open(self.real_filename)
 
     def load_exif(self):
         if (self.exif):
@@ -89,14 +87,28 @@ class Photo(object):
     def exists(self):
         return os.path.isfile(self.real_filename)
 
-    def save_to_response(self, response):
+    def get_image(self):
+        self.open_image()
+        return self.image
+
+    def rotate_based_on_orientation(self):
         self.open_image()
         rotation = self.get_orientation_angle()
-        img = self.image
-        if rotation:
-            img = self.image.rotate(rotation)
-        img.save(response, "JPEG")
-        return response
+        if not rotation:
+            return False
+        self.image = self.image.rotate(rotation)
+        return True
+
+    def resize_max_dimension(self, dimension):
+        self.open_image()
+        size = self.image.size
+        ratio = float(size[0]) / float(size[1])
+        if ratio > 0:
+            newWidth = dimension
+            self.image = self.image.resize((newWidth, int(newWidth / ratio)), Image.ANTIALIAS)
+        else:
+            newHeight = dimension
+            self.image = self.image.resize((newHeight, int(newHeight / ratio)), Image.ANTIALIAS)
 
     def get_orientation_angle(self):
         self.load_exif()

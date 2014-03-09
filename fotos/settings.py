@@ -16,7 +16,8 @@ TEMPLATE_DIRS = [os.path.join(BASE_DIR, "fotos/templates")]
 
 STATICFILES_DIRS = [os.path.join(BASE_DIR, "public")]
 
-PHOTOS_ROOT_DIR = os.path.join(BASE_DIR, "fotos-sample")
+PHOTOS_ROOT_DIR = os.path.join(BASE_DIR, "fotos-sample/albuns")
+PHOTOS_CACHE_DIR = os.path.join(BASE_DIR, "fotos-sample/cache")
 
 JASMINE_TEST_DIRECTORY = os.path.join(BASE_DIR, "fotos/album/tests/js")
 

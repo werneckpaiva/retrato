@@ -18,9 +18,7 @@ function AlbumPage(){
                 changeCurrentAlbum()
             })
             .resize(function(){
-                if (pictures){
-                    displayPictures(pictures)
-                }
+                resizePictures(pictures)
             })
         
     }
@@ -81,15 +79,28 @@ function AlbumPage(){
 
     function displayPictures(pictures){
         var resize = new Resize(pictures)
-        resize.doResize($(window).width(), $(window).height())
+        console.log($("#photos").width())
+        resize.doResize($("#photos").width(), $(window).height())
+
         html = ""
         for (i in pictures){
             p = pictures[i]
             style=""
-            html += "<div class=\"photo\" style=\"width: "+(p.newWidth-4)+"px; height: "+(p.newHeight-4)+"px; background-image: url("+p.url+");\"></div>"
+            html += "<div class=\"photo\" style=\"background-image: url("+p.thumb+"); width: "+(p.newWidth-4)+"px; height: "+(p.newHeight-4)+"px;\"></div>"
         }
-        console.log(html)
         $("#photos").html(html)
+    }
+
+    function resizePictures(pictures){
+        if (!pictures){
+            return;
+        }
+        var resize = new Resize(pictures)
+        resize.doResize($("#photos").width(), $(window).height())
+        $("#photos div").each(function(index, item){
+            p = pictures[index]
+            $(this).css("width", (p.newWidth-4)).css("height", (p.newHeight-4))
+        })
     }
 
     init()

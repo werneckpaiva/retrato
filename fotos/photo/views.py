@@ -2,16 +2,27 @@ from django.http import HttpResponse
 from django.views.generic.base import View
 from django.http.response import Http404
 from fotos.photo.models import Photo
+from fotos.photo.models.photo_cache import PhotoCache
+import os
+import time
 
 
 class PhotoView(View):
 
     def get(self, request, photo=None):
-        p = self.get_photo(photo)
-        if not p or not p.exists():
-            raise Http404
-        response = p.save_to_response(HttpResponse(content_type="image/jpeg"))
-        return response
+        photo = self.get_photo(photo)
+
+        self.check_if_exists(photo)
+
+        cache = PhotoCache(photo)
+        cache.rotate_based_on_orientation()
+        self.set_photo_size(request, cache)
+
+        filename = cache.get_file()
+
+        self.check_modified_since(request, filename)
+
+        return self.return_file(filename)
 
     def get_photo(self, photo):
         if not photo:
@@ -23,3 +34,25 @@ class PhotoView(View):
             album = '/'.join(parts[:-1])
             filename = parts[-1]
             return Photo(album, filename)
+
+    def check_if_exists(self, photo):
+        if not photo or not photo.exists():
+            raise Http404
+
+    def set_photo_size(self, request, cache):
+        size = request.GET.get('size', None)
+        if size:
+            cache.set_max_dimension(int(size))
+
+    def check_modified_since(self, request, filename):
+        modified_since = request.META.get("HTTP_IF_MODIFIED_SINCE", None)
+        if modified_since:
+            file_time = time.gmtime(os.path.getmtime(filename))
+            pass
+
+    def return_file(self, filename):
+        with open(filename, "rb") as f:
+            response = HttpResponse(f.read(), content_type="image/jpeg")
+            response['Content-Length'] = f.tell()
+            response['Last-Modified'] =time.strftime("%a, %d %b %Y %H:%M:%S GMT", time.gmtime(os.path.getmtime(filename)))
+            return response

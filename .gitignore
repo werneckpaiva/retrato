@@ -11,3 +11,5 @@ passenger_wsgi.py
 tmp
 
 .pydevproject
+fotos-sample/cache/**/*.jpg
+fotos-sample/cache/**/*.JPG
