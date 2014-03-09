@@ -19,7 +19,7 @@ function AlbumPage(){
             })
             .resize(function(){
                 if (pictures){
-//                    displayPictures(pictures)
+                    displayPictures(pictures)
                 }
             })
         
@@ -81,7 +81,7 @@ function AlbumPage(){
 
     function displayPictures(pictures){
         var resize = new Resize(pictures)
-        resize.doResize($(window).width() - 30, $(window).height())
+        resize.doResize($(window).width(), $(window).height())
         html = ""
         for (i in pictures){
             p = pictures[i]
