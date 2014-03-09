@@ -1,10 +1,11 @@
 from django.http import HttpResponse
 from django.views.generic.base import View
-from django.http.response import Http404
+from django.http.response import Http404, HttpResponseNotModified
 from fotos.photo.models import Photo
 from fotos.photo.models.photo_cache import PhotoCache
 import os
 import time
+from rfc822 import parsedate
 
 
 class PhotoView(View):
@@ -20,7 +21,9 @@ class PhotoView(View):
 
         filename = cache.get_file()
 
-        self.check_modified_since(request, filename)
+        response304 = self.check_modified_since(request, filename)
+        if response304:
+            return response304
 
         return self.return_file(filename)
 
@@ -45,14 +48,16 @@ class PhotoView(View):
             cache.set_max_dimension(int(size))
 
     def check_modified_since(self, request, filename):
-        modified_since = request.META.get("HTTP_IF_MODIFIED_SINCE", None)
-        if modified_since:
-            file_time = time.gmtime(os.path.getmtime(filename))
-            pass
+        modified_since_str = request.META.get("HTTP_IF_MODIFIED_SINCE", None)
+        if modified_since_str:
+            modified_since = time.mktime(parsedate(modified_since_str))
+            file_time = time.mktime(time.gmtime(os.path.getmtime(filename)))
+            if modified_since >= file_time:
+                return HttpResponseNotModified()
 
     def return_file(self, filename):
         with open(filename, "rb") as f:
             response = HttpResponse(f.read(), content_type="image/jpeg")
             response['Content-Length'] = f.tell()
-            response['Last-Modified'] =time.strftime("%a, %d %b %Y %H:%M:%S GMT", time.gmtime(os.path.getmtime(filename)))
+            response['Last-Modified'] = time.strftime("%a, %d %b %Y %H:%M:%S GMT", time.gmtime(os.path.getmtime(filename)))
             return response

@@ -1,6 +1,9 @@
 from django.test import TestCase
 from PIL import Image
 from StringIO import StringIO
+from datetime import datetime, timedelta
+from time import mktime
+from rfc822 import formatdate
 
 
 class TestPhotoAppAcceptance(TestCase):
@@ -45,5 +48,15 @@ class TestPhotoAppAcceptance(TestCase):
         self.assertEquals(size[0], 1000)
 
     def test_image_not_modified(self):
-        response = self.client.get('/photo/album2/photo_2.JPG?size=1000')
+        time_cache = datetime.now() + timedelta(0, 60)
+        time_cachestr_time = formatdate(mktime(time_cache.timetuple()))
+        response = self.client.get('/photo/album2/photo_2.JPG?size=1000', \
+                                   **{'HTTP_IF_MODIFIED_SINCE': time_cachestr_time})
         self.assertEqual(response.status_code, 304)
+
+    def test_image_modified(self):
+        time_cache = datetime.now() + timedelta(days=-365)
+        time_cachestr_time = formatdate(mktime(time_cache.timetuple()))
+        response = self.client.get('/photo/album2/photo_2.JPG?size=1000', \
+                                   **{'HTTP_IF_MODIFIED_SINCE': time_cachestr_time})
+        self.assertEqual(response.status_code, 200)

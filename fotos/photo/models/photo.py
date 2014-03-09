@@ -51,7 +51,7 @@ class Photo(object):
         self.load_image_size()
         self.load_date_taken()
         self.load_name()
-        self.loaf_url()
+        self.load_url()
 
     def load_date_taken(self):
         self.load_exif()
@@ -78,7 +78,7 @@ class Photo(object):
             self.width = size[1]
             self.height = size[0]
 
-    def loaf_url(self):
+    def load_url(self):
         photo = '%s/%s' % (self.album, self.filename)
         photo = re.sub('/+', '/', photo)
         url = reverse('photo', args=(photo,))
