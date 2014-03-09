@@ -48,6 +48,7 @@ function AlbumPage(){
         if (currentAlbum == album){
             return;
         }
+        cleanContent()
         currentAlbum = album
         url = URL_DATA_PREFIX + album
         $.get(url, function(content) {
@@ -59,6 +60,10 @@ function AlbumPage(){
                 displayPictures(content.pictures)
             }
         });
+    }
+
+    function cleanContent(){
+        $("#photos").html("loading...")
     }
 
     function displayAlbuns(albuns){
@@ -79,7 +84,6 @@ function AlbumPage(){
 
     function displayPictures(pictures){
         var resize = new Resize(pictures)
-        console.log($("#photos").width())
         resize.doResize($("#photos").width(), $(window).height())
 
         html = ""

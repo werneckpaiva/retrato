@@ -14,6 +14,9 @@ class PhotoCache(object):
 
     _operations = {}
 
+    should_rotate = False
+    should_resize_to = None
+
     def __init__(self, photo):
         self.photo = photo
 
@@ -47,6 +50,10 @@ class PhotoCache(object):
         return self.filename
 
     def create_cache(self):
+        if self.should_resize_to:
+            self.photo.rotate_based_on_orientation()
+        if self.should_resize_to:
+            self.photo.resize_max_dimension(self.should_resize_to)
         self.generate_filename()
         photo = self.photo.get_image()
         photo.save(self.filename, "JPEG")
@@ -64,11 +71,8 @@ class PhotoCache(object):
         return self.filename
 
     def set_max_dimension(self, size):
+        self.should_resize_to = size
         self._operations['size'] = size
-        self.photo.resize_max_dimension(size)
-        self.generate_filename()
 
     def rotate_based_on_orientation(self):
-        rotated = self.photo.rotate_based_on_orientation()
-        if rotated:
-            self._operations['rotated'] = True
+        self.should_rotate = True
