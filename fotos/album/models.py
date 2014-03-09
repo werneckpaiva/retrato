@@ -34,6 +34,8 @@ class Album(object):
                 extension_re.search(f):
                 pictures_name.append(f)
         pictures = [Photo(self._path, f) for f in pictures_name]
+        for p in pictures:
+            p.load_date_taken()
         pictures = self._sort_by_date(pictures)
         return pictures
 

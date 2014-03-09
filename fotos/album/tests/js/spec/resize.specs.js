@@ -6,6 +6,7 @@ describe("Resize pictures", function() {
     it("should resize 2 landscape pictures to fit all in the screen", function(){
         var pictures = [{ratio: LANDSCAPE}, {ratio:LANDSCAPE}]
         var resize = new Resize(pictures)
+        resize.HEIGHT_PROPORTION = 0.5
         resize.doResize(1100, 800)
 
         for (i in pictures){
@@ -18,6 +19,7 @@ describe("Resize pictures", function() {
     it("should resize 4 landscape pictures in 2 rows", function(){
         var pictures = [{ratio: LANDSCAPE}, {ratio:LANDSCAPE}, {ratio:LANDSCAPE}, {ratio:LANDSCAPE}]
         var resize = new Resize(pictures)
+        resize.HEIGHT_PROPORTION = 0.5
         resize.doResize(1100, 800)
 
         for (i in pictures){

@@ -10,8 +10,8 @@ class PhotoView(View):
         p = self.get_photo(photo)
         if not p or not p.exists():
             raise Http404
-        with open(p.real_filename, "rb") as f:
-            return HttpResponse(f.read(), content_type="image/jpeg")
+        response = p.save_to_response(HttpResponse(content_type="image/jpeg"))
+        return response
 
     def get_photo(self, photo):
         if not photo:

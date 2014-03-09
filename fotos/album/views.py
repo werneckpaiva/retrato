@@ -27,15 +27,18 @@ class AlbumView(View):
         return HttpResponse(json.dumps(content), content_type="application/json")
 
     def _load_pictures(self):
-        pictures = [{'name': p.name,
+        pictures = self.album.get_pictures()
+        for p in pictures:
+            p.load_image_data()
+        data = [{'name': p.name,
                      'filename':p.filename,
                      'width':p.width,
                      'height':p.height,
                      'ratio': round(float(p.width) / float(p.height), 3),
                      'date': time.strftime('%Y-%m-%d %H:%M:%S', p.date_taken),
                      'url': p.url} \
-                   for p in self.album.get_pictures()]
-        return pictures
+                   for p in pictures]
+        return data
 
     def _load_albuns(self):
         return self.album.get_albuns()
