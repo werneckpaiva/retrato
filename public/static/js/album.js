@@ -1,6 +1,7 @@
 function AlbumPage(){
 
     var currentAlbum = null
+    var pictures = null
     var self = this
 
     URL_PREFIX ="/album"
@@ -12,9 +13,16 @@ function AlbumPage(){
     }
 
     function addEventListener(){
-        $(window).bind('popstate', function(event){
-            changeCurrentAlbum()
-        })
+        $(window)
+            .bind('popstate', function(event){
+                changeCurrentAlbum()
+            })
+            .resize(function(){
+                if (pictures){
+//                    displayPictures(pictures)
+                }
+            })
+        
     }
 
     function changeCurrentAlbum(){
@@ -39,12 +47,16 @@ function AlbumPage(){
     }
 
     function loadAlbum(album){
+        if (currentAlbum == album){
+            return;
+        }
         currentAlbum = album
         url = URL_DATA_PREFIX + album
         $.get(url, function(content) {
             if (!content){
                 displayInvalidAlbum()
             } else {
+                pictures = content.pictures
                 displayAlbuns(content.albuns)
                 displayPictures(content.pictures)
             }
@@ -61,19 +73,22 @@ function AlbumPage(){
 
         $("#albuns")
             .html(html)
-            .find("a").click(function(){
+            .find("a").click(function(event){
                 self.changeAlbum($(this).attr("data-album"))
-                return false;
+                event.preventDefault();
             })
     }
 
     function displayPictures(pictures){
+        var resize = new Resize(pictures)
+        resize.doResize($(window).width() - 30, $(window).height())
         html = ""
         for (i in pictures){
             p = pictures[i]
-            html += "<div><img src=\""+pictures[i].url  +"\" /></div>"
+            style=""
+            html += "<div class=\"photo\" style=\"width: "+(p.newWidth-4)+"px; height: "+(p.newHeight-4)+"px; background-image: url("+p.url+");\"></div>"
         }
-        html += ""
+        console.log(html)
         $("#photos").html(html)
     }
 
