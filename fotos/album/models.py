@@ -52,6 +52,7 @@ class Album(object):
                 continue
             if isdir(join(self._realpath, f)):
                 albuns.append(f)
+        sorted(albuns)
         return albuns
 
     @classmethod
