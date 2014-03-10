@@ -88,11 +88,30 @@ function AlbumPage(){
 
         html = ""
         for (i in pictures){
-            p = pictures[i]
+            var p = pictures[i]
             style=""
-            html += "<div class=\"photo\" style=\"background-image: url("+p.thumb+"); width: "+(p.newWidth-4)+"px; height: "+(p.newHeight-4)+"px;\"></div>"
+                // : ; 
+            html += "<div class=\"photo\" style=\"width: "+(p.newWidth-4)+"px; height: "+(p.newHeight-4)+"px;\"></div>"
         }
         $("#photos").html(html)
+        lazyLoadPictures(pictures)
+    }
+    
+    function lazyLoadPictures(pictures){
+        index = 0;
+        var image = new Image()
+        image.onload = function(){
+            $("#photos div:eq("+index+")").css("background-image", "url("+this.src+")")
+            index++
+            loadNextPicture()
+        }
+        function loadNextPicture(){
+            if (index >= pictures.length){
+                return
+            }
+            image.src = pictures[index].thumb
+        }
+        loadNextPicture()
     }
 
     function resizePictures(pictures){
