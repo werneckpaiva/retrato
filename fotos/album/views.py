@@ -30,6 +30,7 @@ class AlbumView(View):
         pictures = self.album.get_pictures()
         for p in pictures:
             p.load_image_data()
+            p.close_image()
         data = [{'name': p.name,
                      'filename':p.filename,
                      'width':p.width,

@@ -36,6 +36,7 @@ class Album(object):
         pictures = [Photo(self._path, f) for f in pictures_name]
         for p in pictures:
             p.load_date_taken()
+            p.close_image()
         pictures = self._sort_by_date(pictures)
         return pictures
 

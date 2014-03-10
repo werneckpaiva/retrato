@@ -38,6 +38,12 @@ class Photo(object):
             return
         self.image = Image.open(self.real_filename)
 
+    def close_image(self):
+        if not self.image:
+            return
+        del self.image
+        self.image = None
+
     def load_exif(self):
         if (self.exif):
             return
