@@ -17,6 +17,7 @@ def index(request):
 
 class AlbumView(View):
 
+    
     def get(self, request, album_path=''):
         self.album = Album(album_path)
         content = {
