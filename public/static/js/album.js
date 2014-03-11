@@ -1,8 +1,12 @@
-function AlbumPage(){
+function AlbumPage(h){
 
     var currentAlbum = null
     var pictures = null
     var self = this
+
+    var highlight = h
+
+    this.run = 0
 
     URL_PREFIX ="/album"
     URL_DATA_PREFIX = "/album-data"
@@ -49,9 +53,11 @@ function AlbumPage(){
             return;
         }
         cleanContent()
+        $("#loading").show();
         currentAlbum = album
         url = URL_DATA_PREFIX + album
         $.get(url, function(content) {
+            $("#loading").hide();
             if (!content){
                 displayInvalidAlbum()
             } else {
@@ -63,19 +69,23 @@ function AlbumPage(){
     }
 
     function cleanContent(){
-        $("#photos").html("loading...")
+        $("#photos").html("")
     }
 
     function displayAlbuns(albuns){
+        if (!albuns || albuns.length == 0){
+            $("#albuns").html("").hide();
+            return;
+        }
         html = "<ul>"
         for (i in albuns){
             fullAlbum = currentAlbum + albuns[i] + "/"
             html += "<li><a data-album=\""+fullAlbum+"\" href=\""+URL_PREFIX+fullAlbum+"\">"+albuns[i]+"</a></li>"
         }
         html += "</ul>"
-
         $("#albuns")
             .html(html)
+            .show()
             .find("a").click(function(event){
                 self.changeAlbum($(this).attr("data-album"))
                 event.preventDefault();
@@ -96,19 +106,27 @@ function AlbumPage(){
         $("#photos").html(html)
         lazyLoadPictures(pictures)
     }
-    
+
     function lazyLoadPictures(pictures){
-        index = 0;
+        var index = 0;
+        self.run++
+        var run = self.run
         var image = new Image()
         image.onload = function(){
-            $("#photos div:eq("+index+")").css("background-image", "url("+this.src+")")
+            var url = 
+            $("#photos div:eq("+index+")")
+                .css("background-image", "url("+this.src+")")
+                .click(function(){
+                    highlight.displayPicture($(this).data("picture"))
+                })
             index++
             loadNextPicture()
         }
         function loadNextPicture(){
-            if (index >= pictures.length){
+            if (run != self.run || index >= pictures.length){
                 return
             }
+            $("#photos div:eq("+index+")").data("picture", pictures[index])
             image.src = pictures[index].thumb
         }
         loadNextPicture()

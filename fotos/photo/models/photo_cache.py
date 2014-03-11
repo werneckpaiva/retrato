@@ -3,6 +3,7 @@ import os
 import re
 import logging
 import hashlib
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -76,3 +77,7 @@ class PhotoCache(object):
 
     def rotate_based_on_orientation(self):
         self.should_rotate = True
+
+    def original_file_time(self):
+        file_time = time.gmtime(os.path.getmtime(self.photo.real_filename))
+        return file_time

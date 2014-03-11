@@ -6,7 +6,6 @@ from fotos.photo.models.photo_cache import PhotoCache
 import os
 import time
 from rfc822 import parsedate
-from datetime import datetime
 
 
 class PhotoView(View):
@@ -17,14 +16,14 @@ class PhotoView(View):
         self.check_if_exists(photo)
 
         cache = PhotoCache(photo)
+        response304 = self.check_modified_since(request, cache)
+        if response304:
+            return response304
+
         cache.rotate_based_on_orientation()
         self.set_photo_size(request, cache)
 
         filename = cache.get_file()
-
-        response304 = self.check_modified_since(request, filename)
-        if response304:
-            return response304
 
         return self.return_file(filename)
 
@@ -48,11 +47,11 @@ class PhotoView(View):
         if size:
             cache.set_max_dimension(int(size))
 
-    def check_modified_since(self, request, filename):
+    def check_modified_since(self, request, cache):
         modified_since_str = request.META.get("HTTP_IF_MODIFIED_SINCE", None)
         if modified_since_str:
             modified_since = time.mktime(parsedate(modified_since_str))
-            file_time = time.mktime(time.gmtime(os.path.getmtime(filename)))
+            file_time = time.mktime(cache.original_file_time())
             if modified_since >= file_time:
                 return HttpResponseNotModified()
 

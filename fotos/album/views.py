@@ -38,7 +38,7 @@ class AlbumView(View):
                      'ratio': round(float(p.width) / float(p.height), 3),
                      'date': time.strftime('%Y-%m-%d %H:%M:%S', p.date_taken),
                      'url': p.url,
-                     'thumb': ("%s?size=1024" % p.url)} \
+                     'thumb': ("%s?size=1440" % p.url)} \
                    for p in pictures]
         return data
 

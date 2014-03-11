@@ -118,7 +118,7 @@ class Photo(object):
 
     def get_orientation_angle(self):
         self.load_exif()
-        angles = {1: 0, 8: 90, 3: 180, 3: 270}
+        angles = {1: 0, 8: 90, 3: 180, 6: 270}
         orientation = self.exif.get(274, None)
         angle = angles.get(orientation, 0)
         return angle
