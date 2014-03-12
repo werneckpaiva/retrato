@@ -27,13 +27,18 @@ function Highlight(selector){
         }
 
         $content = $this.find(".content")
-        $content.css("background-image", "url("+picture.thumb+")")
+        $content.hide()
         $content.css("background-size", newWidth+"px "+newHeight+"px");
         $content.css("background-position", x+"px "+y+"px");
+
+        $this.css("background-image", "url("+picture.thumb+")")
+        $this.css("background-size", newWidth+"px "+newHeight+"px");
+        $this.css("background-position", x+"px "+y+"px");
         
         image = new Image()
         image.onload = function(){
             $content.css("background-image", "url("+this.src+")")
+            $content.fadeIn();
         }
         image.src = picture.highlight
         $this.fadeIn()
