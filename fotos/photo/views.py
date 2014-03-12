@@ -60,4 +60,5 @@ class PhotoView(View):
             response = HttpResponse(f.read(), content_type="image/jpeg")
             response['Content-Length'] = f.tell()
             response['Last-Modified'] = time.strftime("%a, %d %b %Y %H:%M:%S GMT", time.gmtime(os.path.getmtime(filename)))
+            response['Cache-Control'] = 'public, max-age=9999999'
             return response
