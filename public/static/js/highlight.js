@@ -31,6 +31,11 @@ function Highlight(selector){
         $content.css("background-size", newWidth+"px "+newHeight+"px");
         $content.css("background-position", x+"px "+y+"px");
         
+        image = new Image()
+        image.onload = function(){
+            $content.css("background-image", "url("+this.src+")")
+        }
+        image.src = picture.highlight
         $this.fadeIn()
     }
     

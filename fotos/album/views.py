@@ -17,7 +17,6 @@ def index(request):
 
 class AlbumView(View):
 
-    
     def get(self, request, album_path=''):
         self.album = Album(album_path)
         content = {
@@ -39,7 +38,8 @@ class AlbumView(View):
                      'ratio': round(float(p.width) / float(p.height), 3),
                      'date': time.strftime('%Y-%m-%d %H:%M:%S', p.date_taken),
                      'url': p.url,
-                     'thumb': ("%s?size=1440" % p.url)} \
+                     'thumb': ("%s?size=640" % p.url),
+                     'highlight': ("%s?size=1440" % p.url)} \
                    for p in pictures]
         return data
 
