@@ -65,7 +65,7 @@ class Photo(object):
         if str_date:
             date = time.strptime(str_date, "%Y:%m:%d %H:%M:%S")
         else:
-            date = os.path.getmtime(self._path)
+            date = time.gmtime(os.path.getmtime(self.real_filename))
         self.date_taken = date
 
     def load_name(self):
