@@ -61,7 +61,7 @@ class Photo(object):
 
     def load_date_taken(self):
         self.load_exif()
-        str_date = self.exif.get(306, None)
+        str_date = self.exif.get(306, None) if self.exif else None 
         if str_date:
             date = time.strptime(str_date, "%Y:%m:%d %H:%M:%S")
         else:
@@ -119,7 +119,7 @@ class Photo(object):
     def get_orientation_angle(self):
         self.load_exif()
         angles = {1: 0, 8: 90, 3: 180, 6: 270}
-        orientation = self.exif.get(274, None)
+        orientation = self.exif.get(274, None) if self.exif else None
         angle = angles.get(orientation, 0)
         return angle
 
