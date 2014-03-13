@@ -99,6 +99,30 @@
         padding: 5px 0px 0px 0px;
         border: none;
     }
+    
+    .blur{
+    	width:100%; 
+    	height:100%; 
+    	-webkit-filter: blur(100px); 
+    	-moz-filter: blur(100px); 
+    	-o-filter: blur(100px); 
+    	-ms-filter: blur(100px); 
+    	filter: blur(100px);
+    	opacity: 0.8;
+
+    	-webkit-transition: all 2s linear;
+	-moz-transition: all 2s linear;
+	-o-transition: all 2s linear;
+	transition: all 2s linear;
+	
+	visibility: hidden;
+    	opacity: 0;
+    }
+    .blur.visivel{
+	visibility: visible;
+    	opacity: 0.8;
+    }
+    
 </style>
 </head>
 <body>
@@ -106,6 +130,7 @@
 <div id="loading"><img src="{% static 'media/spinner.gif' %}" width="80" height="79"/></div>
 <section id="photos"></section>
 <div id="highlight">
+    <img class="blur invisivel" />
     <div class="content"></div>
 </div>
 </body>

@@ -35,17 +35,24 @@ function Highlight(selector){
         $this.css("background-size", newWidth+"px "+newHeight+"px");
         $this.css("background-position", x+"px "+y+"px");
         
+        var $fundo = $(".blur", $this);
+        $fundo.attr("src", picture.thumb);
+        
         image = new Image()
         image.onload = function(){
             $content.css("background-image", "url("+this.src+")")
             $content.fadeIn();
         }
         image.src = picture.highlight
-        $this.fadeIn()
+        $this.fadeIn();
+        
+        $fundo.addClass("visivel");
     }
     
     this.closePicture = function(){
-        $this.fadeOut()
+        $this.fadeOut();
+        var $fundo = $(".blur", $this);
+        $fundo.removeClass("visivel");
     }
 
     init()
