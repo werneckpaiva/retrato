@@ -55,7 +55,7 @@ class TestPhotoAppAcceptance(TestCase):
         self.assertEqual(response.status_code, 304)
 
     def test_image_modified(self):
-        time_cache = datetime.now() + timedelta(days=-365)
+        time_cache = datetime(2013, 1, 1)
         time_cachestr_time = formatdate(mktime(time_cache.timetuple()))
         response = self.client.get('/photo/album2/photo_2.JPG?size=1000', \
                                    **{'HTTP_IF_MODIFIED_SINCE': time_cachestr_time})
