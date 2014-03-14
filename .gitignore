@@ -11,6 +11,8 @@ passenger_wsgi.py
 tmp
 
 .pydevproject
+.project
+
 var/cache/data/
 var/cache/photo/
 var/ffotos-sample/cache/**/*.JPG
