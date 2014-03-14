@@ -110,16 +110,16 @@
     	filter: blur(100px);
     	opacity: 0.8;
 
-    	-webkit-transition: all 2s linear;
-	-moz-transition: all 2s linear;
-	-o-transition: all 2s linear;
-	transition: all 2s linear;
-	
-	visibility: hidden;
+        -webkit-transition: all 2s linear;
+        -moz-transition: all 2s linear;
+        -o-transition: all 2s linear;
+        transition: all 2s linear;
+        
+        visibility: hidden;
     	opacity: 0;
     }
-    .blur.visivel{
-	visibility: visible;
+    .blur.visible{
+        visibility: visible;
     	opacity: 0.8;
     }
     
@@ -130,7 +130,7 @@
 <div id="loading"><img src="{% static 'media/spinner.gif' %}" width="80" height="79"/></div>
 <section id="photos"></section>
 <div id="highlight">
-    <img class="blur invisivel" />
+    <img class="blur" />
     <div class="content"></div>
 </div>
 </body>

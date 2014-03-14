@@ -46,13 +46,16 @@ function Highlight(selector){
         image.src = picture.highlight
         $this.fadeIn();
         
-        $fundo.addClass("visivel");
+        setTimeout(function(){
+        	$fundo.addClass("visible");
+        }, 500)
+        
     }
     
     this.closePicture = function(){
         $this.fadeOut();
         var $fundo = $(".blur", $this);
-        $fundo.removeClass("visivel");
+        $fundo.removeClass("visible");
     }
 
     init()
