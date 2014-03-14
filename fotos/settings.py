@@ -14,18 +14,14 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 TEMPLATE_DIRS = [os.path.join(BASE_DIR, "fotos/templates")]
 
-STATICFILES_DIRS = [os.path.join(BASE_DIR, "public")]
+STATICFILES_DIRS = [os.path.join(BASE_DIR, "public/static")]
 
 PHOTOS_ROOT_DIR = os.path.join(BASE_DIR, "var/sample/albuns")
 PHOTOS_CACHE_DIR = os.path.join(BASE_DIR, "var/cache/photo")
 
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-        'LOCATION': os.path.join(BASE_DIR, "var/cache/data"),
-        'OPTIONS': {
-            'MAX_ENTRIES': 1000
-        }
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
     }
 }
 

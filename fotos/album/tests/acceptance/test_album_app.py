@@ -49,4 +49,4 @@ class TestAlbumAppAcceptance(TestCase):
         self.assertEquals(pictures[0]["date"], '2013-03-01 14:48:25')
         self.assertEquals(pictures[0]["ratio"], 1.504)
         self.assertEquals(pictures[0]["url"], '/photo/album2/photo_first.JPG')
-        self.assertEquals(pictures[0]["thumb"], '/photo/album2/photo_first.JPG?size=1440')
+        self.assertEquals(pictures[0]["thumb"], '/photo/album2/photo_first.JPG?size=640')
