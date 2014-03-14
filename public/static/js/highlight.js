@@ -26,36 +26,37 @@ function Highlight(selector){
             x = Math.round(($window.width() - newWidth) / 2)
         }
 
-        $content = $this.find(".content")
-        $content.hide()
-        $content.css("background-size", newWidth+"px "+newHeight+"px");
-        $content.css("background-position", x+"px "+y+"px");
+        $highRes = $this.find(".high-res")
+        $highRes.hide()
+        $highRes.css("width", newWidth+"px").css("height", newHeight+"px");
+        $highRes.css("left", x+"px").css("top", y+"px");
 
-        $this.css("background-image", "url("+picture.thumb+")")
-        $this.css("background-size", newWidth+"px "+newHeight+"px");
-        $this.css("background-position", x+"px "+y+"px");
+        var $lowRes = $this.find(".low-res");
+        $lowRes.attr("src", picture.thumb)
+        $lowRes.css("width", newWidth+"px").css("height", newHeight+"px");
+        $lowRes.css("left", x+"px").css("top", y+"px");
         
-        var $fundo = $(".blur", $this);
-        $fundo.attr("src", picture.thumb);
+        var $blur = $(".blur", $this);
+        $blur.attr("src", picture.thumb);
         
         image = new Image()
         image.onload = function(){
-            $content.css("background-image", "url("+this.src+")")
-            $content.fadeIn();
+        	$highRes.attr("src", this.src)
+            $highRes.fadeIn();
         }
         image.src = picture.highlight
         $this.fadeIn();
         
         setTimeout(function(){
-        	$fundo.addClass("visible");
+        	$blur.addClass("visible");
         }, 500)
         
     }
     
     this.closePicture = function(){
         $this.fadeOut();
-        var $fundo = $(".blur", $this);
-        $fundo.removeClass("visible");
+        var $blur = $(".blur", $this);
+        $blur.removeClass("visible");
     }
 
     init()
