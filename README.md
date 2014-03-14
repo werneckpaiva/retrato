@@ -23,5 +23,5 @@ Linear partition: http://www8.cs.umu.se/kurser/TDBAfl/VT06/algorithms/BOOK/BOOK2
 Requirements:
 
 Django==1.6.2
-Pillow=2.3.0
+Pillow==2.3.0
 django-jasmine==0.4.1
