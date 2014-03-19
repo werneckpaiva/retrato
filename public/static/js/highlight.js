@@ -2,6 +2,9 @@ function Highlight(selector){
 
     var self = this
     var $this = selector
+    var opened = false
+    
+    var picture = null;
 
     function init(){
         addEventListeners()
@@ -11,9 +14,21 @@ function Highlight(selector){
         $this.click(function(){
             self.closePicture()
         })
+        $(window).resize(function(){
+            updateDisplay();
+        })
     }
 
-    this.displayPicture = function(picture){
+    this.displayPicture = function(p){
+        picture = p;
+        opened = true
+        updateDisplay();
+    }
+
+    function updateDisplay(){
+        if (!picture || !opened){
+            return;
+        }
         $window = $(window)
         var newWidth = $window.width()
         var newHeight = Math.round(newWidth / picture.ratio)
@@ -52,11 +67,12 @@ function Highlight(selector){
         }, 500)
         
     }
-    
+
     this.closePicture = function(){
         $this.fadeOut();
         var $blur = $(".blur", $this);
         $blur.removeClass("visible");
+        opened = false
     }
 
     init()

@@ -1,11 +1,13 @@
 from django.test import TestCase
+from django.conf import settings
 from fotos.album.models import Album
 
 
 class TestAlbumModelIntegration(TestCase):
 
     def test_create_album(self):
-        album = Album('/')
+        PHOTOS_ROOT_DIR = getattr(settings, 'PHOTOS_ROOT_DIR', '/')
+        album = Album(PHOTOS_ROOT_DIR, '/')
         self.assertEquals(album.get_pictures(), [])
         self.assertEquals(len(album.get_albuns()), 2)
 

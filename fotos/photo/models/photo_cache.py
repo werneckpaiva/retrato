@@ -29,8 +29,9 @@ class PhotoCache(object):
         return checksum.hexdigest()
 
     def generate_filename(self):
-        PHOTOS_CACHE_DIR = getattr(settings, 'PHOTOS_CACHE_DIR', '/')
-        photo_dir = "%s/%s/" % (PHOTOS_CACHE_DIR, self.photo.album)
+        BASE_CACHE_DIR = getattr(settings, 'BASE_CACHE_DIR', '/')
+        photos_cache_dir = os.path.join(BASE_CACHE_DIR, "photo")
+        photo_dir = "%s/%s/" % (photos_cache_dir, self.photo.album)
         if not os.path.exists(photo_dir):
             os.makedirs(photo_dir)
         filename = self.checksum(self.photo.real_filename)

@@ -15,4 +15,8 @@ tmp
 
 var/cache/data/
 var/cache/photo/
-var/ffotos-sample/cache/**/*.JPG
+var/cache/album/
+var/fotos-sample/cache/**/*.JPG
+
+
+db.sqlite3

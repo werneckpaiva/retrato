@@ -1,4 +1,3 @@
-from django.conf import settings
 import os
 from os import listdir
 from os.path import isfile, join, isdir
@@ -11,14 +10,16 @@ class Album(object):
 
     _path = '/'
     _realpath = None
+    _root_folder = None
 
-    def __init__(self, path="/"):
+    def __init__(self, root_folder, path="/"):
         self._path = Album.sanitize_path(path)
+        self._root_folder = root_folder
         self._load()
 
     def _load(self):
-        PHOTOS_ROOT_DIR = getattr(settings, 'PHOTOS_ROOT_DIR', '/')
-        self._realpath = os.path.join(PHOTOS_ROOT_DIR, self._path)
+
+        self._realpath = os.path.join(self._root_folder, self._path)
 
     def get_pictures(self):
         if not isdir(self._realpath):

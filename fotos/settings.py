@@ -17,7 +17,7 @@ TEMPLATE_DIRS = [os.path.join(BASE_DIR, "fotos/templates")]
 STATICFILES_DIRS = [os.path.join(BASE_DIR, "public/static")]
 
 PHOTOS_ROOT_DIR = os.path.join(BASE_DIR, "var/sample/albuns")
-PHOTOS_CACHE_DIR = os.path.join(BASE_DIR, "var/cache/photo")
+BASE_CACHE_DIR = os.path.join(BASE_DIR, "var/cache")
 
 CACHES = {
     'default': {
@@ -25,8 +25,6 @@ CACHES = {
     }
 }
 
-
-JASMINE_TEST_DIRECTORY = os.path.join(BASE_DIR, "fotos/album/tests/js")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
@@ -44,22 +42,24 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = (
 #     'django.contrib.admin',
 #     'django.contrib.auth',
+#     'django.contrib.sessions',
+
     'django.contrib.contenttypes',
-    'django.contrib.sessions',
-#     'django.contrib.messages',
+    'django.contrib.messages',
     'django.contrib.staticfiles',
     'fotos.album',
     'fotos.photo',
-    'django_jasmine'
 )
 
+# JASMINE_TEST_DIRECTORY = os.path.join(BASE_DIR, "fotos/album/tests/js")
+# INSTALLED_APPS += ('django_jasmine', )
+
 MIDDLEWARE_CLASSES = (
-    'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+#     'django.contrib.sessions.middleware.SessionMiddleware',
 #     'django.contrib.auth.middleware.AuthenticationMiddleware',
 #     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
 ROOT_URLCONF = 'fotos.urls'

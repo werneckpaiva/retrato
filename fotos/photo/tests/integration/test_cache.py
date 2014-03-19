@@ -33,8 +33,9 @@ class TestPhotoCacheIntegration(TestCase):
         assert cache_file
         self.assertTrue(cache.is_in_cache())
 
-        PHOTOS_CACHE_DIR = getattr(settings, 'PHOTOS_CACHE_DIR', '/')
-        self.assertTrue(cache_file.startswith(PHOTOS_CACHE_DIR))
+        BASE_CACHE_DIR = getattr(settings, 'BASE_CACHE_DIR', '/')
+        photos_cache_dir = os.path.join(BASE_CACHE_DIR, "photo")
+        self.assertTrue(cache_file.startswith(photos_cache_dir))
         self.assertNotEquals(photo.real_filename, cache_file)
 
     def test_load_from_cache(self):
@@ -49,8 +50,9 @@ class TestPhotoCacheIntegration(TestCase):
         cache_file = cache.get_file()
         assert cache_file
 
-        PHOTOS_CACHE_DIR = getattr(settings, 'PHOTOS_CACHE_DIR', '/')
-        self.assertTrue(cache_file.startswith(PHOTOS_CACHE_DIR))
+        BASE_CACHE_DIR = getattr(settings, 'BASE_CACHE_DIR', '/')
+        photos_cache_dir = os.path.join(BASE_CACHE_DIR, "photo")
+        self.assertTrue(cache_file.startswith(photos_cache_dir))
 
     def test_load_resized_image(self):
         photo = Photo("album2", 'photo_first.JPG')

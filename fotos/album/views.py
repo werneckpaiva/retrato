@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.template import Context, loader
 from django.http import HttpResponse
 import json
@@ -5,6 +6,7 @@ import django
 from django.views.generic.base import View
 from fotos.album.models import Album
 import time
+import os
 
 
 def index(request):
@@ -18,13 +20,23 @@ def index(request):
 class AlbumView(View):
 
     def get(self, request, album_path=''):
-        self.album = Album(album_path)
+        root_folder = self._get_root_folder()
+
+        self.album = Album(root_folder, album_path)
         content = {
             'album': '/%s' % album_path,
             'pictures': self._load_pictures(),
             'albuns': self._load_albuns()
         }
         return HttpResponse(json.dumps(content), content_type="application/json")
+
+    def _get_root_folder(self):
+        if 'django.contrib.admin' in settings.INSTALLED_APPS:
+            BASE_CACHE_DIR = getattr(settings, 'BASE_CACHE_DIR', '/')
+            root_folder = os.path.join(BASE_CACHE_DIR, "album")
+        else:
+            root_folder = getattr(settings, 'PHOTOS_ROOT_DIR', '/')
+        return root_folder
 
     def _load_pictures(self):
         pictures = self.album.get_pictures()
