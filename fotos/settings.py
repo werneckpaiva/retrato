@@ -19,7 +19,7 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, "public/static")]
 
 PHOTOS_ROOT_DIR = os.path.join(BASE_DIR, "var/sample/albuns")
 BASE_CACHE_DIR = os.path.join(BASE_DIR, "var/cache")
-
+USE_ADMIN = False
 
 CACHES = {
     'default': {

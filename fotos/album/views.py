@@ -22,8 +22,11 @@ class AlbumView(View):
         return HttpResponse(json.dumps(content), content_type="application/json")
 
     def _get_root_folder(self):
-        BASE_CACHE_DIR = getattr(settings, 'BASE_CACHE_DIR', '/')
-        root_folder = os.path.join(BASE_CACHE_DIR, "album")
+        if getattr(settings, 'USE_ADMIN', False):
+            BASE_CACHE_DIR = getattr(settings, 'BASE_CACHE_DIR', '/')
+            root_folder = os.path.join(BASE_CACHE_DIR, "album")
+        else:
+            root_folder = getattr(settings, 'PHOTOS_ROOT_DIR', '/')
         return root_folder
 
     def _load_pictures(self):
