@@ -18,8 +18,11 @@ class Album(object):
         self._load()
 
     def _load(self):
-
         self._realpath = os.path.join(self._root_folder, self._path)
+
+    @property
+    def root_folder(self):
+        return self._root_folder
 
     def get_pictures(self):
         if not isdir(self._realpath):
@@ -34,7 +37,7 @@ class Album(object):
             if isfile(realfile) and \
                 extension_re.search(f):
                 pictures_name.append(f)
-        pictures = [Photo(self._path, f) for f in pictures_name]
+        pictures = [Photo(self._root_folder, self._path, f) for f in pictures_name]
         for p in pictures:
             p.load_date_taken()
             p.close_image()

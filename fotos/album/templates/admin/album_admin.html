@@ -1,0 +1,35 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+<head>
+<title>Album Admin</title>
+<link rel="stylesheet" href="{% static 'css/album.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin.css' %}">
+
+<script type="text/javascript" src="{% static 'js/lib/jquery.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/highlight.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/album.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/resize.js' %}"></script>
+<script type="text/javascript">
+
+    $(function(){
+        var highlight = new Highlight($("#highlight"))
+        var albumController = new AlbumController("/admin/album", "/admin/album/data")
+        var album = new AlbumView(albumController, highlight, $("#albuns"), $("#photos"), $("#loading"));
+    })
+
+</script>
+</head>
+<body>
+<div id="loading"><img src="{% static 'media/spinner.gif' %}" width="80" height="79"/></div>
+
+<section id="albuns"></section>
+<section id="photos"></section>
+
+<div id="highlight">
+    <img class="blur" />
+    <img class="large-photo low-res" />
+    <img class="large-photo high-res" />
+</div>
+</body>
+</html>

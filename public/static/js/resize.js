@@ -8,14 +8,15 @@ Resize.prototype.doResize = function(viewWidth, viewHeight){
     var idealHeight = parseInt(viewHeight * this.HEIGHT_PROPORTION)
 
     var sumWidths = this.sumWidth(idealHeight)
-    var rows = Math.round(sumWidths / viewWidth)
+    var rows = Math.ceil(sumWidths / viewWidth)
 
-    if (rows <= 1){
-        // fallback to standard size
-        this.resizeToSameHeight(idealHeight)
-    } else {
+//    if (rows <= 1){
+//        // fallback to standard size
+//        console.log("1 row")
+//        this.resizeToSameHeight(idealHeight)
+//    } else {
         this.resizeUsingLinearPartitions(rows, viewWidth)
-    }
+//    }
 }
 
 Resize.prototype.sumWidth = function(height){

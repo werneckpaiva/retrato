@@ -12,12 +12,14 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
-TEMPLATE_DIRS = [os.path.join(BASE_DIR, "fotos/templates")]
+TEMPLATE_LOADERS = ('django.template.loaders.filesystem.Loader',
+                    'django.template.loaders.app_directories.Loader')
 
 STATICFILES_DIRS = [os.path.join(BASE_DIR, "public/static")]
 
 PHOTOS_ROOT_DIR = os.path.join(BASE_DIR, "var/sample/albuns")
 BASE_CACHE_DIR = os.path.join(BASE_DIR, "var/cache")
+
 
 CACHES = {
     'default': {
@@ -41,8 +43,8 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = (
 #     'django.contrib.admin',
-#     'django.contrib.auth',
-#     'django.contrib.sessions',
+    'django.contrib.auth',
+    'django.contrib.sessions',
 
     'django.contrib.contenttypes',
     'django.contrib.messages',
@@ -57,8 +59,8 @@ INSTALLED_APPS = (
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-#     'django.contrib.sessions.middleware.SessionMiddleware',
-#     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
 #     'django.contrib.messages.middleware.MessageMiddleware',
 )
 

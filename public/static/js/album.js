@@ -1,43 +1,24 @@
-function AlbumPage(h){
+function AlbumController(prefix, dataPrefix){
+
+    this.URL_PREFIX = prefix
+    this.URL_DATA_PREFIX = dataPrefix
 
     var currentAlbum = null
-    var pictures = null
+    
+    var beforeHandler = null
+    var resultHandler = null
+    var failHandler = null
+    
     var self = this
-
-    var highlight = h
-
-    this.run = 0
-
-    URL_PREFIX ="/album"
-    URL_DATA_PREFIX = "/album-data"
 
     function init(){
         addEventListener()
-        changeCurrentAlbum()
     }
 
     function addEventListener(){
-        $(window)
-            .bind('popstate', function(event){
-                changeCurrentAlbum()
-            })
-            .resize(function(){
-                resizePictures(pictures)
-            })
-        
-    }
-
-    function changeCurrentAlbum(){
-        var albumPath = location.pathname
-        albumPath = albumPath.replace(URL_PREFIX, "")
-        if (!albumPath){
-            albumPath = "/"
-        }
-        loadAlbum(albumPath)
-    }
-
-    function changeUrl(album){
-        history.pushState(null, null, URL_PREFIX+album)
+        $(window).bind('popstate', function(event){
+            self.changeCurrentAlbum()
+        })
     }
 
     this.changeAlbum = function(album){
@@ -48,28 +29,113 @@ function AlbumPage(h){
         loadAlbum(album)
     }
 
+    this.changeCurrentAlbum = function(){
+        var albumPath = location.pathname
+        albumPath = albumPath.replace(self.URL_PREFIX, "")
+        if (!albumPath){
+            albumPath = "/"
+        }
+        loadAlbum(albumPath)
+    }
+
+    function changeUrl(album){
+        history.pushState(null, null, self.URL_PREFIX+album)
+    }
+
     function loadAlbum(album){
         if (currentAlbum == album){
             return;
         }
-        cleanContent()
-        $("#loading").show();
+        beforeHandler()
         currentAlbum = album
-        url = URL_DATA_PREFIX + album
+        url = self.URL_DATA_PREFIX + album
+
         $.get(url, function(content) {
-            $("#loading").hide();
-            if (!content){
-                displayInvalidAlbum()
-            } else {
-                pictures = content.pictures
-                displayAlbuns(content.albuns)
-                displayPictures(content.pictures)
+            if (resultHandler){
+                resultHandler(content)
+            }
+        }).fail(function(status){
+            if (failHandler){
+                failHandler(status)
             }
         });
     }
 
+    this.before = function(handler){
+        beforeHandler = handler;
+        return this
+    }
+    
+    this.result = function(handler){
+        resultHandler = handler;
+        return this;
+    }
+
+    this.fail = function(handler){
+        failHandler = handler;
+        return this;
+    }
+
+    this.getCurrentAlbum = function(){
+        return currentAlbum;
+    }
+
+    init()
+}
+
+
+function AlbumView(controller, highlightController, $albumNode, $photoNode, $loadingNode){
+
+    var albumController = controller;
+
+    var $albuns = $albumNode;
+    var $photos = $photoNode;
+    var highlight = highlightController
+    var $loading = $loadingNode
+
+    var pictures = null
+    var self = this
+
+    this.run = 0
+
+    function init(){
+        addEventListener()
+        albumController.changeCurrentAlbum()
+    }
+
+    function addEventListener(){
+        $(window).resize(function(){
+            resizePictures(pictures)
+        })
+        albumController
+            .before(function(){
+                cleanContent()
+                $loading.show();
+            })
+            .result(function(content){
+                onLoadAlbum(content)
+            })
+            .fail(function(status){
+                displayInvalidAlbum()
+            })
+        
+    }
+
+    function onLoadAlbum(content){
+        $loading.hide();
+        if (!content){
+            displayInvalidAlbum()
+        } else {
+            pictures = content.pictures
+            displayAlbuns(content.albuns)
+            displayPictures(content.pictures)
+        }
+    }
+
     function cleanContent(){
+        highlight.closePicture()
         $("#photos").html("")
+        $loading.hide();
     }
 
     function displayAlbuns(albuns){
@@ -79,17 +145,21 @@ function AlbumPage(h){
         }
         html = "<ul>"
         for (i in albuns){
-            fullAlbum = currentAlbum + albuns[i] + "/"
-            html += "<li><a data-album=\""+fullAlbum+"\" href=\""+URL_PREFIX+fullAlbum+"\">"+albuns[i]+"</a></li>"
+            fullAlbum = albumController.getCurrentAlbum() + albuns[i] + "/"
+            html += "<li><a data-album=\""+fullAlbum+"\" href=\""+albumController.URL_PREFIX+fullAlbum+"\">"+albuns[i]+"</a></li>"
         }
         html += "</ul>"
         $("#albuns")
             .html(html)
             .show()
             .find("a").click(function(event){
-                self.changeAlbum($(this).attr("data-album"))
+                albumController.changeAlbum($(this).attr("data-album"))
                 event.preventDefault();
             })
+    }
+
+    function displayInvalidAlbum(){
+        cleanContent()
     }
 
     function displayPictures(pictures){

@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.core.urlresolvers import reverse
 import os
 import re
@@ -10,6 +9,7 @@ from django.http import HttpResponse
 
 class Photo(object):
 
+    base_folder = None
     album = None
     filename = None
     real_filename = None
@@ -22,14 +22,14 @@ class Photo(object):
     date_taken = None
     url = None
 
-    def __init__(self, album, filename):
+    def __init__(self, base_folder, album, filename):
+        self.base_folder = base_folder;
         self.album = album
         self.filename = filename
         self._real_file()
 
     def _real_file(self):
-        PHOTOS_ROOT_DIR = getattr(settings, 'PHOTOS_ROOT_DIR', '/')
-        folder = os.path.join(PHOTOS_ROOT_DIR, self.album)
+        folder = os.path.join(self.base_folder, self.album)
         self.real_filename = os.path.join(folder, self.filename)
 
     def open_image(self):

@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.http import HttpResponse
 from django.views.generic.base import View
 from django.http.response import Http404, HttpResponseNotModified
@@ -32,11 +33,16 @@ class PhotoView(View):
             return None
         parts = photo.split('/')
         if len(parts) == 1:
-            return Photo('', parts[0])
+            return Photo(self.get_photo_base(), '', parts[0])
         else:
             album = '/'.join(parts[:-1])
             filename = parts[-1]
-            return Photo(album, filename)
+            return Photo(self.get_photo_base(), album, filename)
+
+    def get_photo_base(self):
+        BASE_CACHE_DIR = getattr(settings, 'BASE_CACHE_DIR', '/')
+        root_folder = os.path.join(BASE_CACHE_DIR, "album")
+        return root_folder
 
     def check_if_exists(self, photo):
         if not photo or not photo.exists():
