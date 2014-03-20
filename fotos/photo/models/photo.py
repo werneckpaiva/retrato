@@ -1,4 +1,3 @@
-from django.core.urlresolvers import reverse
 import os
 import re
 from PIL import Image
@@ -57,7 +56,6 @@ class Photo(object):
         self.load_image_size()
         self.load_date_taken()
         self.load_name()
-        self.load_url()
 
     def load_date_taken(self):
         self.load_exif()
@@ -84,11 +82,10 @@ class Photo(object):
             self.width = size[1]
             self.height = size[0]
 
-    def load_url(self):
-        photo = '%s/%s' % (self.album, self.filename)
-        photo = re.sub('/+', '/', photo)
-        url = reverse('photo', args=(photo,))
-        self.url = url
+    def relative_url(self):
+        relative_url = '%s/%s' % (self.album, self.filename)
+        relative_url = re.sub('/+', '/', relative_url)
+        return relative_url
 
     def exists(self):
         return os.path.isfile(self.real_filename)

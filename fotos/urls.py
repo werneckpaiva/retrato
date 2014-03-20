@@ -10,7 +10,9 @@ urlpatterns = patterns('',
     url(r'^$', RedirectView.as_view(url='/album/', permanent=True)),
     url(r'^album', include('fotos.album.urls')),
     url(r'^photo', include('fotos.photo.urls')),
+
     url(r'^admin/album', include('fotos.album.admin.urls')),
+    url(r'^admin/photo', include('fotos.photo.admin.urls')),
 
 #     url(r'^jasmine/', include('django_jasmine.urls')),
 )

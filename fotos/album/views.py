@@ -1,3 +1,4 @@
+from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.http import HttpResponse
 import json
@@ -27,20 +28,26 @@ class AlbumView(View):
 
     def _load_pictures(self):
         pictures = self.album.get_pictures()
+        data = []
         for p in pictures:
             p.load_image_data()
             p.close_image()
-        data = [{'name': p.name,
+            url = self._get_photo_url(p)
+            data.append({'name': p.name,
                      'filename':p.filename,
                      'width':p.width,
                      'height':p.height,
                      'ratio': round(float(p.width) / float(p.height), 3),
                      'date': time.strftime('%Y-%m-%d %H:%M:%S', p.date_taken),
-                     'url': p.url,
-                     'thumb': ("%s?size=640" % p.url),
-                     'highlight': ("%s?size=1440" % p.url)} \
-                   for p in pictures]
+                     'url': url,
+                     'thumb': ("%s?size=640" % url),
+                     'highlight': ("%s?size=1440" % url)})
         return data
+
+    def _get_photo_url(self, photo):
+        relative_url = photo.relative_url()
+        url = reverse('photo', args=(relative_url,))
+        return url
 
     def _load_albuns(self):
         return self.album.get_albuns()

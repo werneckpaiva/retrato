@@ -1,7 +1,7 @@
 from django.conf.urls import patterns, url
+from fotos.photo.views import PhotoView
 
-from fotos.photo import views
 
 urlpatterns = patterns('',
-    url(r'^/(?P<photo>.*)$', views.PhotoView.as_view(), name='photo')
+    url(r'^/(?P<photo>.*)$', PhotoView.as_view(), name='photo')
 )

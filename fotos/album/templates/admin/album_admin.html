@@ -15,10 +15,26 @@
     $(function(){
         var highlight = new Highlight($("#highlight"))
         var albumController = new AlbumController("/admin/album", "/admin/album/data")
-        var album = new AlbumView(albumController, highlight, $("#albuns"), $("#photos"), $("#loading"));
+        var album = new AlbumAdminView(albumController, highlight, $("#albuns"), $("#photos"), $("#loading"));
     })
 
 </script>
+<style type="text/css">
+    .star-off{
+        width:50px;
+        height: 50px;
+        float:right;
+        background-image: url({% static 'media/star_off.png' %});
+    }
+
+    .star-off:hover{
+        background-image: url({% static 'media/star_on.png' %});
+    }
+
+    .star span{
+        visibility: hidden;
+    }
+</style>
 </head>
 <body>
 <div id="loading"><img src="{% static 'media/spinner.gif' %}" width="80" height="79"/></div>

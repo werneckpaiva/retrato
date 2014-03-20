@@ -84,14 +84,7 @@ function AlbumController(prefix, dataPrefix){
 }
 
 
-function AlbumView(controller, highlightController, $albumNode, $photoNode, $loadingNode){
-
-    var albumController = controller;
-
-    var $albuns = $albumNode;
-    var $photos = $photoNode;
-    var highlight = highlightController
-    var $loading = $loadingNode
+function AlbumView(albumController, highlight, $albuns, $photos, $loading){
 
     var pictures = null
     var self = this
@@ -105,18 +98,18 @@ function AlbumView(controller, highlightController, $albumNode, $photoNode, $loa
 
     function addEventListener(){
         $(window).resize(function(){
-            resizePictures(pictures)
+            self.resizePictures(pictures)
         })
         albumController
             .before(function(){
-                cleanContent()
+                self.cleanContent()
                 $loading.show();
             })
             .result(function(content){
                 onLoadAlbum(content)
             })
             .fail(function(status){
-                displayInvalidAlbum()
+                self.displayInvalidAlbum()
             })
         
     }
@@ -124,21 +117,21 @@ function AlbumView(controller, highlightController, $albumNode, $photoNode, $loa
     function onLoadAlbum(content){
         $loading.hide();
         if (!content){
-            displayInvalidAlbum()
+            self.displayInvalidAlbum()
         } else {
             pictures = content.pictures
-            displayAlbuns(content.albuns)
-            displayPictures(content.pictures)
+            self.displayAlbuns(content.albuns)
+            self.displayPictures(content.pictures)
         }
     }
 
-    function cleanContent(){
+    this.cleanContent = function(){
         highlight.closePicture()
-        $("#photos").html("")
+        $photos.html("")
         $loading.hide();
     }
 
-    function displayAlbuns(albuns){
+    this.displayAlbuns = function(albuns){
         if (!albuns || albuns.length == 0){
             $("#albuns").html("").hide();
             return;
@@ -158,33 +151,32 @@ function AlbumView(controller, highlightController, $albumNode, $photoNode, $loa
             })
     }
 
-    function displayInvalidAlbum(){
+    this.displayInvalidAlbum = function (){
         cleanContent()
     }
 
-    function displayPictures(pictures){
+    this.displayPictures = function(pictures){
         var resize = new Resize(pictures)
-        resize.doResize($("#photos").width(), $(window).height())
+        resize.doResize($photos.width(), $(window).height())
 
         html = ""
         for (i in pictures){
             var p = pictures[i]
             style=""
-                // : ; 
             html += "<div class=\"photo\" style=\"width: "+(p.newWidth-4)+"px; height: "+(p.newHeight-4)+"px;\"></div>"
         }
-        $("#photos").html(html)
-        lazyLoadPictures(pictures)
+        $photos.html(html)
+        self.lazyLoadPictures(pictures)
     }
 
-    function lazyLoadPictures(pictures){
+    this.lazyLoadPictures = function(pictures){
         var index = 0;
         self.run++
         var run = self.run
         var image = new Image()
         image.onload = function(){
             var url = 
-            $("#photos div:eq("+index+")")
+            $photos.find("div:eq("+index+")")
                 .css("background-image", "url("+this.src+")")
                 .click(function(){
                     highlight.displayPicture($(this).data("picture"))
@@ -196,23 +188,52 @@ function AlbumView(controller, highlightController, $albumNode, $photoNode, $loa
             if (run != self.run || index >= pictures.length){
                 return
             }
-            $("#photos div:eq("+index+")").data("picture", pictures[index])
+            $photos.find("div:eq("+index+")").data("picture", pictures[index])
             image.src = pictures[index].thumb
         }
         loadNextPicture()
     }
 
-    function resizePictures(pictures){
+    this.resizePictures = function(pictures){
         if (!pictures){
             return;
         }
         var resize = new Resize(pictures)
-        resize.doResize($("#photos").width(), $(window).height())
-        $("#photos div").each(function(index, item){
+        resize.doResize($photos.width(), $(window).height())
+        $photos.find("div").each(function(index, item){
             p = pictures[index]
             $(this).css("width", (p.newWidth-4)).css("height", (p.newHeight-4))
         })
     }
 
     init()
+}
+
+function AlbumAdminView(albumController, highlight, $albuns, $photos, $loading){
+
+    var albumView = new AlbumView(albumController, highlight, $albuns, $photos, $loading);
+
+    albumView.displayPictures = function(pictures){
+        var resize = new Resize(pictures)
+        resize.doResize($photos.width(), $(window).height())
+
+        html = ""
+        for (i in pictures){
+            var p = pictures[i]
+            style=""
+            html += "<div class=\"photo\" style=\"width: "+(p.newWidth-4)+"px; height: "+(p.newHeight-4)+"px;\">"
+            html += "<a class=\"star star-off\" href='#'><span>Star</span></a>"
+            html += "</div>"
+        }
+        $photos
+            .html(html)
+            .filter("a.star").click(function(event){
+                alert("...")
+                event.preventDefault();
+            })
+        
+        albumView.lazyLoadPictures(pictures)
+    }
+
+    return albumView
 }
