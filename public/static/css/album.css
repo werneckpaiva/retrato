@@ -21,13 +21,17 @@ a:hover{
     width: 100%;
 }
 
-#photos .photo{
+#photos .photo-container{
     float:left;
     position: relative;
-    background-position: center;
-    background-size: 100% 100%;
     background-color: #fff;
     margin: 2px;
+}
+
+#photos .photo{
+    background-position: center;
+    background-size: 100% 100%;
+    display:none;
 }
 
 #loading {

@@ -4,12 +4,10 @@ function AlbumController(prefix, dataPrefix){
     this.URL_DATA_PREFIX = dataPrefix
 
     var currentAlbum = null
-    
-    var beforeHandler = null
-    var resultHandler = null
-    var failHandler = null
-    
+
     var self = this
+
+    var $eventManager = $({});
 
     function init(){
         addEventListener()
@@ -46,33 +44,31 @@ function AlbumController(prefix, dataPrefix){
         if (currentAlbum == album){
             return;
         }
-        beforeHandler()
+        $eventManager.trigger("before");
         currentAlbum = album
         url = self.URL_DATA_PREFIX + album
 
         $.get(url, function(content) {
-            if (resultHandler){
-                resultHandler(content)
-            }
+            $eventManager.trigger("result", content);
         }).fail(function(status){
-            if (failHandler){
-                failHandler(status)
-            }
+            $eventManager.trigger("fail");
         });
     }
 
     this.before = function(handler){
-        beforeHandler = handler;
+        $eventManager.bind("before", handler)
         return this
     }
     
     this.result = function(handler){
-        resultHandler = handler;
+        $eventManager.bind("result", function(evt, content){
+            handler(content)
+        });
         return this;
     }
 
     this.fail = function(handler){
-        failHandler = handler;
+        $eventManager.bind("fail", handler)
         return this;
     }
 
@@ -162,8 +158,10 @@ function AlbumView(albumController, highlight, $albuns, $photos, $loading){
         html = ""
         for (i in pictures){
             var p = pictures[i]
-            style=""
-            html += "<div class=\"photo\" style=\"width: "+(p.newWidth-4)+"px; height: "+(p.newHeight-4)+"px;\"></div>"
+            var width = (p.newWidth-4);
+            var height = (p.newHeight-4);
+            html += "<div class=\"photo-container\" style=\"width: "+width+"px; height: "+height+"px;\">"
+            html += "<img class=\"photo\" width=\""+width+"\" height=\""+height+"\" /></div>"
         }
         $photos.html(html)
         self.lazyLoadPictures(pictures)
@@ -176,10 +174,11 @@ function AlbumView(albumController, highlight, $albuns, $photos, $loading){
         var image = new Image()
         image.onload = function(){
             var url = 
-            $photos.find("div:eq("+index+")")
-                .css("background-image", "url("+this.src+")")
+            $photos.find(".photo-container:eq("+index+") .photo")
+                .attr("src", this.src)
+                .show()
                 .click(function(){
-                    highlight.displayPicture($(this).data("picture"))
+                    highlight.displayPicture($(this).parent().data("picture"))
                 })
             index++
             loadNextPicture()
@@ -188,7 +187,7 @@ function AlbumView(albumController, highlight, $albuns, $photos, $loading){
             if (run != self.run || index >= pictures.length){
                 return
             }
-            $photos.find("div:eq("+index+")").data("picture", pictures[index])
+            $photos.find(".photo-container:eq("+index+")").data("picture", pictures[index])
             image.src = pictures[index].thumb
         }
         loadNextPicture()
@@ -200,18 +199,31 @@ function AlbumView(albumController, highlight, $albuns, $photos, $loading){
         }
         var resize = new Resize(pictures)
         resize.doResize($photos.width(), $(window).height())
-        $photos.find("div").each(function(index, item){
+        $photos.find(".photo-container").each(function(index, item){
             p = pictures[index]
-            $(this).css("width", (p.newWidth-4)).css("height", (p.newHeight-4))
+            var width = (p.newWidth-5);
+            var height = (p.newHeight-4);
+            $(this).css("width", width).css("height", height)
+            $(this).find(".photo").attr("width", width).attr("height", height)
         })
     }
 
     init()
 }
 
-function AlbumAdminView(albumController, highlight, $albuns, $photos, $loading){
+function AlbumAdminView(albumController, highlight, $albumName, $albuns, $photos, $loading){
 
     var albumView = new AlbumView(albumController, highlight, $albuns, $photos, $loading);
+
+    function init(){
+        addEventListener()
+    }
+
+    function addEventListener(){
+        albumController.result(function(content){
+            $albumName.find(".input").html(content.album);
+        });
+    }
 
     albumView.displayPictures = function(pictures){
         var resize = new Resize(pictures)
@@ -220,20 +232,23 @@ function AlbumAdminView(albumController, highlight, $albuns, $photos, $loading){
         html = ""
         for (i in pictures){
             var p = pictures[i]
-            style=""
-            html += "<div class=\"photo\" style=\"width: "+(p.newWidth-4)+"px; height: "+(p.newHeight-4)+"px;\">"
+            var width = (p.newWidth-4);
+            var height = (p.newHeight-4);
+            html += "<div class=\"photo-container\" style=\"width: "+width+"px; height: "+height+"px;\">"
             html += "<a class=\"star star-off\" href='#'><span>Star</span></a>"
+            html += "<img class=\"photo\" width=\""+width+"\" height=\""+height+"\" />"
             html += "</div>"
         }
         $photos
             .html(html)
-            .filter("a.star").click(function(event){
-                alert("...")
+            .find("a.star").click(function(event){
                 event.preventDefault();
             })
         
         albumView.lazyLoadPictures(pictures)
     }
+
+    init()
 
     return albumView
 }

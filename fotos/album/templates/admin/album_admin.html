@@ -15,30 +15,81 @@
     $(function(){
         var highlight = new Highlight($("#highlight"))
         var albumController = new AlbumController("/admin/album", "/admin/album/data")
-        var album = new AlbumAdminView(albumController, highlight, $("#albuns"), $("#photos"), $("#loading"));
+        var album = new AlbumAdminView(albumController, highlight, $("#album-name"), $("#albuns"), $("#photos"), $("#loading"));
     })
 
 </script>
 <style type="text/css">
-    .star-off{
-        width:50px;
-        height: 50px;
-        float:right;
-        background-image: url({% static 'media/star_off.png' %});
+    .star{
+        margin:5px;
+        width: 2.4em; height: 2.4em;
+        background-size: 100% 100%;
+        background-position: center;
     }
 
-    .star-off:hover{
-        background-image: url({% static 'media/star_on.png' %});
+    .photo-container .star{
+        position:absolute;
+        right: 0px;
     }
 
     .star span{
         visibility: hidden;
     }
+
+    .star-off{
+        background-image: url({% static 'media/star_off.svg' %});
+    }
+
+    .star-off:hover{
+        background-image: url({% static 'media/star_on.svg' %});
+    }
+
+    .star-on{
+        background-image: url({% static 'media/star_on.svg' %});
+    }
+
+    .star-on:hover{
+        background-image: url({% static 'media/star_off.svg' %});
+    }
+
+    #album-name{
+        border: 1px solid #333; 
+        -webkit-border-radius: 10px; 
+        -moz-border-radius: 10px; 
+        border-radius: 10px;
+        background-color: #fff;
+        /* display: inline-block; */
+        padding: 4px;
+    }
+
+    #album-name .input{
+        font-size: 1.3em;
+        border: none;
+        float: left;
+        margin:0px 5px;
+        min-width: 100px;
+    }
+
+    #album-name .star{
+        float: right;
+        margin:0px; 
+        width: 1.6em;
+        height: 1.6em;
+    }
+
+    #album-name:after{
+        clear: both;
+        content:'';
+        display:block;
+    }
 </style>
 </head>
 <body>
 <div id="loading"><img src="{% static 'media/spinner.gif' %}" width="80" height="79"/></div>
-
+<section id="album-name">
+    <span class="input" contenteditable="false"></span>
+    <a class="star star-off" href="#"><span>Star</span></a>
+</section>
 <section id="albuns"></section>
 <section id="photos"></section>
 
