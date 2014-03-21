@@ -158,7 +158,7 @@ function AlbumView(albumController, highlight, $albuns, $photos, $loading){
         html = ""
         for (i in pictures){
             var p = pictures[i]
-            var width = (p.newWidth-4);
+            var width = (p.newWidth-5);
             var height = (p.newHeight-4);
             html += "<div class=\"photo-container\" style=\"width: "+width+"px; height: "+height+"px;\">"
             html += "<img class=\"photo\" width=\""+width+"\" height=\""+height+"\" /></div>"
@@ -232,7 +232,7 @@ function AlbumAdminView(albumController, highlight, $albumName, $albuns, $photos
         html = ""
         for (i in pictures){
             var p = pictures[i]
-            var width = (p.newWidth-4);
+            var width = (p.newWidth-5);
             var height = (p.newHeight-4);
             html += "<div class=\"photo-container\" style=\"width: "+width+"px; height: "+height+"px;\">"
             html += "<a class=\"star star-off\" href='#'><span>Star</span></a>"
