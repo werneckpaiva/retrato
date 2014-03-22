@@ -13,7 +13,8 @@ class TestPhotoCacheIntegration(TestCase):
             os.remove(filename)
 
     def test_create_cache_and_check_if_exists(self):
-        photo = Photo("album2", 'photo_first.JPG')
+        root_folder = getattr(settings, 'PHOTOS_ROOT_DIR', '/')
+        photo = Photo(root_folder, "album2", 'photo_first.JPG')
         cache = PhotoCache(photo)
 
         self._remove_cache(cache.get_filename())
@@ -23,7 +24,8 @@ class TestPhotoCacheIntegration(TestCase):
         self.assertTrue(cache.is_in_cache())
 
     def test_create_and_load_from_cache(self):
-        photo = Photo("album2", 'photo_first.JPG')
+        root_folder = getattr(settings, 'PHOTOS_ROOT_DIR', '/')
+        photo = Photo(root_folder, "album2", 'photo_first.JPG')
         cache = PhotoCache(photo)
 
         self._remove_cache(cache.get_filename())
@@ -39,7 +41,8 @@ class TestPhotoCacheIntegration(TestCase):
         self.assertNotEquals(photo.real_filename, cache_file)
 
     def test_load_from_cache(self):
-        photo = Photo("album2", 'photo_first.JPG')
+        root_folder = getattr(settings, 'PHOTOS_ROOT_DIR', '/')
+        photo = Photo(root_folder, "album2", 'photo_first.JPG')
         cache = PhotoCache(photo)
 
         self._remove_cache(cache.get_filename())
@@ -55,7 +58,8 @@ class TestPhotoCacheIntegration(TestCase):
         self.assertTrue(cache_file.startswith(photos_cache_dir))
 
     def test_load_resized_image(self):
-        photo = Photo("album2", 'photo_first.JPG')
+        root_folder = getattr(settings, 'PHOTOS_ROOT_DIR', '/')
+        photo = Photo(root_folder, "album2", 'photo_first.JPG')
         img = Image.open(photo.real_filename)
         self.assertEquals(img.size[0], 3008)
 
@@ -72,7 +76,8 @@ class TestPhotoCacheIntegration(TestCase):
         self.assertEquals(size[0], 800)
 
     def test_load_rotated_image(self):
-        photo = Photo("album2", 'photo_1_portrait.JPG')
+        root_folder = getattr(settings, 'PHOTOS_ROOT_DIR', '/')
+        photo = Photo(root_folder, "album2", 'photo_1_portrait.JPG')
         img = Image.open(photo.real_filename)
         self.assertTrue(img.size[0] > img.size[1])
 
@@ -88,9 +93,10 @@ class TestPhotoCacheIntegration(TestCase):
         self.assertTrue(img.size[0] < img.size[1])
 
     def test_cache_folder(self):
+        root_folder = getattr(settings, 'PHOTOS_ROOT_DIR', '/')
         album_name = "album2"
         photo_name = 'photo_1_portrait.JPG'
-        photo = Photo(album_name, photo_name)
+        photo = Photo(root_folder, album_name, photo_name)
         cache = PhotoCache(photo)
         cache_file = cache.get_file()
 

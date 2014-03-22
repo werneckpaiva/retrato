@@ -13,7 +13,7 @@
 
     $(function(){
         var highlight = new Highlight($("#highlight"))
-        var albumController = new AlbumController("/album", "/album/data")
+        var albumController = new AlbumController("/album", "/album/api")
         var album = new AlbumView(albumController, highlight, $("#albuns"), $("#photos"), $("#loading"));
     })
 

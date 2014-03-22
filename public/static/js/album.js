@@ -158,7 +158,7 @@ function AlbumView(albumController, highlight, $albuns, $photos, $loading){
         html = ""
         for (i in pictures){
             var p = pictures[i]
-            var width = (p.newWidth-5);
+            var width = (p.newWidth-4);
             var height = (p.newHeight-4);
             html += "<div class=\"photo-container\" style=\"width: "+width+"px; height: "+height+"px;\">"
             html += "<img class=\"photo\" width=\""+width+"\" height=\""+height+"\" /></div>"
@@ -201,7 +201,7 @@ function AlbumView(albumController, highlight, $albuns, $photos, $loading){
         resize.doResize($photos.width(), $(window).height())
         $photos.find(".photo-container").each(function(index, item){
             p = pictures[index]
-            var width = (p.newWidth-5);
+            var width = (p.newWidth-4);
             var height = (p.newHeight-4);
             $(this).css("width", width).css("height", height)
             $(this).find(".photo").attr("width", width).attr("height", height)
@@ -209,46 +209,4 @@ function AlbumView(albumController, highlight, $albuns, $photos, $loading){
     }
 
     init()
-}
-
-function AlbumAdminView(albumController, highlight, $albumName, $albuns, $photos, $loading){
-
-    var albumView = new AlbumView(albumController, highlight, $albuns, $photos, $loading);
-
-    function init(){
-        addEventListener()
-    }
-
-    function addEventListener(){
-        albumController.result(function(content){
-            $albumName.find(".input").html(content.album);
-        });
-    }
-
-    albumView.displayPictures = function(pictures){
-        var resize = new Resize(pictures)
-        resize.doResize($photos.width(), $(window).height())
-
-        html = ""
-        for (i in pictures){
-            var p = pictures[i]
-            var width = (p.newWidth-5);
-            var height = (p.newHeight-4);
-            html += "<div class=\"photo-container\" style=\"width: "+width+"px; height: "+height+"px;\">"
-            html += "<a class=\"star star-off\" href='#'><span>Star</span></a>"
-            html += "<img class=\"photo\" width=\""+width+"\" height=\""+height+"\" />"
-            html += "</div>"
-        }
-        $photos
-            .html(html)
-            .find("a.star").click(function(event){
-                event.preventDefault();
-            })
-        
-        albumView.lazyLoadPictures(pictures)
-    }
-
-    init()
-
-    return albumView
 }

@@ -9,89 +9,31 @@
 <script type="text/javascript" src="{% static 'js/lib/jquery.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/highlight.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/album.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/admin.album.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/resize.js' %}"></script>
 <script type="text/javascript">
 
     $(function(){
         var highlight = new Highlight($("#highlight"))
-        var albumController = new AlbumController("/admin/album", "/admin/album/data")
-        var album = new AlbumAdminView(albumController, highlight, $("#album-name"), $("#albuns"), $("#photos"), $("#loading"));
+        var albumAdminController = new AlbumAdminController("/admin/album", "/admin/album/api")
+        var album = new AlbumAdminView(albumAdminController, highlight, $("#album-name"), $("#albuns"), $("#photos"), $("#loading"));
     })
 
 </script>
 <style type="text/css">
-    .star{
-        margin:5px;
-        width: 2.4em; height: 2.4em;
-        background-size: 100% 100%;
-        background-position: center;
-    }
 
-    .photo-container .star{
-        position:absolute;
-        right: 0px;
-    }
-
-    .star span{
-        visibility: hidden;
-    }
-
-    .star-off{
-        background-image: url({% static 'media/star_off.svg' %});
-    }
-
-    .star-off:hover{
-        background-image: url({% static 'media/star_on.svg' %});
-    }
-
-    .star-on{
-        background-image: url({% static 'media/star_on.svg' %});
-    }
-
-    .star-on:hover{
-        background-image: url({% static 'media/star_off.svg' %});
-    }
-
-    #album-name{
-        border: 1px solid #333; 
-        -webkit-border-radius: 10px; 
-        -moz-border-radius: 10px; 
-        border-radius: 10px;
-        background-color: #fff;
-        /* display: inline-block; */
-        padding: 4px;
-    }
-
-    #album-name .input{
-        font-size: 1.3em;
-        border: none;
-        float: left;
-        margin:0px 5px;
-        min-width: 100px;
-    }
-
-    #album-name .star{
-        float: right;
-        margin:0px; 
-        width: 1.6em;
-        height: 1.6em;
-    }
-
-    #album-name:after{
-        clear: both;
-        content:'';
-        display:block;
-    }
 </style>
 </head>
 <body>
-<div id="loading"><img src="{% static 'media/spinner.gif' %}" width="80" height="79"/></div>
 <section id="album-name">
-    <span class="input" contenteditable="false"></span>
     <a class="star star-off" href="#"><span>Star</span></a>
+    <span class="input" contenteditable="false"></span>
 </section>
-<section id="albuns"></section>
-<section id="photos"></section>
+<div id="contet">
+    <div id="loading"><img src="{% static 'media/spinner.gif' %}" width="80" height="79"/></div>
+    <section id="albuns"></section>
+    <section id="photos"></section>
+</div>
 
 <div id="highlight">
     <img class="blur" />

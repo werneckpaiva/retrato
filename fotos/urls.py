@@ -8,6 +8,7 @@ from django.views.generic.base import RedirectView
 
 urlpatterns = patterns('',
     url(r'^$', RedirectView.as_view(url='/album/', permanent=True)),
+    url(r'^admin/$', RedirectView.as_view(url='/admin/album', permanent=True)),
     url(r'^album', include('fotos.album.urls')),
     url(r'^photo', include('fotos.photo.urls')),
 
