@@ -13,11 +13,12 @@ class AlbumView(View):
     def get(self, request, album_path=''):
         root_folder = self._get_root_folder()
 
-        self.album = Album(root_folder, album_path)
+        album = Album(root_folder, album_path)
         content = {
             'album': '/%s' % album_path,
-            'pictures': self._load_pictures(),
-            'albuns': self._load_albuns()
+            'visibility': album.get_visibility(),
+            'pictures': self._load_pictures(album),
+            'albuns': self._load_albuns(album)
         }
         return HttpResponse(json.dumps(content), content_type="application/json")
 
@@ -29,8 +30,8 @@ class AlbumView(View):
             root_folder = getattr(settings, 'PHOTOS_ROOT_DIR', '/')
         return root_folder
 
-    def _load_pictures(self):
-        pictures = self.album.get_pictures()
+    def _load_pictures(self, album):
+        pictures = album.get_pictures()
         data = []
         for p in pictures:
             p.load_image_data()
@@ -52,5 +53,5 @@ class AlbumView(View):
         url = reverse('photo', args=(relative_url,))
         return url
 
-    def _load_albuns(self):
-        return self.album.get_albuns()
+    def _load_albuns(self, album):
+        return album.get_albuns()

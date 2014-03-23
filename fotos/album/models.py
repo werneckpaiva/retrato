@@ -1,12 +1,17 @@
+from django.conf import settings
 import os
 from os import listdir
 from os.path import isfile, join, isdir
 import re
 import time
 from fotos.photo.models import Photo
+from shutil import rmtree
 
 
 class Album(object):
+
+    VISIBILITY_PUBLIC = "public"
+    VISIBILITY_PRIVATE = "private"
 
     _path = '/'
     _realpath = None
@@ -24,7 +29,7 @@ class Album(object):
     def root_folder(self):
         return self._root_folder
 
-    def get_pictures(self):
+    def get_all_pictures_name(self):
         if not isdir(self._realpath):
             return []
 
@@ -37,6 +42,10 @@ class Album(object):
             if isfile(realfile) and \
                 extension_re.search(f):
                 pictures_name.append(f)
+        return pictures_name
+
+    def get_pictures(self):
+        pictures_name = self.get_all_pictures_name()
         pictures = [Photo(self._root_folder, self._path, f) for f in pictures_name]
         for p in pictures:
             p.load_date_taken()
@@ -69,3 +78,51 @@ class Album(object):
         path = re.sub('\.+\./', '', path, flags=re.IGNORECASE)
         path = re.sub('/+/', '/', path, flags=re.IGNORECASE)
         return path
+
+    def get_visibility(self):
+        virtual_folder = self.get_virtual_album()
+        if os.path.isdir(virtual_folder):
+            return Album.VISIBILITY_PUBLIC
+        else:
+            return Album.VISIBILITY_PRIVATE
+
+    def set_visibility(self, visibility):
+        if visibility == Album.VISIBILITY_PUBLIC:
+            self.make_all_photos_public()
+        elif visibility == Album.VISIBILITY_PRIVATE:
+            self.make_it_private()
+        else:
+            raise Exception('Undefined visibility')
+
+    def make_all_photos_public(self):
+        self.make_it_public()
+        pictures_name = self.get_all_pictures_name()
+        virtual_folder = self.get_virtual_album()
+        for picture in pictures_name:
+            photo_file = os.path.join(self._realpath, picture)
+            virtual_file = os.path.join(virtual_folder, picture)
+            os.symlink(photo_file, virtual_file)
+
+    @classmethod
+    def get_virtual_base_folder(cls):
+        BASE_CACHE_DIR = getattr(settings, 'BASE_CACHE_DIR', '/')
+        album_virtual_folder = os.path.join(BASE_CACHE_DIR, "album")
+        return album_virtual_folder
+
+    def get_virtual_album(self):
+        album_virtual_folder = Album.get_virtual_base_folder()
+        virtual_folder = os.path.join(album_virtual_folder, self._path)
+        return virtual_folder
+
+    def make_it_public(self):
+        virtual_folder = self.get_virtual_album()
+        if not os.path.isdir(virtual_folder):
+            os.makedirs(virtual_folder)
+
+    def make_it_private(self):
+        virtual_folder = self.get_virtual_album()
+        for picture in os.listdir(virtual_folder):
+            virtual_file = os.path.join(virtual_folder, picture)
+            if not os.path.islink(virtual_file):
+                raise Exception('Can\'t make the album private')
+        rmtree(virtual_folder)

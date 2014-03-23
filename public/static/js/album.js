@@ -3,11 +3,12 @@ function AlbumController(prefix, dataPrefix){
     this.URL_PREFIX = prefix
     this.URL_DATA_PREFIX = dataPrefix
 
-    var currentAlbum = null
+    var currentAlbumPath = null
+    this.currentAlbum = null
 
     var self = this
 
-    var $eventManager = $({});
+    this.$eventManager = $({});
 
     function init(){
         addEventListener()
@@ -20,7 +21,7 @@ function AlbumController(prefix, dataPrefix){
     }
 
     this.changeAlbum = function(album){
-        if (currentAlbum == album){
+        if (currentAlbumPath == album){
             return;
         }
         changeUrl(album)
@@ -41,39 +42,40 @@ function AlbumController(prefix, dataPrefix){
     }
 
     function loadAlbum(album){
-        if (currentAlbum == album){
+        if (currentAlbumPath == album){
             return;
         }
-        $eventManager.trigger("before");
-        currentAlbum = album
+        self.$eventManager.trigger("before");
+        currentAlbumPath = album
         url = self.URL_DATA_PREFIX + album
 
         $.get(url, function(content) {
-            $eventManager.trigger("result", content);
+            self.currentAlbum = content
+            self.$eventManager.trigger("result", content);
         }).fail(function(status){
-            $eventManager.trigger("fail");
+            self.$eventManager.trigger("fail");
         });
     }
 
     this.before = function(handler){
-        $eventManager.bind("before", handler)
+        self.$eventManager.bind("before", handler)
         return this
     }
     
     this.result = function(handler){
-        $eventManager.bind("result", function(evt, content){
+        self.$eventManager.bind("result", function(evt, content){
             handler(content)
         });
         return this;
     }
 
     this.fail = function(handler){
-        $eventManager.bind("fail", handler)
+        self.$eventManager.bind("fail", handler)
         return this;
     }
 
-    this.getCurrentAlbum = function(){
-        return currentAlbum;
+    this.getCurrentAlbumPath = function(){
+        return currentAlbumPath;
     }
 
     init()
@@ -134,7 +136,7 @@ function AlbumView(albumController, highlight, $albuns, $photos, $loading){
         }
         html = "<ul>"
         for (i in albuns){
-            fullAlbum = albumController.getCurrentAlbum() + albuns[i] + "/"
+            fullAlbum = albumController.getCurrentAlbumPath() + albuns[i] + "/"
             html += "<li><a data-album=\""+fullAlbum+"\" href=\""+albumController.URL_PREFIX+fullAlbum+"\">"+albuns[i]+"</a></li>"
         }
         html += "</ul>"

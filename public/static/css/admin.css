@@ -18,17 +18,17 @@
     background-image: url(/static/media/star_off.svg);
 }
 
-.star-off:hover{
+/* .star-off:hover{
+    background-image: url(/static/media/star_on.svg);
+} */
+
+.star-on{
     background-image: url(/static/media/star_on.svg);
 }
 
-.star-on{
-    background-image: url({% static 'media/star_on.svg' %});
-}
-
-.star-on:hover{
-    background-image: url({% static 'media/star_off.svg' %});
-}
+/* .star-on:hover{
+    background-image: url(/static/media/star_off.svg);
+} */
 
 #album-name{
     border: 1px solid #333; 

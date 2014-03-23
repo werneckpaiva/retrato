@@ -1,12 +1,16 @@
 function AlbumAdminController(prefix, dataPrefix){
     var controller = new AlbumController(prefix, dataPrefix)
     
-    controller.makeAlbumPrivate = function(){
-        $.post()
-    }
-    
-    controller.makeAlbumPublic = function(){
-        alert("public")
+    controller.changeVisibility = function(visibility){
+        data = {
+            'visibility': visibility
+        }
+        url = controller.URL_DATA_PREFIX + controller.getCurrentAlbumPath()
+        $.post(url, data, function(content) {
+            controller.$eventManager.trigger("visibility.result", content);
+        }).fail(function(status, s){
+            controller.$eventManager.trigger("visibility.fail");
+        });
     }
     
     return controller;
@@ -21,15 +25,34 @@ function AlbumAdminView(albumController, highlight, $albumName, $albuns, $photos
     }
 
     function addEventListener(){
-        albumController.result(function(content){
-            $albumName.find(".input").html(content.album);
+        albumController.result(function(albumData){
+            showAlbumData(albumData)
         });
-        $albumName.find(".star-on").click(function(){
-            albumController.makeAlbumPrivate();
+        $albumName.find(".star").click(function(event){
+            var album = albumController.currentAlbum
+            if (album.visibility == 'public'){
+                albumController.changeVisibility('private');
+            } else {
+                albumController.changeVisibility('public');
+            }
+            event.preventDefault();
         })
-        $albumName.find(".star-off").click(function(){
-            albumController.makeAlbumPublic();
+        albumController.$eventManager.bind('visibility.result', function(event, content){
+            albumController.currentAlbum.visibility = content.visibility
+            showAlbumData(content)
         })
+        albumController.$eventManager.bind('visibility.fail', function(){
+            alert("Can't change album visibility")
+        })
+    }
+
+    function showAlbumData(albumData){
+        $albumName.find(".input").html(albumData.album);
+        if (albumData.visibility == "public"){
+            $("#album-name .star").addClass("star-on").removeClass("star-off")
+        } else {
+            $("#album-name .star").addClass("star-off").removeClass("star-on")
+        }
     }
 
     albumView.displayPictures = function(pictures){
