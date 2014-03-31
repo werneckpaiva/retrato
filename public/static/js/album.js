@@ -61,7 +61,7 @@ function AlbumController(prefix, dataPrefix){
         self.$eventManager.bind("before", handler)
         return this
     }
-    
+
     this.result = function(handler){
         self.$eventManager.bind("result", function(evt, content){
             handler(content)
@@ -109,7 +109,7 @@ function AlbumView(albumController, highlight, $albuns, $photos, $loading){
             .fail(function(status){
                 self.displayInvalidAlbum()
             })
-        
+
     }
 
     function onLoadAlbum(content){
@@ -166,6 +166,8 @@ function AlbumView(albumController, highlight, $albuns, $photos, $loading){
             html += "<img class=\"photo\" width=\""+width+"\" height=\""+height+"\" /></div>"
         }
         $photos.html(html)
+        $photos.attr("data-album-name", albumController.currentAlbum.album.substring(1, albumController.currentAlbum.album.length-1).split("/").join(" / ") )
+
         self.lazyLoadPictures(pictures)
     }
 
@@ -175,7 +177,7 @@ function AlbumView(albumController, highlight, $albuns, $photos, $loading){
         var run = self.run
         var image = new Image()
         image.onload = function(){
-            var url = 
+            var url =
             $photos.find(".photo-container:eq("+index+") .photo")
                 .attr("src", this.src)
                 .show()
