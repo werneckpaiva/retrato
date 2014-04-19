@@ -65,3 +65,17 @@
 #loading{
     top:2.5em;
 }
+
+#slider{
+    width: 300px;
+    margin: 10px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#photos .photo-container, #photos .photo{
+    -webkit-transition: all .5s linear;
+    -moz-transition: all .5s linear;
+    -o-transition: all .5s linear;
+    transition: all .5s linear;
+}

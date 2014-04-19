@@ -5,18 +5,30 @@
 <title>Album Admin</title>
 <link rel="stylesheet" href="{% static 'css/album.css' %}">
 <link rel="stylesheet" href="{% static 'css/admin.css' %}">
+<link rel="stylesheet" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
 
 <script type="text/javascript" src="{% static 'js/lib/jquery.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/highlight.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/album.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/admin.album.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/resize.js' %}"></script>
+ <script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
 <script type="text/javascript">
 
     $(function(){
         var highlight = new Highlight($("#highlight"))
         var albumAdminController = new AlbumAdminController("/admin/album", "/admin/album/api")
         var album = new AlbumAdminView(albumAdminController, highlight, $("#album-name"), $("#albuns"), $("#photos"), $("#loading"));
+        $( "#slider" ).slider({
+            min:0, max:10,
+            slide: function(event, ui){
+                var MIN = .1
+                var MAX = .6
+                var range = MAX - MIN
+                var value = MIN + (range * (ui.value / 10))
+                album.changeProportion(value)
+            }})
+        $("#slider").slider("value", 4)
     })
 
 </script>
@@ -25,10 +37,12 @@
 </style>
 </head>
 <body>
+<div id="admin">
 <section id="album-name">
     <a class="star star-off" href="#"><span>Star</span></a>
     <span class="input" contenteditable="false"></span>
 </section>
+<div id="slider"></div>
 <div id="contet">
     <div id="loading"><img src="{% static 'media/spinner.gif' %}" width="80" height="79"/></div>
     <section id="albuns"></section>
@@ -39,6 +53,7 @@
     <img class="blur" />
     <img class="large-photo low-res" />
     <img class="large-photo high-res" />
+</div>
 </div>
 </body>
 </html>

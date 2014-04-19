@@ -200,6 +200,7 @@ function AlbumView(albumController, highlight, $albuns, $photos, $loading){
             return;
         }
         var resize = new Resize(pictures)
+        resize.HEIGHT_PROPORTION = self.HEIGHT_PROPORTION
         resize.doResize($photos.width(), $(window).height())
         $photos.find(".photo-container").each(function(index, item){
             p = pictures[index]
@@ -210,5 +211,10 @@ function AlbumView(albumController, highlight, $albuns, $photos, $loading){
         })
     }
 
+    this.changeProportion = function(proportion){
+        self.HEIGHT_PROPORTION = proportion
+        self.resizePictures(pictures)
+    }
+    
     init()
 }
