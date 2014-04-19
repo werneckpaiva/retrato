@@ -3,7 +3,7 @@ function Highlight(selector){
     var self = this
     var $this = selector
     var opened = false
-    
+
     var picture = null;
 
     function init(){
@@ -17,6 +17,8 @@ function Highlight(selector){
         $(window).resize(function(){
             updateDisplay();
         })
+
+        $this.find("#photo-details").bind("click", function(e){return false;})
     }
 
     this.displayPicture = function(p){
@@ -50,22 +52,28 @@ function Highlight(selector){
         $lowRes.attr("src", picture.thumb)
         $lowRes.css("width", newWidth+"px").css("height", newHeight+"px");
         $lowRes.css("left", x+"px").css("top", y+"px");
-        
+
         var $blur = $(".blur", $this);
         $blur.attr("src", picture.thumb);
-        
+
         image = new Image()
         image.onload = function(){
-        	$highRes.attr("src", this.src)
+            $highRes.attr("src", this.src)
             $highRes.fadeIn();
         }
         image.src = picture.highlight
         $this.fadeIn();
-        
+
         setTimeout(function(){
-        	$blur.addClass("visible");
+            $blur.addClass("visible");
         }, 500)
-        
+
+        // photo details
+        var $details = $this.find("#photo-details");
+        $details.find(".name").html(picture.name);
+        $details.find(".album").html( $("#photos").attr("data-album-name") );
+        $details.find(".date").html( picture.date.split(" ")[0].split("-").reverse().join("/") );
+
     }
 
     this.closePicture = function(){
