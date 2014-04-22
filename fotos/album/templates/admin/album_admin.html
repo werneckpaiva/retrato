@@ -38,27 +38,17 @@
 </head>
 <body>
 <div id="admin">
-<section id="album-name">
-    <a class="star star-off" href="#"><span>Star</span></a>
-    <span class="input" contenteditable="false"></span>
-</section>
-<div id="slider"></div>
-<div id="contet">
-    <div id="loading"><img src="{% static 'media/spinner.gif' %}" width="80" height="79"/></div>
-    <section id="albuns"></section>
-    <section id="photos"></section>
-</div>
-
-<div id="highlight">
-    <ul id="photo-details" class="photo-details">
-        <li class="item-detail name"></li>
-        <li class="item-detail album">Viagem</li>
-        <li class="item-detail date"></li>
-    </ul>
-    <img class="blur" />
-    <img class="large-photo low-res" />
-    <img class="large-photo high-res" />
-</div>
+    <section id="album-name">
+        <a class="star star-off" href="#"><span>Star</span></a>
+        <span class="input" contenteditable="false"></span>
+    </section>
+    <div id="slider"></div>
+    <div id="contet">
+        <div id="loading"><img src="{% static 'media/spinner.gif' %}" width="80" height="79"/></div>
+        <section id="albuns"></section>
+        <section id="photos"></section>
+    </div>
+    <div id="highlight"></div>
 </div>
 </body>
 </html>

@@ -81,6 +81,14 @@ a:hover{
     position:absolute;
 }
 
+#highlight .low-res, #highlight .high-res {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    widht: 100%;
+    height: 100%;
+}
+
 #highlight .low-res{
     z-index: 2;
     box-shadow: 1px 0 0 0 rgba(255,255,255,0.1) inset,0 0 1px rgba(0,0,0,0.5),0 0 20px rgba(0,0,0,0.5);
@@ -98,7 +106,6 @@ a:hover{
     -o-filter: blur(100px);
     -ms-filter: blur(100px);
     filter: blur(100px);
-    opacity: 0.8;
 
     -webkit-transition: all 2s linear;
     -moz-transition: all 2s linear;
@@ -113,6 +120,14 @@ a:hover{
     visibility: visible;
     opacity: 0.8;
 }
+
+.photo-frame{
+    position:absolute;;
+    width: 100%;
+    height: 100%;
+}
+
+
 
 .photo-details{
     z-index: 1;

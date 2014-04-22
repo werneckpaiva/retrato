@@ -16,7 +16,7 @@ class TestAlbumAppAcceptance(TestCase):
         content = json.loads(response.content)
         self.assert_(content)
         self.assertEquals(content['album'], '/')
-        self.assertEquals(len(content['albuns']), 2)
+        self.assertTrue(len(content['albuns']) >= 2)
         self.assertEquals(content['pictures'], [])
 
     def test_load_test_album__no_pictures(self):

@@ -59,6 +59,8 @@ function AlbumAdminView(albumController, highlight, $albumName, $albuns, $photos
         var resize = new Resize(pictures)
         resize.doResize($photos.width(), $(window).height())
 
+        highlight.setPictures(pictures);
+
         html = ""
         for (i in pictures){
             var p = pictures[i]

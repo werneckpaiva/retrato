@@ -1,10 +1,17 @@
 function Highlight(selector){
 
+    var ANIMATION_DURATION = 2 * 100;
+    
     var self = this
     var $this = selector
     var opened = false
 
-    var picture = null;
+    var pictures = null;
+    var currentPictureIndex = null;
+
+    var currentFrame = null;
+    var prevFrame = null;
+    var nextFrame = null;
 
     function init(){
         addEventListeners()
@@ -17,21 +24,139 @@ function Highlight(selector){
         $(window).resize(function(){
             updateDisplay();
         })
-
-        $this.find("#photo-details").bind("click", function(e){return false;})
+        $('body').keyup(function (event) {
+            if (event.keyCode == 37){
+                self.displayPrevPicture()
+            } else if (event.keyCode == 39){
+                self.displayNextPicture()
+            } else if (event.keyCode == 27){
+                self.closePicture();
+            }
+        });
     }
 
-    this.displayPicture = function(p){
-        picture = p;
+    this.setPictures = function(ps){
+        pictures = ps
+    }
+
+    this.displayPicture = function(index){
+        currentPictureIndex = index;
         opened = true
+        createCurrentHighlight();
+        createLeftHighlight();
+        createRightHighlight();
         updateDisplay();
     }
 
-    function updateDisplay(){
-        if (!picture || !opened){
-            return;
+    // Move from left to right
+    this.displayPrevPicture = function(){
+        $this.find(".large-photo").stop()
+        if (!pictures || currentPictureIndex == 0) return;
+        var newRightPicture = pictures[currentPictureIndex];
+        currentPictureIndex--;
+
+        var newCurrentFrame = prevFrame;
+        newCurrentFrame.removeClass("prev-frame").addClass("current-frame")
+        var newCurrentPicture = pictures[currentPictureIndex]
+        var newCurrentDimension = calculateDimension(newCurrentPicture);
+        newCurrentFrame.find(".large-photo").animate({
+            left: newCurrentDimension.x
+        }, 500, "swing", function(){
+            showBlur(newCurrentFrame, newCurrentPicture);
+            showHighResolution(newCurrentFrame, newCurrentPicture)
+        });
+
+        var newRightFrame = currentFrame
+        newRightFrame.removeClass("current-frame").addClass("next-frame")
+        var newRightDimension = calculateDimensionRight(newRightPicture);
+        newRightFrame.find(".large-photo").animate({
+            left: newRightDimension.x
+        }, 500, "swing");
+        newRightFrame.find(".blur").removeClass("visible");
+
+        nextFrame.remove();
+        nextFrame = currentFrame;
+        currentFrame = prevFrame;
+        prevFrame = null;
+
+        // Set Image to the new Left
+        if (currentPictureIndex > 0){
+            createLeftHighlight()
+            var newLeftPicture = pictures[currentPictureIndex - 1];
+            var dimension = calculateDimensionLeft(newLeftPicture);
+            setPosition(prevFrame, dimension)
+            showLowResolution(prevFrame, newLeftPicture)
         }
-        $window = $(window)
+    }
+
+    // Move from right to left
+    this.displayNextPicture = function(){
+        $this.find(".large-photo").stop()
+        if (!pictures || currentPictureIndex == (pictures.length - 1)) return;
+        var newLeftPicture = pictures[currentPictureIndex];
+        currentPictureIndex++;
+
+        var newCurrentFrame = nextFrame;
+        newCurrentFrame.removeClass("next-frame").addClass("current-frame")
+        var newCurrentPicture = pictures[currentPictureIndex]
+        var newCurrentDimension = calculateDimension(newCurrentPicture);
+        newCurrentFrame.find(".large-photo").animate({
+            left: newCurrentDimension.x
+        }, 500, "swing", function(){
+            showBlur(newCurrentFrame, newCurrentPicture)
+            showHighResolution(newCurrentFrame, newCurrentPicture)
+        });
+
+        var newLeftFrame = currentFrame;
+        newLeftFrame.removeClass("current-frame").addClass("prev-frame")
+        var newLeftDimension = calculateDimensionLeft(newLeftPicture);
+        newLeftFrame.find(".large-photo").animate({
+            left: newLeftDimension.x
+        }, 500, "swing");
+        newLeftFrame.find(".blur").removeClass("visible");
+
+        prevFrame.remove();
+        prevFrame = currentFrame;
+        currentFrame = nextFrame;
+        nextFrame = null;
+
+        // Set Image to the new Right
+        if (currentPictureIndex < (pictures.length - 1)){
+            createRightHighlight()
+            var newRightPicture = pictures[currentPictureIndex + 1];
+            var dimension = calculateDimensionRight(newRightPicture);
+            setPosition(nextFrame, dimension)
+            showLowResolution(nextFrame, newRightPicture)
+        }
+    }
+
+    function createHighlight(){
+        var $frame = $("<div class=\"photo-frame\"><img class=\"blur\" /><div class=\"large-photo\"><img class=\"low-res\" /><img class=\"high-res\"/></div></div>");
+        return $frame;
+    }
+
+    function createCurrentHighlight(){
+        currentFrame = createHighlight();
+        currentFrame.addClass("current-frame")
+        $this.append(currentFrame)
+    }
+
+    function createLeftHighlight(){
+        if (prevFrame) prevFrame.remove()
+        prevFrame = createHighlight();
+        prevFrame.addClass("prev-frame")
+        $this.append(prevFrame)
+    }
+
+    function createRightHighlight(){
+        if (nextFrame) nextFrame.remove()
+        nextFrame = createHighlight();
+        nextFrame.addClass("next-frame")
+        $this.append(nextFrame)
+    }
+
+    function calculateDimension(picture){
+        var $window = $(window)
         var newWidth = $window.width()
         var newHeight = Math.round(newWidth / picture.ratio)
         var x = 0
@@ -42,19 +167,24 @@ function Highlight(selector){
             y = 0;
             x = Math.round(($window.width() - newWidth) / 2)
         }
+        return {newWidth: newWidth, newHeight: newHeight, x:x, y:y}
+    }
 
-        $highRes = $this.find(".high-res")
+    function calculateDimensionLeft(picture){
+        var dimension = calculateDimension(picture);
+        dimension.x = -1 * dimension.newWidth - 50;
+        return dimension
+    }
+
+    function calculateDimensionRight(picture){
+        var dimension = calculateDimension(picture);
+        dimension.x = $(window).width() + 50;
+        return dimension
+    }
+
+    function showHighResolution(frame, picture){
+        var $highRes = frame.find(".high-res")
         $highRes.hide()
-        $highRes.css("width", newWidth+"px").css("height", newHeight+"px");
-        $highRes.css("left", x+"px").css("top", y+"px");
-
-        var $lowRes = $this.find(".low-res");
-        $lowRes.attr("src", picture.thumb)
-        $lowRes.css("width", newWidth+"px").css("height", newHeight+"px");
-        $lowRes.css("left", x+"px").css("top", y+"px");
-
-        var $blur = $(".blur", $this);
-        $blur.attr("src", picture.thumb);
 
         image = new Image()
         image.onload = function(){
@@ -62,26 +192,74 @@ function Highlight(selector){
             $highRes.fadeIn();
         }
         image.src = picture.highlight
-        $this.fadeIn();
+    }
 
+    function showLowResolution(frame, picture){
+        var $lowRes = frame.find(".low-res");
+        $lowRes.attr("src", picture.thumb)
+    }
+
+    function setPosition(frame, dimension){
+        var largePhoto = frame.find(".large-photo")
+        largePhoto.css("left", dimension.x+"px").css("top", dimension.y+"px");
+        largePhoto.css("width", dimension.newWidth+"px").css("height", dimension.newHeight+"px");
+    }
+
+    function showBlur(frame, picture){
+        var $blur = frame.find(".blur");
+        $blur.attr("src", picture.thumb);
         setTimeout(function(){
             $blur.addClass("visible");
         }, 500)
+    }
 
-        // photo details
+    function showInfoDetails(){
         var $details = $this.find("#photo-details");
         $details.find(".name").html(picture.name);
         $details.find(".album").html( $("#photos").attr("data-album-name") );
         $details.find(".date").html( picture.date.split(" ")[0].split("-").reverse().join("/") );
+    }
 
+    function updateDisplay(){
+        if (!opened || !pictures || pictures.length==0) return;
+        if (currentFrame) {
+            var picture = pictures[currentPictureIndex]
+            var dimension = calculateDimension(picture);
+            setPosition(currentFrame, dimension)
+            showLowResolution(currentFrame, picture)
+            showHighResolution(currentFrame, picture)
+            showBlur(currentFrame, picture)
+        }
+        if (prevFrame && currentPictureIndex > 0) {
+            var picture = pictures[currentPictureIndex - 1]
+            var dimension = calculateDimensionLeft(picture);
+            setPosition(prevFrame, dimension);
+            showLowResolution(prevFrame, picture)
+        }
+        if (nextFrame && currentPictureIndex < pictures.length - 1) {
+            var picture = pictures[currentPictureIndex + 1]
+            var dimension = calculateDimensionRight(picture);
+            setPosition(nextFrame, dimension);
+            showLowResolution(nextFrame, picture)
+        }
+        $this.fadeIn("slow");
     }
 
     this.closePicture = function(){
-        $this.fadeOut();
-        var $blur = $(".blur", $this);
-        $blur.removeClass("visible");
+        $this.fadeOut("slow", function(){
+            $this.empty();
+        });
+        currentFrame = null;
+        prevFrame = null;
+        nextFrame = null;
         opened = false
+    }
+
+    this.isOpened = function(){
+        return opened;
     }
 
     init()
 }
+//
+//$this.find("#photo-details").bind("click", function(e){return false;})

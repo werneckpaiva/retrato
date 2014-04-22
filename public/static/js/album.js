@@ -87,7 +87,11 @@ function AlbumView(albumController, highlight, $albuns, $photos, $loading){
     var pictures = null
     var self = this
 
+    var currentPictureIndex = 0;
+
     this.run = 0
+
+    this.HEIGHT_PROPORTION = 0.45
 
     function init(){
         addEventListener()
@@ -109,7 +113,6 @@ function AlbumView(albumController, highlight, $albuns, $photos, $loading){
             .fail(function(status){
                 self.displayInvalidAlbum()
             })
-
     }
 
     function onLoadAlbum(content){
@@ -149,6 +152,11 @@ function AlbumView(albumController, highlight, $albuns, $photos, $loading){
             })
     }
 
+    this.displayPicture = function(index){
+        currentPictureIndex = index
+        highlight.displayPicture(index)
+    }
+
     this.displayInvalidAlbum = function (){
         cleanContent()
     }
@@ -156,6 +164,8 @@ function AlbumView(albumController, highlight, $albuns, $photos, $loading){
     this.displayPictures = function(pictures){
         var resize = new Resize(pictures)
         resize.doResize($photos.width(), $(window).height())
+
+        highlight.setPictures(pictures);
 
         html = ""
         for (i in pictures){
@@ -182,7 +192,7 @@ function AlbumView(albumController, highlight, $albuns, $photos, $loading){
                 .attr("src", this.src)
                 .show()
                 .click(function(){
-                    highlight.displayPicture($(this).parent().data("picture"))
+                    self.displayPicture($(this).parent().data("index"))
                 })
             index++
             loadNextPicture()
@@ -191,7 +201,7 @@ function AlbumView(albumController, highlight, $albuns, $photos, $loading){
             if (run != self.run || index >= pictures.length){
                 return
             }
-            $photos.find(".photo-container:eq("+index+")").data("picture", pictures[index])
+            $photos.find(".photo-container:eq("+index+")").data("index", index)
             image.src = pictures[index].thumb
         }
         loadNextPicture()
@@ -203,7 +213,7 @@ function AlbumView(albumController, highlight, $albuns, $photos, $loading){
         }
         var resize = new Resize(pictures)
         resize.HEIGHT_PROPORTION = self.HEIGHT_PROPORTION
-        resize.doResize($photos.width(), $(window).height())
+        resize.doResize($(window).width(), $(window).height())
         $photos.find(".photo-container").each(function(index, item){
             p = pictures[index]
             var width = (p.newWidth-4);
