@@ -14,19 +14,17 @@ Features
 - NotModified header (HTTP 304) 
 
 
-Inspired by the project http://www.chromatic.io/
+Inspired by the project [http://www.chromatic.io/]
+
 References:
-Linear partition: http://www8.cs.umu.se/kurser/TDBAfl/VT06/algorithms/BOOK/BOOK2/NODE45.HTM
-Óscar López implementation in Python (http://stackoverflow.com/a/7942946)
+* Linear partition: [http://www8.cs.umu.se/kurser/TDBAfl/VT06/algorithms/BOOK/BOOK2/NODE45.HTM]
+* Óscar López implementation in Python [http://stackoverflow.com/a/7942946]
 
 
 Requirements:
-
-Django==1.6.2
-
-Pillow==2.3.0
-
-django-jasmine==0.4.1
+- Django==1.6.2
+- Pillow==2.3.0
+- django-jasmine==0.4.1
 
 Menu:
 http://www.favoritemedium.com/
