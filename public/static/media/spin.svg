@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg id="spinner" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+   width="160px" height="160px" xml:space="preserve" style="stroke: #fff; stroke-width: 9px; stroke-linecap: round;">
+<g>
+        <line x1="50" y1="3.167" x2="50" y2="23.5" opacity="0.2">
+      <animate attributeType="CSS" attributeName="opacity" from="1" to="0.1" dur="1.2s" repeatCount="indefinite" begin="0s" />
+    </line>
+        <line x1="80.102" y1="14.124" x2="67.033" y2="29.7" opacity="0.2">
+      <animate attributeType="CSS" attributeName="opacity" from="1" to="0.1" dur="1.2s" repeatCount="indefinite" begin="0.1333s" />
+    </line>    
+        <line x1="96.121" y1="41.867" x2="76.096" y2="45.398" opacity="0.2">        
+      <animate attributeType="CSS" attributeName="opacity" from="1" to="0.1" dur="1.2s" repeatCount="indefinite" begin="0.2666s" />
+    </line>
+    <line  x1="90.559" y1="73.415" x2="72.949" y2="63.249" opacity="0.2">
+      <animate attributeType="CSS" attributeName="opacity" from="1" to="0.1" dur="1.2s" repeatCount="indefinite" begin="0.4s" />
+    </line>     
+        <line x1="66.018" y1="94.007" x2="59.064" y2="74.901" opacity="0.2">
+      <animate attributeType="CSS" attributeName="opacity" from="1" to="0.1" dur="1.2s" repeatCount="indefinite" begin="0.5333s" />
+    </line>
+    <line x1="33.983" y1="94.007" x2="40.937" y2="74.901" opacity="0.2">
+      <animate attributeType="CSS" attributeName="opacity" from="1" to="0.1" dur="1.2s" repeatCount="indefinite" begin="0.6666s" />
+    </line>     
+        <line x1="9.442" y1="73.417" x2="27.052" y2="63.25" opacity="0.2">
+      <animate attributeType="CSS" attributeName="opacity" from="1" to="0.1" dur="1.2s" repeatCount="indefinite" begin="0.8s" />
+    </line>    
+    <line x1="3.879" y1="41.868" x2="23.904" y2="45.399" opacity="0.2">
+      <animate attributeType="CSS" attributeName="opacity" from="1" to="0.1" dur="1.2s" repeatCount="indefinite" begin="0.9333s" />
+    </line>    
+    <line x1="19.897" y1="14.124" x2="32.966" y2="29.7" opacity="0.2">
+      <animate attributeType="CSS" attributeName="opacity" from="1" to="0.1" dur="1.2s" repeatCount="indefinite" begin="1.0666s" />
+    </line>
+</g>
+</svg>

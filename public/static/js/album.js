@@ -1,7 +1,23 @@
-function AlbumController(prefix, dataPrefix){
+function AlbumPresentationModel(){
 
-    this.URL_PREFIX = prefix
-    this.URL_DATA_PREFIX = dataPrefix
+    this.URL_PREFIX = null;
+    this.URL_DATA_PREFIX = null;
+
+    this.album = null;
+    this.albuns = [];
+    this.pictures = [];
+
+    this.loading = false;
+
+    this.menuActive = false;
+
+    this.highlightOpened = false;
+    this.highlightIndex = null;
+}
+
+function AlbumController(albumPresentationModel){
+
+    this.model = albumPresentationModel;
 
     var currentAlbumPath = null
     this.currentAlbum = null
@@ -30,7 +46,7 @@ function AlbumController(prefix, dataPrefix){
 
     this.changeCurrentAlbum = function(){
         var albumPath = location.pathname
-        albumPath = albumPath.replace(self.URL_PREFIX, "")
+        albumPath = albumPath.replace(self.model.URL_PREFIX, "")
         if (!albumPath){
             albumPath = "/"
         }
@@ -38,7 +54,7 @@ function AlbumController(prefix, dataPrefix){
     }
 
     function changeUrl(album){
-        history.pushState(null, null, self.URL_PREFIX+album)
+        history.pushState(null, null, self.model.URL_PREFIX+album)
     }
 
     function loadAlbum(album){
@@ -47,7 +63,7 @@ function AlbumController(prefix, dataPrefix){
         }
         self.$eventManager.trigger("before");
         currentAlbumPath = album
-        url = self.URL_DATA_PREFIX + album
+        url = self.model.URL_DATA_PREFIX + album
 
         $.get(url, function(content) {
             self.currentAlbum = content
@@ -82,8 +98,10 @@ function AlbumController(prefix, dataPrefix){
 }
 
 
-function AlbumView(albumController, highlight, $albuns, $photos, $loading){
+function AlbumView(albumController, highlight, $albuns, $photos, $loading, albumPresentationModel){
 
+    this.model = albumPresentationModel;
+    
     var pictures = null
     var self = this
 
@@ -100,7 +118,7 @@ function AlbumView(albumController, highlight, $albuns, $photos, $loading){
 
     function addEventListener(){
         $(window).resize(function(){
-            self.resizePictures(pictures)
+            self.resizePictures()
         })
         albumController
             .before(function(){
@@ -140,7 +158,7 @@ function AlbumView(albumController, highlight, $albuns, $photos, $loading){
         html = "<ul>"
         for (i in albuns){
             fullAlbum = albumController.getCurrentAlbumPath() + albuns[i] + "/"
-            html += "<li><a data-album=\""+fullAlbum+"\" href=\""+albumController.URL_PREFIX+fullAlbum+"\">"+albuns[i]+"</a></li>"
+            html += "<li><a data-album=\""+fullAlbum+"\" href=\""+self.model.URL_PREFIX+fullAlbum+"\">"+albuns[i]+"</a></li>"
         }
         html += "</ul>"
         $("#albuns")
@@ -207,13 +225,13 @@ function AlbumView(albumController, highlight, $albuns, $photos, $loading){
         loadNextPicture()
     }
 
-    this.resizePictures = function(pictures){
+    this.resizePictures = function(){
         if (!pictures){
             return;
         }
         var resize = new Resize(pictures)
         resize.HEIGHT_PROPORTION = self.HEIGHT_PROPORTION
-        resize.doResize($(window).width(), $(window).height())
+        resize.doResize($photos.width(), $(window).height())
         $photos.find(".photo-container").each(function(index, item){
             p = pictures[index]
             var width = (p.newWidth-4);
@@ -225,7 +243,7 @@ function AlbumView(albumController, highlight, $albuns, $photos, $loading){
 
     this.changeProportion = function(proportion){
         self.HEIGHT_PROPORTION = proportion
-        self.resizePictures(pictures)
+        self.resizePictures()
     }
     
     init()

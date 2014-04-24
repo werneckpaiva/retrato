@@ -22,7 +22,7 @@ function Highlight(selector){
             self.closePicture()
         })
         $(window).resize(function(){
-            updateDisplay();
+            self.updateDisplay();
         })
         $('body').keyup(function (event) {
             if (event.keyCode == 37){
@@ -45,13 +45,13 @@ function Highlight(selector){
         createCurrentHighlight();
         createLeftHighlight();
         createRightHighlight();
-        updateDisplay();
+        self.updateDisplay();
     }
 
     // Move from left to right
     this.displayPrevPicture = function(){
+        if (!pictures || currentPictureIndex <= 0) return;
         $this.find(".large-photo").stop()
-        if (!pictures || currentPictureIndex == 0) return;
         var newRightPicture = pictures[currentPictureIndex];
         currentPictureIndex--;
 
@@ -92,7 +92,7 @@ function Highlight(selector){
     // Move from right to left
     this.displayNextPicture = function(){
         $this.find(".large-photo").stop()
-        if (!pictures || currentPictureIndex == (pictures.length - 1)) return;
+        if (!pictures || currentPictureIndex >= (pictures.length - 1)) return;
         var newLeftPicture = pictures[currentPictureIndex];
         currentPictureIndex++;
 
@@ -156,7 +156,7 @@ function Highlight(selector){
     }
 
     function calculateDimension(picture){
-        var $window = $(window)
+        var $window = $this
         var newWidth = $window.width()
         var newHeight = Math.round(newWidth / picture.ratio)
         var x = 0
@@ -178,7 +178,7 @@ function Highlight(selector){
 
     function calculateDimensionRight(picture){
         var dimension = calculateDimension(picture);
-        dimension.x = $(window).width() + 50;
+        dimension.x = $this.width() + 50;
         return dimension
     }
 
@@ -220,7 +220,8 @@ function Highlight(selector){
         $details.find(".date").html( picture.date.split(" ")[0].split("-").reverse().join("/") );
     }
 
-    function updateDisplay(){
+    this.updateDisplay = function(){
+        $this.fadeIn("slow");
         if (!opened || !pictures || pictures.length==0) return;
         if (currentFrame) {
             var picture = pictures[currentPictureIndex]
@@ -242,7 +243,6 @@ function Highlight(selector){
             setPosition(nextFrame, dimension);
             showLowResolution(nextFrame, picture)
         }
-        $this.fadeIn("slow");
     }
 
     this.closePicture = function(){
@@ -261,5 +261,3 @@ function Highlight(selector){
 
     init()
 }
-//
-//$this.find("#photo-details").bind("click", function(e){return false;})

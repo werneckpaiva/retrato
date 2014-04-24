@@ -6,33 +6,63 @@
 <link rel="stylesheet" href="{% static 'css/album.css' %}">
 
 <script type="text/javascript" src="{% static 'js/lib/jquery.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/lib/watch.min.js' %}"></script>
+
 <script type="text/javascript" src="{% static 'js/highlight.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/album.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/resize.js' %}"></script>
 <script type="text/javascript">
 
     $(function(){
+        var albumPresentationModel = new AlbumPresentationModel();
+        albumPresentationModel.URL_PREFIX = "/album"
+        albumPresentationModel.URL_DATA_PREFIX = "/album/api"
+
         var highlight = new Highlight($("#highlight"))
-        var albumController = new AlbumController("/album", "/album/api")
-        var album = new AlbumView(albumController, highlight, $("#albuns"), $("#photos"), $("#loading"));
+        var albumController = new AlbumController(albumPresentationModel)
+        var album = new AlbumView(albumController, highlight, $("#albuns"), $("#photos"), $("#loading"), albumPresentationModel); 
+        $("#menu-btn").click(function(){
+            albumPresentationModel.menuActive = ! albumPresentationModel.menuActive;
+        });
+        watch(albumPresentationModel, "menuActive", function(){
+            $("body").toggleClass("menu-open", albumPresentationModel.menuActive);
+            $("#menu").animate({
+                left: albumPresentationModel.menuActive?0:-300
+            }, 300, "swing");
+            $("#content, #highlight").animate({
+                'margin-left': albumPresentationModel.menuActive?300:0
+            }, 300, "swing", function(){
+                album.resizePictures();
+            });
+        })
+/*             this.menuActive
+
+            var width = $("#photos").width();
+            
+            var timer = setInterval(function(){
+                var newWidth = $("#photos").width();
+                if (width != newWidth){
+                    console.log("resizing ...")
+                    
+                    width = newWidth
+                } else {
+                    clearInterval(timer)
+                }
+            }, 310) */
     })
 
 </script>
 </head>
 <body>
-<div id="loading"><img src="{% static 'media/spinner.gif' %}" width="80" height="79"/></div>
-
-<section id="albuns"></section>
-<section id="photos"></section>
-<div id="highlight"></div>
-
-
-<!--     <ul id="photo-details" class="photo-details">
-        <li class="item-detail name"></li>
-        <li class="item-detail album">Viagem</li>
-        <li class="item-detail date"></li>
-    </ul> -->
-
-
+    <menu id="menu" type="context"></menu>
+    <div id="content">
+        <header id="main-header">
+            <div id="loading"></div>
+            <button id="menu-btn"></button>
+        </header>
+        <section id="albuns"></section>
+        <section id="photos"></section>
+        <div id="highlight"></div>
+    </div>
 </body>
 </html>
