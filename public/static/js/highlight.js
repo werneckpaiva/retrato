@@ -45,6 +45,7 @@ function Highlight(selector){
         createCurrentHighlight();
         createLeftHighlight();
         createRightHighlight();
+        createDetails();
         self.updateDisplay();
     }
 
@@ -74,7 +75,7 @@ function Highlight(selector){
         }, 500, "swing");
         newRightFrame.find(".blur").removeClass("visible");
 
-        nextFrame.remove();
+        if (nextFrame) nextFrame.remove();
         nextFrame = currentFrame;
         currentFrame = prevFrame;
         prevFrame = null;
@@ -115,7 +116,7 @@ function Highlight(selector){
         }, 500, "swing");
         newLeftFrame.find(".blur").removeClass("visible");
 
-        prevFrame.remove();
+        if (prevFrame) prevFrame.remove();
         prevFrame = currentFrame;
         currentFrame = nextFrame;
         nextFrame = null;
@@ -131,10 +132,18 @@ function Highlight(selector){
     }
 
     function createHighlight(){
-        var $frame = $("<div class=\"photo-frame\"><img class=\"blur\" /><div class=\"large-photo\"><img class=\"low-res\" /><img class=\"high-res\"/></div></div>");
+        if (window.location.hash=="#canvas"){
+            var $frame = $("<div class=\"photo-frame\"><canvas class=\"box-blur\"/><div class=\"large-photo\"><img class=\"low-res\" /><img class=\"high-res\"/></div></div>");
+        } else {
+            var $frame = $("<div class=\"photo-frame\"><img class=\"blur\" /><div class=\"large-photo\"><img class=\"low-res\" /><img class=\"high-res\"/></div></div>");
+        }
         return $frame;
     }
 
+    function createDetails(){
+        $this.append("<div class=\"photo-details\"><div class='name item-detail'></div><div class='album item-detail'></div><div class='date item-detail'></div></div>")
+    }
+    
     function createCurrentHighlight(){
         currentFrame = createHighlight();
         currentFrame.addClass("current-frame")
@@ -167,7 +176,7 @@ function Highlight(selector){
             y = 0;
             x = Math.round(($window.width() - newWidth) / 2)
         }
-        return {newWidth: newWidth, newHeight: newHeight, x:x, y:y}
+        return {newWidth: newWidth, newHeight: newHeight, x:x, y:y, fullWidth: $window.width(), fullHeight: $window.height()}
     }
 
     function calculateDimensionLeft(picture){
@@ -197,6 +206,7 @@ function Highlight(selector){
     function showLowResolution(frame, picture){
         var $lowRes = frame.find(".low-res");
         $lowRes.attr("src", picture.thumb)
+        showInfoDetails()
     }
 
     function setPosition(frame, dimension){
@@ -206,15 +216,24 @@ function Highlight(selector){
     }
 
     function showBlur(frame, picture){
-        var $blur = frame.find(".blur");
-        $blur.attr("src", picture.thumb);
-        setTimeout(function(){
-            $blur.addClass("visible");
-        }, 500)
+        if (window.location.hash=="#canvas"){
+            setTimeout(function(){
+                blur = frame.find('.box-blur').hide()
+                blur.fadeIn(2000)
+                boxBlurImage(frame.find('.low-res').get(0), blur.get(0), 20, false, 2);
+            }, 500)
+        } else {
+           var $blur = frame.find(".blur");
+            $blur.attr("src", picture.thumb);
+            setTimeout(function(){
+                $blur.addClass("visible");
+            }, 500)
+        }
     }
 
     function showInfoDetails(){
-        var $details = $this.find("#photo-details");
+        var $details = $this.find(".photo-details");
+        var picture = pictures[currentPictureIndex]
         $details.find(".name").html(picture.name);
         $details.find(".album").html( $("#photos").attr("data-album-name") );
         $details.find(".date").html( picture.date.split(" ")[0].split("-").reverse().join("/") );

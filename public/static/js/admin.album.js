@@ -1,11 +1,11 @@
-function AlbumAdminController(prefix, dataPrefix){
-    var controller = new AlbumController(prefix, dataPrefix)
+function AlbumAdminController(albumPresentationModel){
+    var controller = new AlbumController(albumPresentationModel)
     
     controller.changeVisibility = function(visibility){
         data = {
             'visibility': visibility
         }
-        url = controller.URL_DATA_PREFIX + controller.getCurrentAlbumPath()
+        url = albumPresentationModel.URL_DATA_PREFIX + controller.getCurrentAlbumPath()
         $.post(url, data, function(content) {
             controller.$eventManager.trigger("visibility.result", content);
         }).fail(function(status, s){
@@ -16,9 +16,9 @@ function AlbumAdminController(prefix, dataPrefix){
     return controller;
 }
 
-function AlbumAdminView(albumController, highlight, $albumName, $albuns, $photos, $loading){
+function AlbumAdminView(albumController, highlight, $albumName, $albuns, $photos, $loading, albumPresentationModel){
 
-    var albumView = new AlbumView(albumController, highlight, $albuns, $photos, $loading);
+    var albumView = new AlbumView(albumController, highlight, $albuns, $photos, $loading, albumPresentationModel);
 
     function init(){
         addEventListener()

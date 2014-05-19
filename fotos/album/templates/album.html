@@ -7,6 +7,7 @@
 
 <script type="text/javascript" src="{% static 'js/lib/jquery.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/lib/watch.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/lib/fast-blur.js' %}"></script>
 
 <script type="text/javascript" src="{% static 'js/highlight.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/album.js' %}"></script>
@@ -21,10 +22,10 @@
         var highlight = new Highlight($("#highlight"))
         var albumController = new AlbumController(albumPresentationModel)
         var album = new AlbumView(albumController, highlight, $("#albuns"), $("#photos"), $("#loading"), albumPresentationModel); 
-        $("#menu-btn").click(function(){
-            albumPresentationModel.menuActive = ! albumPresentationModel.menuActive;
-        });
-        watch(albumPresentationModel, "menuActive", function(){
+//        $("#menu-btn").click(function(){
+//            albumPresentationModel.menuActive = ! albumPresentationModel.menuActive;
+//        });
+/*         watch(albumPresentationModel, "menuActive", function(){
             $("body").toggleClass("menu-open", albumPresentationModel.menuActive);
             $("#menu").animate({
                 left: albumPresentationModel.menuActive?0:-300
@@ -34,7 +35,7 @@
             }, 300, "swing", function(){
                 album.resizePictures();
             });
-        })
+        }) */
 /*             this.menuActive
 
             var width = $("#photos").width();
@@ -54,12 +55,13 @@
 </script>
 </head>
 <body>
-    <menu id="menu" type="context"></menu>
+    <!-- <menu id="menu" type="context"></menu> -->
     <div id="content">
-        <header id="main-header">
+<!--         <header id="main-header">
             <div id="loading"></div>
             <button id="menu-btn"></button>
-        </header>
+        </header> -->
+        <div id="loading"><img src="{% static 'media/spinner.gif' %}" width="80" height="79"/></div>
         <section id="albuns"></section>
         <section id="photos"></section>
         <div id="highlight"></div>

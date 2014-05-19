@@ -16,9 +16,13 @@
 <script type="text/javascript">
 
     $(function(){
+        var albumPresentationModel = new AlbumPresentationModel();
+        albumPresentationModel.URL_PREFIX = "/admin/album"
+        albumPresentationModel.URL_DATA_PREFIX = "/admin/album/api"
+
         var highlight = new Highlight($("#highlight"))
-        var albumAdminController = new AlbumAdminController("/admin/album", "/admin/album/api")
-        var album = new AlbumAdminView(albumAdminController, highlight, $("#album-name"), $("#albuns"), $("#photos"), $("#loading"));
+        var albumAdminController = new AlbumAdminController(albumPresentationModel)
+        var album = new AlbumAdminView(albumAdminController, highlight, $("#album-name"), $("#albuns"), $("#photos"), $("#loading"), albumPresentationModel);
         $( "#slider" ).slider({
             min:0, max:10,
             slide: function(event, ui){
@@ -32,9 +36,6 @@
     })
 
 </script>
-<style type="text/css">
-
-</style>
 </head>
 <body>
 <div id="admin">
