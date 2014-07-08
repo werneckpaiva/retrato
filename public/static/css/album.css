@@ -22,47 +22,12 @@ a:hover{
     /* margin-top:35px; */
 }
 
-#main-header{
-    background: #000;
-    padding: 5px;
-    position: fixed;
-    top:0px;
-    width:100%;
-    z-index: 10;
-    padding-right: 30px;
-}
-
 #loading{
     background: url("/static/media/loading.gif") no-repeat center;
     width: 25px;
     height: 25px;
     position: absolute;
-    right: 5px;
-}
-
-#menu-btn{
-    background: url("/static/media/menu-icon.svg") no-repeat center transparent;
-    cursor: pointer;
-    width: 25px;
-    height: 25px;
-    border: none;
-}
-
-#menu-btn:focus{
-    outline: none;
-}
-
-#menu{
-    position: fixed;
-    width: 300px;
-    height: 100%;
-    background: #333;
-    margin: 0px;
-    padding: 0px;
-    overflow: hidden;
-    box-shadow: inset -2px 0 8px -1px #111;
-    left: -300px;
-    top: 0px;
+    right: 60px;
 }
 
 #photos{

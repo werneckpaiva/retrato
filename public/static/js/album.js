@@ -7,20 +7,35 @@ function AlbumPresentationModel(){
     this.albuns = [];
     this.pictures = [];
 
-    this.loading = false;
+    this.currentAlbumPath = null;
+    this.currentAlbum = null;
+    this.currentPictureIndex = 0;
 
-    this.menuActive = false;
+    this.loading = false;
 
     this.highlightOpened = false;
     this.highlightIndex = null;
 }
 
+var Loading = {
+    view: null,
+
+    setView: function(view){
+        this.view = view;
+    },
+
+    show: function (){
+        if (this.view) this.view.show()
+    },
+
+    hide: function (){
+        if (this.view) this.view.hide()
+    }
+}
+
 function AlbumController(albumPresentationModel){
 
     this.model = albumPresentationModel;
-
-    var currentAlbumPath = null
-    this.currentAlbum = null
 
     var self = this
 
@@ -37,7 +52,7 @@ function AlbumController(albumPresentationModel){
     }
 
     this.changeAlbum = function(album){
-        if (currentAlbumPath == album){
+        if (self.model.currentAlbumPath == album){
             return;
         }
         changeUrl(album)
@@ -58,17 +73,24 @@ function AlbumController(albumPresentationModel){
     }
 
     function loadAlbum(album){
-        if (currentAlbumPath == album){
+        if (self.model.currentAlbumPath == album){
             return;
         }
+
+        Loading.show();
         self.$eventManager.trigger("before");
-        currentAlbumPath = album
+        self.model.currentAlbumPath = album
         url = self.model.URL_DATA_PREFIX + album
 
         $.get(url, function(content) {
-            self.currentAlbum = content
+
+            self.model.currentAlbum = content
+            self.model.pictures = content.pictures
+
+            Loading.hide();
             self.$eventManager.trigger("result", content);
         }).fail(function(status){
+            Loading.hide();
             self.$eventManager.trigger("fail");
         });
     }
@@ -90,22 +112,15 @@ function AlbumController(albumPresentationModel){
         return this;
     }
 
-    this.getCurrentAlbumPath = function(){
-        return currentAlbumPath;
-    }
-
     init()
 }
 
 
-function AlbumView(albumController, highlight, $albuns, $photos, $loading, albumPresentationModel){
+function AlbumView(albumPresentationModel, albumController, highlight, $albuns, $photos){
 
     this.model = albumPresentationModel;
     
-    var pictures = null
     var self = this
-
-    var currentPictureIndex = 0;
 
     this.run = 0
 
@@ -120,44 +135,43 @@ function AlbumView(albumController, highlight, $albuns, $photos, $loading, album
         $(window).resize(function(){
             self.resizePictures()
         })
-        albumController
-            .before(function(){
+        watch(self.this.model, "pictures", function(){
+            onLoadAlbum()
+        });
+        
+        albumController.before(function(){
                 self.cleanContent()
-                $loading.show();
-            })
-            .result(function(content){
-                onLoadAlbum(content)
             })
             .fail(function(status){
                 self.displayInvalidAlbum()
             })
     }
 
-    function onLoadAlbum(content){
-        $loading.hide();
-        if (!content){
+    function onLoadAlbum(){
+        Loading.hide();
+        if (!self.model.album){
             self.displayInvalidAlbum()
         } else {
-            pictures = content.pictures
-            self.displayAlbuns(content.albuns)
-            self.displayPictures(content.pictures)
+            self.displayAlbuns()
+            self.displayPictures()
         }
     }
 
     this.cleanContent = function(){
         highlight.closePicture()
         $photos.html("")
-        $loading.hide();
+        Loading.hide();
     }
 
-    this.displayAlbuns = function(albuns){
+    this.displayAlbuns = function(){
+        var albuns = self.model.albuns;
         if (!albuns || albuns.length == 0){
             $("#albuns").html("").hide();
             return;
         }
         html = "<ul>"
         for (i in albuns){
-            fullAlbum = albumController.getCurrentAlbumPath() + albuns[i] + "/"
+            fullAlbum = self.model.currentAlbumPath + albuns[i] + "/"
             html += "<li><a data-album=\""+fullAlbum+"\" href=\""+self.model.URL_PREFIX+fullAlbum+"\">"+albuns[i]+"</a></li>"
         }
         html += "</ul>"
@@ -171,7 +185,7 @@ function AlbumView(albumController, highlight, $albuns, $photos, $loading, album
     }
 
     this.displayPicture = function(index){
-        currentPictureIndex = index
+        self.model.currentPictureIndex = index
         highlight.displayPicture(index)
     }
 
@@ -180,23 +194,23 @@ function AlbumView(albumController, highlight, $albuns, $photos, $loading, album
     }
 
     this.displayPictures = function(pictures){
-        var resize = new Resize(pictures)
+        var resize = new Resize(self.model.pictures)
         resize.doResize($photos.width(), $(window).height())
 
-        highlight.setPictures(pictures);
+        highlight.setPictures(self.model.pictures);
 
         html = ""
-        for (i in pictures){
-            var p = pictures[i]
+        for (i in self.model.pictures){
+            var p = self.model.pictures[i]
             var width = (p.newWidth-4);
             var height = (p.newHeight-4);
             html += "<div class=\"photo-container\" style=\"width: "+width+"px; height: "+height+"px;\">"
             html += "<img class=\"photo\" width=\""+width+"\" height=\""+height+"\" /></div>"
         }
         $photos.html(html)
-        $photos.attr("data-album-name", albumController.currentAlbum.album.substring(1, albumController.currentAlbum.album.length-1).split("/").join(" / ") )
+        $photos.attr("data-album-name", self.model.currentAlbum.album.substring(1, self.model.currentAlbum.album.length-1).split("/").join(" / ") )
 
-        self.lazyLoadPictures(pictures)
+        self.lazyLoadPictures(self.model.pictures)
     }
 
     this.lazyLoadPictures = function(pictures){
@@ -226,14 +240,14 @@ function AlbumView(albumController, highlight, $albuns, $photos, $loading, album
     }
 
     this.resizePictures = function(){
-        if (!pictures){
+        if (!self.model.pictures){
             return;
         }
-        var resize = new Resize(pictures)
+        var resize = new Resize(self.model.pictures)
         resize.HEIGHT_PROPORTION = self.HEIGHT_PROPORTION
         resize.doResize($photos.width(), $(window).height())
         $photos.find(".photo-container").each(function(index, item){
-            p = pictures[index]
+            p = self.model.pictures[index]
             var width = (p.newWidth-4);
             var height = (p.newHeight-4);
             $(this).css("width", width).css("height", height)

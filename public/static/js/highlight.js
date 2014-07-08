@@ -1,4 +1,4 @@
-function Highlight(selector){
+function Highlight(model, selector){
 
     var ANIMATION_DURATION = 2 * 100;
     

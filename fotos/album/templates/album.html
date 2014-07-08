@@ -15,52 +15,27 @@
 <script type="text/javascript">
 
     $(function(){
-        var albumPresentationModel = new AlbumPresentationModel();
-        albumPresentationModel.URL_PREFIX = "/album"
-        albumPresentationModel.URL_DATA_PREFIX = "/album/api"
+        var albumModel = new AlbumPresentationModel();
+        albumModel.URL_PREFIX = "/album"
+        albumModel.URL_DATA_PREFIX = "/album/api"
 
-        var highlight = new Highlight($("#highlight"))
-        var albumController = new AlbumController(albumPresentationModel)
-        var album = new AlbumView(albumController, highlight, $("#albuns"), $("#photos"), $("#loading"), albumPresentationModel); 
-//        $("#menu-btn").click(function(){
-//            albumPresentationModel.menuActive = ! albumPresentationModel.menuActive;
-//        });
-/*         watch(albumPresentationModel, "menuActive", function(){
-            $("body").toggleClass("menu-open", albumPresentationModel.menuActive);
-            $("#menu").animate({
-                left: albumPresentationModel.menuActive?0:-300
-            }, 300, "swing");
-            $("#content, #highlight").animate({
-                'margin-left': albumPresentationModel.menuActive?300:0
-            }, 300, "swing", function(){
-                album.resizePictures();
-            });
-        }) */
-/*             this.menuActive
+        Loading.setView(albumModel, $("#loading"))
 
-            var width = $("#photos").width();
-            
-            var timer = setInterval(function(){
-                var newWidth = $("#photos").width();
-                if (width != newWidth){
-                    console.log("resizing ...")
-                    
-                    width = newWidth
-                } else {
-                    clearInterval(timer)
-                }
-            }, 310) */
+        var highlight = new Highlight(albumModel, $("#highlight"))
+        var albumController = new AlbumController(albumModel)
+        var album = new AlbumView(
+                albumModel, 
+                albumController,
+                highlight,
+                $("#albuns"),
+                $("#photos") 
+        ); 
     })
 
 </script>
 </head>
 <body>
-    <!-- <menu id="menu" type="context"></menu> -->
     <div id="content">
-<!--         <header id="main-header">
-            <div id="loading"></div>
-            <button id="menu-btn"></button>
-        </header> -->
         <div id="loading"><img src="{% static 'media/spinner.gif' %}" width="80" height="79"/></div>
         <section id="albuns"></section>
         <section id="photos"></section>
