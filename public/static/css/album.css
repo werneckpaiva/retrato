@@ -7,6 +7,7 @@ body{
     margin:0px;
     background: #000;
     font-family: Verdana;
+    color:#fff;
 }
 
 a{
@@ -28,6 +29,28 @@ a:hover{
     height: 25px;
     position: absolute;
     right: 60px;
+}
+
+#breadcrumb{
+}
+
+#breadcrumb span{
+}
+
+#breadcrumb a{
+    color:#fff;
+}
+
+#breadcrumb a:hover{
+    text-decoration: underline;
+}
+
+#breadcrumb span:after{
+    content:" > ";
+}
+
+#breadcrumb span:last-child:after{
+    content:"";
 }
 
 #photos{

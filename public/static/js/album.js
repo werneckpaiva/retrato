@@ -1,119 +1,279 @@
-function AlbumPresentationModel(){
+var Settings = {
+    URL_PREFIX: "/album",
+    URL_DATA_PREFIX: "/admin/album/api"
+}
 
-    this.URL_PREFIX = null;
-    this.URL_DATA_PREFIX = null;
+var URLUtil = {
+    sanitizeUrl: function(url){
+        url = url.replace(/([^:])[\/]+/g, '$1/');
+        return url
+    }
+}
 
-    this.album = null;
+function AlbumModel(albumDelegate){
+
+    var delegate = albumDelegate
+    var self = this
+
+    this.path = null;
     this.albuns = [];
     this.pictures = [];
-
-    this.currentAlbumPath = null;
-    this.currentAlbum = null;
-    this.currentPictureIndex = 0;
+    this.visibility = null;
 
     this.loading = false;
 
-    this.highlightOpened = false;
-    this.highlightIndex = null;
+    this.selectedPictureIndex = 0;
+    this.highlightOn = false;
+
+    this.loadAlbum = function(albumPath){
+        self.loading = true
+        delegate.get(albumPath, loadAlbumResultHandler, loadAlbumFailHandler);
+    }
+
+    function loadAlbumResultHandler(result){
+        for (var prop in result){
+            if (self.hasOwnProperty(prop)){
+                self[prop] = result[prop];
+            }
+        }
+        console.log(self)
+        self.loading = false
+    }
+
+    function loadAlbumFailHandler(error){
+        self.loading = false
+    }
+
+    return this;
 }
 
-var Loading = {
-    view: null,
+function AlbumDelegate(){
 
-    setView: function(view){
-        this.view = view;
-    },
-
-    show: function (){
-        if (this.view) this.view.show()
-    },
-
-    hide: function (){
-        if (this.view) this.view.hide()
+    this.get = function(albumPath, resultHandler, failHandler){
+        var url = Settings.URL_DATA_PREFIX + albumPath;
+        $.get(url, function(result) {
+            resultHandler(result)
+        }).fail(function(status){
+            failHandler(status)
+        });
     }
 }
 
-function AlbumController(albumPresentationModel){
-
-    this.model = albumPresentationModel;
-
-    var self = this
-
-    this.$eventManager = $({});
+function Loading(model, $view){
 
     function init(){
-        addEventListener()
+        watch(model, "loading", function(){
+            $view.toggle(model.loading);
+        });
+        $view.hide();
     }
 
-    function addEventListener(){
-        $(window).bind('popstate', function(event){
-            self.changeCurrentAlbum()
-        })
+    init();
+}
+
+function AlbumNavigator(model, $view){
+
+    var template = null;
+
+    function init(){
+        watch(model, "albuns", function(){
+            displayAlbuns();
+        });
+
+        template = $("#albumTpl").html();
     }
 
-    this.changeAlbum = function(album){
-        if (self.model.currentAlbumPath == album){
+    function getAlbumUrl(albumName){
+        var url = Settings.URL_PREFIX + model.path + '/' + albumName;
+        url = URLUtil.sanitizeUrl(url);
+        return url;
+    }
+    
+    function displayAlbuns(){
+        $view.empty();
+        if(!model.albuns){
             return;
         }
-        changeUrl(album)
-        loadAlbum(album)
-    }
-
-    this.changeCurrentAlbum = function(){
-        var albumPath = location.pathname
-        albumPath = albumPath.replace(self.model.URL_PREFIX, "")
-        if (!albumPath){
-            albumPath = "/"
+        content = "";
+        for (var i=0; i<model.albuns.length; i++){
+            var albumName = model.albuns[i]
+            content += Mustache.render(template, {
+                url:getAlbumUrl(albumName), 
+                name:albumName});
         }
-        loadAlbum(albumPath)
+        $view.html(content)
     }
 
-    function changeUrl(album){
-        history.pushState(null, null, self.model.URL_PREFIX+album)
+    init();
+}
+
+function AlbumBreadcrumb(model, $view){
+
+    var self = this;
+    var template = null;
+
+    function init(){
+        watch(model, "path", function(){
+            self.updatePath()
+        });
+        template = $("#breadcrumbTpl").html();
     }
 
-    function loadAlbum(album){
-        if (self.model.currentAlbumPath == album){
-            return;
+    function getAlbumUrl(albumName){
+        var url = Settings.URL_PREFIX + model.path + '/' + albumName;
+        url = URLUtil.sanitizeUrl(url);
+        return url;
+    }
+
+    this.updatePath = function(){
+        var parts = model.path.split("/");
+        var partial = '/'
+        var content = Mustache.render(template, {
+            url:URLUtil.sanitizeUrl(Settings.URL_PREFIX + '/'), 
+            name: 'home'
+        });
+        for (var i=1; i<parts.length; i++){
+            partial += parts[i] + '/';
+            var url = URLUtil.sanitizeUrl(Settings.URL_PREFIX + partial);
+            content += Mustache.render(template, {
+                url:url, 
+                name:parts[i]
+            });
         }
-
-        Loading.show();
-        self.$eventManager.trigger("before");
-        self.model.currentAlbumPath = album
-        url = self.model.URL_DATA_PREFIX + album
-
-        $.get(url, function(content) {
-
-            self.model.currentAlbum = content
-            self.model.pictures = content.pictures
-
-            Loading.hide();
-            self.$eventManager.trigger("result", content);
-        }).fail(function(status){
-            Loading.hide();
-            self.$eventManager.trigger("fail");
-        });
-    }
-
-    this.before = function(handler){
-        self.$eventManager.bind("before", handler)
-        return this
-    }
-
-    this.result = function(handler){
-        self.$eventManager.bind("result", function(evt, content){
-            handler(content)
-        });
-        return this;
-    }
-
-    this.fail = function(handler){
-        self.$eventManager.bind("fail", handler)
-        return this;
+        $view.html(content)
     }
 
     init()
 }
+
+
+function AlbumDeepLinking(model){
+
+    var self = this;
+
+    function init(){
+        watch(model, "path", function(){
+            updateUrl()
+        });
+
+        $(window).bind('popstate', function(event){
+            changeAlbumFromUrl()
+        })
+
+        changeAlbumFromUrl()
+    }
+
+    function extractPathFromUrl(){
+        var albumPath = location.pathname
+        albumPath = albumPath.replace(Settings.URL_PREFIX, "")
+        if (!albumPath){
+            albumPath = "/"
+        }
+        return albumPath;
+    }
+
+    function updateUrl(){
+        var albumPath = extractPathFromUrl()
+        if (albumPath == model.path){
+            return;
+        }
+        history.pushState(null, null, model.path)
+    }
+
+    function changeAlbumFromUrl(){
+        var albumPath = extractPathFromUrl();
+        if (albumPath == model.path){
+            return;
+        }
+        console.log(albumPath)
+        model.loadAlbum(albumPath);
+    }
+
+    init();
+}
+
+
+//function AlbumController(albumPresentationModel){
+//
+//    this.model = albumPresentationModel;
+//
+//    var self = this
+//
+//    this.$eventManager = $({});
+//
+//    function init(){
+//        addEventListener()
+//    }
+//
+//    function addEventListener(){
+//        $(window).bind('popstate', function(event){
+//            self.changeCurrentAlbum()
+//        })
+//    }
+//
+//    this.changeAlbum = function(album){
+//        if (self.model.currentAlbumPath == album){
+//            return;
+//        }
+//        changeUrl(album)
+//        loadAlbum(album)
+//    }
+//
+//    this.changeCurrentAlbum = function(){
+//        var albumPath = location.pathname
+//        albumPath = albumPath.replace(self.model.URL_PREFIX, "")
+//        if (!albumPath){
+//            albumPath = "/"
+//        }
+//        loadAlbum(albumPath)
+//    }
+//
+//    function changeUrl(album){
+//        history.pushState(null, null, self.model.URL_PREFIX+album)
+//    }
+//
+//    function loadAlbum(album){
+//        if (self.model.currentAlbumPath == album){
+//            return;
+//        }
+//
+//        Loading.show();
+//        self.$eventManager.trigger("before");
+//        self.model.currentAlbumPath = album
+//        url = self.model.URL_DATA_PREFIX + album
+//
+//        $.get(url, function(content) {
+//
+//            self.model.currentAlbum = content
+//            self.model.pictures = content.pictures
+//
+//            Loading.hide();
+//            self.$eventManager.trigger("result", content);
+//        }).fail(function(status){
+//            Loading.hide();
+//            self.$eventManager.trigger("fail");
+//        });
+//    }
+//
+//    this.before = function(handler){
+//        self.$eventManager.bind("before", handler)
+//        return this
+//    }
+//
+//    this.result = function(handler){
+//        self.$eventManager.bind("result", function(evt, content){
+//            handler(content)
+//        });
+//        return this;
+//    }
+//
+//    this.fail = function(handler){
+//        self.$eventManager.bind("fail", handler)
+//        return this;
+//    }
+//
+//    init()
+//}
 
 
 function AlbumView(albumPresentationModel, albumController, highlight, $albuns, $photos){

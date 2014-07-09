@@ -5,6 +5,7 @@
 <title>Fotos</title>
 <link rel="stylesheet" href="{% static 'css/album.css' %}">
 
+<script type="text/javascript" src="{% static 'js/lib/mustache.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/lib/jquery.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/lib/watch.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/lib/fast-blur.js' %}"></script>
@@ -15,11 +16,21 @@
 <script type="text/javascript">
 
     $(function(){
-        var albumModel = new AlbumPresentationModel();
+        var albumDelegate = new AlbumDelegate();
+        var albumModel = new AlbumModel(albumDelegate);
+
+        var loading = new Loading(albumModel, $("#loading"));
+        var navigator = new AlbumNavigator(albumModel, $("#albuns"));
+        var breadcrumb = new AlbumBreadcrumb(albumModel, $("#breadcrumb"));
+        var deepLinking = new AlbumDeepLinking(albumModel);
+    })
+
+    $(function(){
+/*         var albumModel = new AlbumPresentationModel();
         albumModel.URL_PREFIX = "/album"
         albumModel.URL_DATA_PREFIX = "/album/api"
 
-        Loading.setView(albumModel, $("#loading"))
+        
 
         var highlight = new Highlight(albumModel, $("#highlight"))
         var albumController = new AlbumController(albumModel)
@@ -29,17 +40,21 @@
                 highlight,
                 $("#albuns"),
                 $("#photos") 
-        ); 
+        );  */
     })
 
 </script>
+
+
 </head>
+
 <body>
     <div id="content">
         <div id="loading"><img src="{% static 'media/spinner.gif' %}" width="80" height="79"/></div>
-        <section id="albuns"></section>
+        <section id="breadcrumb"><script id="breadcrumbTpl" type="text/html">{% verbatim %}<span><a href="{{url}}">{{name}}</a></span>{% endverbatim %}</script></section>
+        <section id="albuns"><script id="albumTpl" type="text/html">{% verbatim %}<p><a href="{{url}}">{{name}}</a></p>{% endverbatim %}</script></section>
         <section id="photos"></section>
-        <div id="highlight"></div>
     </div>
 </body>
+
 </html>

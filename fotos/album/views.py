@@ -15,7 +15,7 @@ class AlbumView(View):
 
         album = Album(root_folder, album_path)
         content = {
-            'album': '/%s' % album_path,
+            'path': '/%s' % album_path,
             'visibility': album.get_visibility(),
             'pictures': self._load_pictures(album),
             'albuns': self._load_albuns(album)
