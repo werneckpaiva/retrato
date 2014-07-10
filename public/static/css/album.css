@@ -1,21 +1,15 @@
 html{
     overflow-y: scroll;
+    height: 100%;
 }
 
 body{
     padding:0px;
     margin:0px;
-    background: #000;
-    font-family: Verdana;
+    font-family: "HelveticaNeue", "Helvetica Neue", Helvetica, sans-serif;
     color:#fff;
-}
-
-a{
-    color: #333;
-    text-decoration: none;
-}
-a:hover{
-    color: #fdd;
+    min-height: 100%;
+    height:100%;
 }
 
 #content{
@@ -23,22 +17,20 @@ a:hover{
     /* margin-top:35px; */
 }
 
-#loading{
-    background: url("/static/media/loading.gif") no-repeat center;
-    width: 25px;
-    height: 25px;
-    position: absolute;
-    right: 60px;
-}
+/* Breadcrumb */
 
 #breadcrumb{
+    background: #000;
+    font-size: 1.3em;
+    color:#fff;
+    padding: 5px;
+    position: fixed;
+    width:100%;
+    height:35px;
 }
-
-#breadcrumb span{
-}
-
 #breadcrumb a{
     color:#fff;
+    text-decoration: underline;
 }
 
 #breadcrumb a:hover{
@@ -46,15 +38,67 @@ a:hover{
 }
 
 #breadcrumb span:after{
-    content:" > ";
+    content:" › ";
 }
 
 #breadcrumb span:last-child:after{
     content:"";
 }
 
+#breadcrumb img{
+    vertical-align: text-bottom;
+}
+
+#loading{
+    background: url("/static/media/loading.gif") no-repeat center;
+    position: absolute;
+    z-index: 2;
+}
+
+/* Albuns */
+#albuns{
+    background: #4169E1;
+    height: 100%;
+    width: 30%;
+    text-align: right;
+    padding-right: 15px;
+    float:left;
+    overflow: visible;
+    margin-top: 45px;
+}
+
+#albuns h2{
+    padding:0px;
+    margin: 0px;
+    font-size: 3em;
+    line-height: 2em;
+}
+
+#albuns ul{
+    margin: 0px;
+    paddin: 0px;
+}
+#albuns li{
+    list-style: none;
+    margin:0px;
+    padding: 0px;
+    font-size: 1.2em;
+    line-height: 2em;
+}
+
+#albuns li a{
+    color: #fff;
+    text-decoration: none;
+}
+#albuns li a:hover{
+    text-decoration: underline;
+}
+
+/* Photos */
+
 #photos{
-    width: 100%;
+    float:left;
+    margin-top:45px;
 }
 
 #photos .photo-container{
@@ -69,31 +113,6 @@ a:hover{
     background-size: 100% 100%;
     display:none;
 }
-
-#albuns ul {
-    display: inline-block;
-    margin: 10px;
-    padding: 10px;
-    border: 2px solid #B72E3E;
-    background: #FA7080;
-    border-radius: 5px;
-    font-size: 11pt;
-}
-
-#albuns li{
-    list-style: none;
-    border-bottom: 1px dotted #B72E3E;
-    padding: 5px 0px;
-    margin: 0px;
-    display: block;
-    min-width: 200px;
-}
-
-#albuns li:last-child{
-    padding: 5px 0px 0px 0px;
-    border: none;
-}
-
 
 #highlight{
     width: 100%;

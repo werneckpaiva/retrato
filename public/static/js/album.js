@@ -3,10 +3,14 @@ var Settings = {
     URL_DATA_PREFIX: "/admin/album/api"
 }
 
-var URLUtil = {
+var StringUtil = {
     sanitizeUrl: function(url){
         url = url.replace(/([^:])[\/]+/g, '$1/');
         return url
+    },
+    humanizeName: function(name){
+        name = name.replace("_", " ");
+        return name
     }
 }
 
@@ -26,6 +30,8 @@ function AlbumModel(albumDelegate){
     this.highlightOn = false;
 
     this.loadAlbum = function(albumPath){
+        albumPath = albumPath.replace(Settings.URL_PREFIX, '')
+        console.log(albumPath);
         self.loading = true
         delegate.get(albumPath, loadAlbumResultHandler, loadAlbumFailHandler);
     }
@@ -71,7 +77,7 @@ function Loading(model, $view){
     init();
 }
 
-function AlbumNavigator(model, $view){
+function AlbumNavigator(model, $view, albumTpl){
 
     var template = null;
 
@@ -80,12 +86,12 @@ function AlbumNavigator(model, $view){
             displayAlbuns();
         });
 
-        template = $("#albumTpl").html();
+        template = albumTpl;
     }
 
     function getAlbumUrl(albumName){
         var url = Settings.URL_PREFIX + model.path + '/' + albumName;
-        url = URLUtil.sanitizeUrl(url);
+        url = StringUtil.sanitizeUrl(url);
         return url;
     }
     
@@ -98,49 +104,70 @@ function AlbumNavigator(model, $view){
         for (var i=0; i<model.albuns.length; i++){
             var albumName = model.albuns[i]
             content += Mustache.render(template, {
-                url:getAlbumUrl(albumName), 
-                name:albumName});
+                url: getAlbumUrl(albumName), 
+                name: StringUtil.humanizeName(albumName)});
         }
-        $view.html(content)
+        $view.html(content);
+        enableAsynchronous();
     }
 
+    function enableAsynchronous(){
+        $view.find("a").click(function(){
+            model.loadAlbum($(this).attr("href"))
+            return false;
+        })
+    }
+    
     init();
 }
 
-function AlbumBreadcrumb(model, $view){
+function AlbumBreadcrumb(model, $view, breadcrumbHomeTpl, breadcrumbTpl){
 
     var self = this;
+    var homeTemplate = null;
     var template = null;
 
     function init(){
         watch(model, "path", function(){
             self.updatePath()
         });
-        template = $("#breadcrumbTpl").html();
+        homeTemplate = breadcrumbHomeTpl;
+        template = breadcrumbTpl;
     }
 
     function getAlbumUrl(albumName){
         var url = Settings.URL_PREFIX + model.path + '/' + albumName;
-        url = URLUtil.sanitizeUrl(url);
+        url = StringUtil.sanitizeUrl(url);
         return url;
     }
 
     this.updatePath = function(){
         var parts = model.path.split("/");
+        if (parts[parts.length - 1]==""){
+            parts.pop();
+        }
         var partial = '/'
-        var content = Mustache.render(template, {
-            url:URLUtil.sanitizeUrl(Settings.URL_PREFIX + '/'), 
-            name: 'home'
+        var content = Mustache.render(homeTemplate, {
+            url: StringUtil.sanitizeUrl(Settings.URL_PREFIX + '/')
         });
         for (var i=1; i<parts.length; i++){
             partial += parts[i] + '/';
-            var url = URLUtil.sanitizeUrl(Settings.URL_PREFIX + partial);
-            content += Mustache.render(template, {
-                url:url, 
-                name:parts[i]
-            });
+            params = {}
+            if (i < parts.length - 1){
+                params.url = StringUtil.sanitizeUrl(Settings.URL_PREFIX + partial);
+            }
+            params.name = StringUtil.humanizeName(parts[i])
+            content += Mustache.render(template, params);
         }
         $view.html(content)
+        enableAsynchronous();
+    }
+
+    function enableAsynchronous(){
+        $view.find("a").click(function(){
+            model.loadAlbum($(this).attr("href"));
+            return false;
+        })
     }
 
     init()
@@ -173,11 +200,12 @@ function AlbumDeepLinking(model){
     }
 
     function updateUrl(){
-        var albumPath = extractPathFromUrl()
-        if (albumPath == model.path){
+        var currentAlbumPath = location.pathname
+        var newPath = Settings.URL_PREFIX + model.path
+        if (currentAlbumPath == newPath){
             return;
         }
-        history.pushState(null, null, model.path)
+        history.pushState(null, null, newPath)
     }
 
     function changeAlbumFromUrl(){
@@ -185,7 +213,6 @@ function AlbumDeepLinking(model){
         if (albumPath == model.path){
             return;
         }
-        console.log(albumPath)
         model.loadAlbum(albumPath);
     }
 
@@ -275,150 +302,150 @@ function AlbumDeepLinking(model){
 //    init()
 //}
 
-
-function AlbumView(albumPresentationModel, albumController, highlight, $albuns, $photos){
-
-    this.model = albumPresentationModel;
-    
-    var self = this
-
-    this.run = 0
-
-    this.HEIGHT_PROPORTION = 0.45
-
-    function init(){
-        addEventListener()
-        albumController.changeCurrentAlbum()
-    }
-
-    function addEventListener(){
-        $(window).resize(function(){
-            self.resizePictures()
-        })
-        watch(self.this.model, "pictures", function(){
-            onLoadAlbum()
-        });
-        
-        albumController.before(function(){
-                self.cleanContent()
-            })
-            .fail(function(status){
-                self.displayInvalidAlbum()
-            })
-    }
-
-    function onLoadAlbum(){
-        Loading.hide();
-        if (!self.model.album){
-            self.displayInvalidAlbum()
-        } else {
-            self.displayAlbuns()
-            self.displayPictures()
-        }
-    }
-
-    this.cleanContent = function(){
-        highlight.closePicture()
-        $photos.html("")
-        Loading.hide();
-    }
-
-    this.displayAlbuns = function(){
-        var albuns = self.model.albuns;
-        if (!albuns || albuns.length == 0){
-            $("#albuns").html("").hide();
-            return;
-        }
-        html = "<ul>"
-        for (i in albuns){
-            fullAlbum = self.model.currentAlbumPath + albuns[i] + "/"
-            html += "<li><a data-album=\""+fullAlbum+"\" href=\""+self.model.URL_PREFIX+fullAlbum+"\">"+albuns[i]+"</a></li>"
-        }
-        html += "</ul>"
-        $("#albuns")
-            .html(html)
-            .show()
-            .find("a").click(function(event){
-                albumController.changeAlbum($(this).attr("data-album"))
-                event.preventDefault();
-            })
-    }
-
-    this.displayPicture = function(index){
-        self.model.currentPictureIndex = index
-        highlight.displayPicture(index)
-    }
-
-    this.displayInvalidAlbum = function (){
-        cleanContent()
-    }
-
-    this.displayPictures = function(pictures){
-        var resize = new Resize(self.model.pictures)
-        resize.doResize($photos.width(), $(window).height())
-
-        highlight.setPictures(self.model.pictures);
-
-        html = ""
-        for (i in self.model.pictures){
-            var p = self.model.pictures[i]
-            var width = (p.newWidth-4);
-            var height = (p.newHeight-4);
-            html += "<div class=\"photo-container\" style=\"width: "+width+"px; height: "+height+"px;\">"
-            html += "<img class=\"photo\" width=\""+width+"\" height=\""+height+"\" /></div>"
-        }
-        $photos.html(html)
-        $photos.attr("data-album-name", self.model.currentAlbum.album.substring(1, self.model.currentAlbum.album.length-1).split("/").join(" / ") )
-
-        self.lazyLoadPictures(self.model.pictures)
-    }
-
-    this.lazyLoadPictures = function(pictures){
-        var index = 0;
-        self.run++
-        var run = self.run
-        var image = new Image()
-        image.onload = function(){
-            var url =
-            $photos.find(".photo-container:eq("+index+") .photo")
-                .attr("src", this.src)
-                .show()
-                .click(function(){
-                    self.displayPicture($(this).parent().data("index"))
-                })
-            index++
-            loadNextPicture()
-        }
-        function loadNextPicture(){
-            if (run != self.run || index >= pictures.length){
-                return
-            }
-            $photos.find(".photo-container:eq("+index+")").data("index", index)
-            image.src = pictures[index].thumb
-        }
-        loadNextPicture()
-    }
-
-    this.resizePictures = function(){
-        if (!self.model.pictures){
-            return;
-        }
-        var resize = new Resize(self.model.pictures)
-        resize.HEIGHT_PROPORTION = self.HEIGHT_PROPORTION
-        resize.doResize($photos.width(), $(window).height())
-        $photos.find(".photo-container").each(function(index, item){
-            p = self.model.pictures[index]
-            var width = (p.newWidth-4);
-            var height = (p.newHeight-4);
-            $(this).css("width", width).css("height", height)
-            $(this).find(".photo").attr("width", width).attr("height", height)
-        })
-    }
-
-    this.changeProportion = function(proportion){
-        self.HEIGHT_PROPORTION = proportion
-        self.resizePictures()
-    }
-    
-    init()
-}
+//
+//function AlbumView(albumPresentationModel, albumController, highlight, $albuns, $photos){
+//
+//    this.model = albumPresentationModel;
+//    
+//    var self = this
+//
+//    this.run = 0
+//
+//    this.HEIGHT_PROPORTION = 0.45
+//
+//    function init(){
+//        addEventListener()
+//        albumController.changeCurrentAlbum()
+//    }
+//
+//    function addEventListener(){
+//        $(window).resize(function(){
+//            self.resizePictures()
+//        })
+//        watch(self.this.model, "pictures", function(){
+//            onLoadAlbum()
+//        });
+//        
+//        albumController.before(function(){
+//                self.cleanContent()
+//            })
+//            .fail(function(status){
+//                self.displayInvalidAlbum()
+//            })
+//    }
+//
+//    function onLoadAlbum(){
+//        Loading.hide();
+//        if (!self.model.album){
+//            self.displayInvalidAlbum()
+//        } else {
+//            self.displayAlbuns()
+//            self.displayPictures()
+//        }
+//    }
+//
+//    this.cleanContent = function(){
+//        highlight.closePicture()
+//        $photos.html("")
+//        Loading.hide();
+//    }
+//
+//    this.displayAlbuns = function(){
+//        var albuns = self.model.albuns;
+//        if (!albuns || albuns.length == 0){
+//            $("#albuns").html("").hide();
+//            return;
+//        }
+//        html = "<ul>"
+//        for (i in albuns){
+//            fullAlbum = self.model.currentAlbumPath + albuns[i] + "/"
+//            html += "<li><a data-album=\""+fullAlbum+"\" href=\""+self.model.URL_PREFIX+fullAlbum+"\">"+albuns[i]+"</a></li>"
+//        }
+//        html += "</ul>"
+//        $("#albuns")
+//            .html(html)
+//            .show()
+//            .find("a").click(function(event){
+//                albumController.changeAlbum($(this).attr("data-album"))
+//                event.preventDefault();
+//            })
+//    }
+//
+//    this.displayPicture = function(index){
+//        self.model.currentPictureIndex = index
+//        highlight.displayPicture(index)
+//    }
+//
+//    this.displayInvalidAlbum = function (){
+//        cleanContent()
+//    }
+//
+//    this.displayPictures = function(pictures){
+//        var resize = new Resize(self.model.pictures)
+//        resize.doResize($photos.width(), $(window).height())
+//
+//        highlight.setPictures(self.model.pictures);
+//
+//        html = ""
+//        for (i in self.model.pictures){
+//            var p = self.model.pictures[i]
+//            var width = (p.newWidth-4);
+//            var height = (p.newHeight-4);
+//            html += "<div class=\"photo-container\" style=\"width: "+width+"px; height: "+height+"px;\">"
+//            html += "<img class=\"photo\" width=\""+width+"\" height=\""+height+"\" /></div>"
+//        }
+//        $photos.html(html)
+//        $photos.attr("data-album-name", self.model.currentAlbum.album.substring(1, self.model.currentAlbum.album.length-1).split("/").join(" / ") )
+//
+//        self.lazyLoadPictures(self.model.pictures)
+//    }
+//
+//    this.lazyLoadPictures = function(pictures){
+//        var index = 0;
+//        self.run++
+//        var run = self.run
+//        var image = new Image()
+//        image.onload = function(){
+//            var url =
+//            $photos.find(".photo-container:eq("+index+") .photo")
+//                .attr("src", this.src)
+//                .show()
+//                .click(function(){
+//                    self.displayPicture($(this).parent().data("index"))
+//                })
+//            index++
+//            loadNextPicture()
+//        }
+//        function loadNextPicture(){
+//            if (run != self.run || index >= pictures.length){
+//                return
+//            }
+//            $photos.find(".photo-container:eq("+index+")").data("index", index)
+//            image.src = pictures[index].thumb
+//        }
+//        loadNextPicture()
+//    }
+//
+//    this.resizePictures = function(){
+//        if (!self.model.pictures){
+//            return;
+//        }
+//        var resize = new Resize(self.model.pictures)
+//        resize.HEIGHT_PROPORTION = self.HEIGHT_PROPORTION
+//        resize.doResize($photos.width(), $(window).height())
+//        $photos.find(".photo-container").each(function(index, item){
+//            p = self.model.pictures[index]
+//            var width = (p.newWidth-4);
+//            var height = (p.newHeight-4);
+//            $(this).css("width", width).css("height", height)
+//            $(this).find(".photo").attr("width", width).attr("height", height)
+//        })
+//    }
+//
+//    this.changeProportion = function(proportion){
+//        self.HEIGHT_PROPORTION = proportion
+//        self.resizePictures()
+//    }
+//    
+//    init()
+//}
