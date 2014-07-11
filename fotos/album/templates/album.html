@@ -8,7 +8,8 @@
 <script type="text/javascript" src="{% static 'js/lib/mustache.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/lib/jquery.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/lib/watch.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/lib/fast-blur.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/lib/watch.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/lib/headroom.min.js' %}"></script>
 
 <script type="text/javascript" src="{% static 'js/highlight.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/album.js' %}"></script>
@@ -20,32 +21,23 @@
         var albumModel = new AlbumModel(albumDelegate);
 
         var loading = new Loading(albumModel, $("#loading"));
+
         var navigator = new AlbumNavigator(albumModel, 
-                $("#albuns ul"), 
+                $("#albuns"), 
                 $("#albumTpl").html());
+
         var breadcrumb = new AlbumBreadcrumb(albumModel, 
                 $("#breadcrumb"), 
                 $("#breadcrumbHomeTpl").html(), 
                 $("#breadcrumbTpl").html());
+        var headroom  = new Headroom(document.getElementById("breadcrumb"));
+        headroom.init(); 
+
         var deepLinking = new AlbumDeepLinking(albumModel);
-    })
 
-    $(function(){
-/*         var albumModel = new AlbumPresentationModel();
-        albumModel.URL_PREFIX = "/album"
-        albumModel.URL_DATA_PREFIX = "/album/api"
-
-        
-
-        var highlight = new Highlight(albumModel, $("#highlight"))
-        var albumController = new AlbumController(albumModel)
-        var album = new AlbumView(
-                albumModel, 
-                albumController,
-                highlight,
-                $("#albuns"),
-                $("#photos") 
-        );  */
+        var albumPhotos = new AlbumPhotos(albumModel, 
+                $("#photos"), 
+                $("#photoTpl").html());
     })
 
 </script>
@@ -56,16 +48,24 @@
 <body>
     <div id="content">
         <div id="loading"><img src="{% static 'media/loading.gif' %}" width="40" height="40"/></div>
-        <section id="breadcrumb">
+        <header id="breadcrumb" class="slide">
             <script id="breadcrumbHomeTpl" type="text/html">{% verbatim %}<span><a href="{{url}}">{% endverbatim %}<img src="{% static 'media/home.svg' %}" width="30" height="30" />{% verbatim %}</a></span>{% endverbatim %}</script>
             <script id="breadcrumbTpl" type="text/html">{% verbatim %}<span>{{#url}}<a href="{{url}}">{{/url}}{{name}}{{#url}}</a>{{/url}}</span>{% endverbatim %}</script>
-        </section>
+        </header>
         <section id="albuns">
             <h2>albuns</h2>
-            <ul>
+            <ul class="list">
                 <script id="albumTpl" type="text/html">{% verbatim %}<li><a href="{{url}}">{{name}}</li>{% endverbatim %}</script>
             </ul></section>
-        <section id="photos">xxx</section>
+        <section id="photos">
+            <script id="photoTpl" type="text/html">
+            {% verbatim %}
+                <div class="photo-container" style="width: {{width}}px; height: {{height}}px;">
+                    <img class="photo" width="{{width}}" height="{{height}}" src="{{photoUrl}}" style="display: inline;">
+                </div>
+            {% endverbatim %}
+            </script>
+        </section>
     </div>
 </body>
 

@@ -8,7 +8,6 @@ body{
     margin:0px;
     font-family: "HelveticaNeue", "Helvetica Neue", Helvetica, sans-serif;
     color:#fff;
-    min-height: 100%;
     height:100%;
 }
 
@@ -24,10 +23,37 @@ body{
     font-size: 1.3em;
     color:#fff;
     padding: 5px;
-    position: fixed;
+    z-index: 10000;
     width:100%;
     height:35px;
+    position: fixed;
+    top: 0;
 }
+
+#breadcrumb.slide{
+    -webkit-transition: all .25s ease-in-out;
+    -moz-transition: all .25s ease-in-out;
+    -o-transition: all .25s ease-in-out;
+    transition: all .25s ease-in-out;
+}
+
+#breadcrumb.headroom--top {
+    transition: transform 200ms linear;
+
+}
+
+#breadcrumb.headroom--pinned {
+    -webkit-transform: translateY(0);
+    -ms-transform: translateY(0);
+    transform: translateY(0);
+}
+
+#breadcrumb.headroom--unpinned {
+    -webkit-transform: translateY(-100%);
+    -ms-transform: translateY(-100%);
+    transform: translateY(-100%);
+}
+
 #breadcrumb a{
     color:#fff;
     text-decoration: underline;
@@ -57,25 +83,25 @@ body{
 
 /* Albuns */
 #albuns{
-    background: #4169E1;
-    height: 100%;
-    width: 30%;
-    text-align: right;
-    padding-right: 15px;
     float:left;
-    overflow: visible;
-    margin-top: 45px;
+    width: 30%;
+    background: #4169E1;
+    text-align: right;
+    padding-top: 40px;
+    padding-bottom:100px;
 }
 
 #albuns h2{
     padding:0px;
     margin: 0px;
+    margin-right: 15px;
     font-size: 3em;
     line-height: 2em;
 }
 
 #albuns ul{
     margin: 0px;
+    margin-right: 15px;
     paddin: 0px;
 }
 #albuns li{
@@ -98,7 +124,8 @@ body{
 
 #photos{
     float:left;
-    margin-top:45px;
+    min-height: 300px;
+    width:100%;
 }
 
 #photos .photo-container{

@@ -9,7 +9,7 @@ var StringUtil = {
         return url
     },
     humanizeName: function(name){
-        name = name.replace("_", " ");
+        name = name.replace(/_/g, " ");
         return name
     }
 }
@@ -96,10 +96,13 @@ function AlbumNavigator(model, $view, albumTpl){
     }
     
     function displayAlbuns(){
-        $view.empty();
-        if(!model.albuns){
+        $viewList = $view.find(".list");
+        $viewList.empty();
+        if(!model.albuns || model.albuns.length == 0){
+            $view.hide();
             return;
         }
+        $view.show();
         content = "";
         for (var i=0; i<model.albuns.length; i++){
             var albumName = model.albuns[i]
@@ -107,7 +110,7 @@ function AlbumNavigator(model, $view, albumTpl){
                 url: getAlbumUrl(albumName), 
                 name: StringUtil.humanizeName(albumName)});
         }
-        $view.html(content);
+        $viewList.html(content);
         enableAsynchronous();
     }
 
@@ -214,6 +217,44 @@ function AlbumDeepLinking(model){
             return;
         }
         model.loadAlbum(albumPath);
+    }
+
+    init();
+}
+
+function AlbumPhotos(model, $view, photoTpl){
+
+    var template = null;
+
+    function init(){
+        watch(model, "pictures", function(){
+            displayPictures();
+        });
+
+        template = photoTpl;
+    }
+
+    function displayPictures(){
+        $view.empty();
+        if(!model.pictures || model.pictures.length == 0){
+            $view.hide();
+            return;
+        }
+        $view.show();
+
+        var resize = new Resize(model.pictures);
+        resize.doResize($view.width(), $(window).height());
+
+        content = "";
+        for (var i=0; i<model.pictures.length; i++){
+            var p = model.pictures[i]
+            content += Mustache.render(template, {
+                width: p.newWidth-4, 
+                height: p.newHeight-4,
+                photoUrl: p.thumb 
+            });
+        }
+        $view.html(content);
     }
 
     init();
