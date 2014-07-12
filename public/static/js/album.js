@@ -26,8 +26,7 @@ function AlbumModel(albumDelegate){
 
     this.loading = false;
 
-    this.selectedPictureIndex = 0;
-    this.highlightOn = false;
+    this.selectedPictureIndex = null;
 
     this.loadAlbum = function(albumPath){
         albumPath = albumPath.replace(Settings.URL_PREFIX, '')
@@ -65,9 +64,12 @@ function AlbumDelegate(){
     }
 }
 
-function Loading(model, $view){
+function Loading(model, conf){
+
+    var $view = null
 
     function init(){
+        $view = conf.view;
         watch(model, "loading", function(){
             $view.toggle(model.loading);
         });
@@ -77,16 +79,21 @@ function Loading(model, $view){
     init();
 }
 
-function AlbumNavigator(model, $view, albumTpl){
+function AlbumNavigator(model, conf){
 
     var template = null;
+    var $view = null;
+    var $viewList = null;
 
     function init(){
+        $view = conf.view;
+        template = conf.template;
+        $viewList = (conf.listClass)? $view.find(conf.listClass) : $view
+
         watch(model, "albuns", function(){
             displayAlbuns();
         });
-
-        template = albumTpl;
+        
     }
 
     function getAlbumUrl(albumName){
@@ -96,8 +103,6 @@ function AlbumNavigator(model, $view, albumTpl){
     }
     
     function displayAlbuns(){
-        $viewList = $view.find(".list");
-        $viewList.empty();
         if(!model.albuns || model.albuns.length == 0){
             $view.hide();
             return;
@@ -111,12 +116,16 @@ function AlbumNavigator(model, $view, albumTpl){
                 name: StringUtil.humanizeName(albumName)});
         }
         $viewList.html(content);
+        $viewList.slideDown();
         enableAsynchronous();
     }
 
     function enableAsynchronous(){
         $view.find("a").click(function(){
-            model.loadAlbum($(this).attr("href"))
+            var $link = $(this);
+//            $viewList.slideUp(function(){
+                model.loadAlbum($link.attr("href"))
+//            });
             return false;
         })
     }
@@ -124,18 +133,24 @@ function AlbumNavigator(model, $view, albumTpl){
     init();
 }
 
-function AlbumBreadcrumb(model, $view, breadcrumbHomeTpl, breadcrumbTpl){
+function AlbumBreadcrumb(model, conf){
 
     var self = this;
-    var homeTemplate = null;
+
+    var $view = null;
+    var $viewList = null;
+    var templateHome = null;
     var template = null;
 
     function init(){
+        $view = conf.view;
+        $viewList = (conf.listClass)? $view.find(conf.listClass) : $view
+        templateHome = conf.templateHome
+        template = conf.template
+        
         watch(model, "path", function(){
             self.updatePath()
         });
-        homeTemplate = breadcrumbHomeTpl;
-        template = breadcrumbTpl;
     }
 
     function getAlbumUrl(albumName){
@@ -150,7 +165,7 @@ function AlbumBreadcrumb(model, $view, breadcrumbHomeTpl, breadcrumbTpl){
             parts.pop();
         }
         var partial = '/'
-        var content = Mustache.render(homeTemplate, {
+        var content = Mustache.render(templateHome, {
             url: StringUtil.sanitizeUrl(Settings.URL_PREFIX + '/')
         });
         for (var i=1; i<parts.length; i++){
@@ -162,12 +177,12 @@ function AlbumBreadcrumb(model, $view, breadcrumbHomeTpl, breadcrumbTpl){
             params.name = StringUtil.humanizeName(parts[i])
             content += Mustache.render(template, params);
         }
-        $view.html(content)
+        $viewList.html(content)
         enableAsynchronous();
     }
 
     function enableAsynchronous(){
-        $view.find("a").click(function(){
+        $viewList.find("a").click(function(){
             model.loadAlbum($(this).attr("href"));
             return false;
         })
@@ -222,20 +237,25 @@ function AlbumDeepLinking(model){
     init();
 }
 
-function AlbumPhotos(model, $view, photoTpl){
+function AlbumPhotos(model, conf){
 
+    var $view = null;
+    var $viewList = null;
     var template = null;
-
+    var currentWidth = 0;
+    
     function init(){
+        $view = conf.view;
+        $viewList = (conf.listClass)? $view.find(conf.listClass) : $view
+        template = conf.template
+        
         watch(model, "pictures", function(){
             displayPictures();
         });
-
-        template = photoTpl;
     }
 
     function displayPictures(){
-        $view.empty();
+        $viewList.empty();
         if(!model.pictures || model.pictures.length == 0){
             $view.hide();
             return;
@@ -243,18 +263,50 @@ function AlbumPhotos(model, $view, photoTpl){
         $view.show();
 
         var resize = new Resize(model.pictures);
-        resize.doResize($view.width(), $(window).height());
+        currentWidth = $view.width()
+        resize.doResize(currentWidth, $(window).height());
 
         content = "";
         for (var i=0; i<model.pictures.length; i++){
             var p = model.pictures[i]
-            content += Mustache.render(template, {
-                width: p.newWidth-4, 
-                height: p.newHeight-4,
-                photoUrl: p.thumb 
-            });
+            var params = {
+                    width: p.newWidth-4, 
+                    height: p.newHeight-4
+            }
+            if (conf.lazyLoad){
+                params.src = p.thumb 
+            }
+            content += Mustache.render(template, params);
         }
-        $view.html(content);
+        $viewList.html(content);
+        if (conf.lazyLoad){
+            $viewList.find("img").hide();
+            lazyLoad();
+        }
+    }
+
+    function lazyLoad(){
+      var index = 0;
+      var image = new Image()
+      image.onload = function(){
+          var url =
+          $viewList.find("img:eq("+index+")")
+              .attr("src", this.src)
+              .show()
+              .click(function(){
+                  model.selectedPictureIndex = $(this).parent().data("index");
+              })
+          index++
+          loadNextPicture()
+      }
+      function loadNextPicture(){
+          if (index >= model.pictures.length){
+              return
+          }
+          $viewList.find("img:eq("+index+")").data("index", index)
+          image.src = model.pictures[index].thumb
+      }
+      loadNextPicture()
     }
 
     init();

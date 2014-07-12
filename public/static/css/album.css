@@ -28,6 +28,9 @@ body{
     height:35px;
     position: fixed;
     top: 0;
+    -webkit-box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.3);
+    -moz-box-shadow:    0px 2px 5px 0px rgba(0, 0, 0, 0.3);
+    box-shadow:         0px 2px 5px 0px rgba(0, 0, 0, 0.3);
 }
 
 #breadcrumb.slide{
@@ -49,9 +52,9 @@ body{
 }
 
 #breadcrumb.headroom--unpinned {
-    -webkit-transform: translateY(-100%);
-    -ms-transform: translateY(-100%);
-    transform: translateY(-100%);
+    -webkit-transform: translateY(-110%);
+    -ms-transform: translateY(-110%);
+    transform: translateY(-110%);
 }
 
 #breadcrumb a{
@@ -78,17 +81,27 @@ body{
 #loading{
     background: url("/static/media/loading.gif") no-repeat center;
     position: absolute;
-    z-index: 2;
+    z-index: 10001;
 }
 
 /* Albuns */
 #albuns{
+    display:none;
     float:left;
     width: 30%;
     background: #4169E1;
     text-align: right;
     padding-top: 40px;
     padding-bottom:100px;
+    
+     -webkit-transition: all .25s ease-in-out;
+    -moz-transition: all .25s ease-in-out;
+    -o-transition: all .25s ease-in-out;
+    transition: all .25s ease-in-out;
+    
+     -webkit-transform: translateX(0);
+    -ms-transform: translateX(0);
+    transform: translateX(0);
 }
 
 #albuns h2{
@@ -102,7 +115,7 @@ body{
 #albuns ul{
     margin: 0px;
     margin-right: 15px;
-    paddin: 0px;
+    padding: 0px;
 }
 #albuns li{
     list-style: none;

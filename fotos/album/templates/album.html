@@ -20,24 +20,34 @@
         var albumDelegate = new AlbumDelegate();
         var albumModel = new AlbumModel(albumDelegate);
 
-        var loading = new Loading(albumModel, $("#loading"));
+        var loading = new Loading(albumModel, {
+            view: $("#loading") 
+        });
 
-        var navigator = new AlbumNavigator(albumModel, 
-                $("#albuns"), 
-                $("#albumTpl").html());
+        var navigator = new AlbumNavigator(albumModel, {
+            view: $("#albuns"),
+            listClass: ".list",
+            template: $("#albumTpl").html()
+        });
 
-        var breadcrumb = new AlbumBreadcrumb(albumModel, 
-                $("#breadcrumb"), 
-                $("#breadcrumbHomeTpl").html(), 
-                $("#breadcrumbTpl").html());
-        var headroom  = new Headroom(document.getElementById("breadcrumb"));
-        headroom.init(); 
+        (new Headroom(document.getElementById("breadcrumb"))).init();
+        var breadcrumb = new AlbumBreadcrumb(albumModel, {
+            view: $("#breadcrumb"), 
+            templateHome: $("#breadcrumbHomeTpl").html(), 
+            template: $("#breadcrumbTpl").html()
+        });
 
         var deepLinking = new AlbumDeepLinking(albumModel);
 
-        var albumPhotos = new AlbumPhotos(albumModel, 
-                $("#photos"), 
-                $("#photoTpl").html());
+        var albumPhotos = new AlbumPhotos(albumModel, {
+            view: $("#photos"), 
+            template: $("#photoTpl").html(),
+            lazyLoad: true
+        });
+        
+/*         var highlight = new Highlight(albumModel, {
+            
+        }) */
     })
 
 </script>
