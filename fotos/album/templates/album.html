@@ -5,18 +5,21 @@
 <title>Fotos</title>
 <link rel="stylesheet" href="{% static 'css/album.css' %}">
 
+<script type="text/javascript" src="{% static 'js/lib/fast-blur.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/lib/mustache.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/lib/jquery.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/lib/watch.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/lib/watch.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/lib/watch.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/lib/headroom.min.js' %}"></script>
 
-<script type="text/javascript" src="{% static 'js/highlight.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/album.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/resize.js' %}"></script>
 <script type="text/javascript">
 
     $(function(){
+
+        Settings.URL_PREFIX = "/album/";
+        Settings.URL_DATA_PREFIX = "/admin/album/api/";
+
         var albumDelegate = new AlbumDelegate();
         var albumModel = new AlbumModel(albumDelegate);
 
@@ -26,7 +29,7 @@
 
         var navigator = new AlbumNavigator(albumModel, {
             view: $("#albuns"),
-            listClass: ".list",
+            listClass: "list",
             template: $("#albumTpl").html()
         });
 
@@ -44,10 +47,11 @@
             template: $("#photoTpl").html(),
             lazyLoad: true
         });
-        
-/*         var highlight = new Highlight(albumModel, {
-            
-        }) */
+
+        var highlight = new Highlight(albumModel, {
+            view: $("#highlight"),
+            template: $("#highlightTpl").html()
+        })
     })
 
 </script>
@@ -76,6 +80,19 @@
             {% endverbatim %}
             </script>
         </section>
+        <div id="highlight">
+            <script id="highlightTpl" type="text/html">
+            {% verbatim %}
+                <div class="photo-frame">
+                    <canvas class="box-blur"/>
+                    <div class="large-photo">
+                        <img class="low-res" />
+                        <img class="high-res"/>
+                    </div>
+                </div>
+            {% endverbatim %}
+            </script>
+        </div>
     </div>
 </body>
 

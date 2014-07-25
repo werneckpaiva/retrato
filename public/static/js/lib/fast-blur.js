@@ -60,7 +60,6 @@ function boxBlurImage( img, canvas, radius, blurAlphaChannel, iterations){
     }
     var widthCenter = Math.round(canvas.width / 2);
     var heightCenter = Math.round(canvas.height / 2);
-    console.log(canvas.width)
     var grd=context.createRadialGradient(widthCenter, 
             heightCenter,
             0, 

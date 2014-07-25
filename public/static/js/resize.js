@@ -15,7 +15,7 @@ Resize.prototype.doResize = function(viewWidth, viewHeight){
 //        console.log("1 row")
 //        this.resizeToSameHeight(idealHeight)
 //    } else {
-        this.resizeUsingLinearPartitions(rows, viewWidth)
+      return this.resizeUsingLinearPartitions(rows, viewWidth)
 //    }
 }
 
@@ -48,6 +48,7 @@ Resize.prototype.resizeUsingLinearPartitions = function(rows, viewWidth){
     }
     var partitions = linearPartition(weights, rows)
     var index = 0;
+    var newDimensions = []
     for(var i in partitions){
         partition = partitions[i]
         var rowList = []
@@ -62,10 +63,13 @@ Resize.prototype.resizeUsingLinearPartitions = function(rows, viewWidth){
         }
         for (j in rowList){
             p = rowList[j]
-            p.newWidth = parseInt((viewWidth / summedRatios) * p.ratio)
-            p.newHeight = parseInt(viewWidth / summedRatios)
+            var dimension = {}
+            dimension.newWidth = parseInt((viewWidth / summedRatios) * p.ratio)
+            dimension.newHeight = parseInt(viewWidth / summedRatios)
+            newDimensions.push(dimension)
         }
     }
+    return newDimensions;
 }
 
 function linearPartition(seq, k){
