@@ -10,6 +10,7 @@ var StringUtil = {
     },
     humanizeName: function(name){
         name = name.replace(/_/g, " ");
+        name = name.replace(/\.jpe?g/i, "");
         return name
     }
 }
@@ -44,6 +45,7 @@ function AlbumModel(albumDelegate){
         }
         console.log(self)
         self.loading = false
+        self.selectedPictureIndex = null;
     }
 
     function loadAlbumFailHandler(error){
@@ -153,8 +155,20 @@ function AlbumBreadcrumb(model, conf){
         watch(model, "path", function(){
             self.updatePath()
         });
+
+        watch(model, "selectedPictureIndex", function(){
+            pinBreadcrumb();
+            self.updatePath();
+        });
     }
 
+    function pinBreadcrumb(){
+        if (model.selectedPictureIndex != null){
+            $view.addClass("headroom--pinned").addClass("headroom--top")
+            $view.removeClass("headroom--not-top").removeClass("headroom--unpinned")
+        }
+    }
+    
     function getAlbumUrl(albumName){
         var url = Settings.URL_PREFIX + model.path + '/' + albumName;
         url = StringUtil.sanitizeUrl(url);
@@ -165,6 +179,10 @@ function AlbumBreadcrumb(model, conf){
         var parts = model.path.split("/");
         if (parts[parts.length - 1]==""){
             parts.pop();
+        }
+        if (model.selectedPictureIndex != null){
+            var p = model.pictures[model.selectedPictureIndex];
+            parts.push(p.filename);
         }
         var partial = '/'
         var content = Mustache.render(templateHome, {

@@ -1,5 +1,4 @@
 function Highlight(model, conf){
-
     var self = this;
 
     var $view = null;
@@ -12,6 +11,9 @@ function Highlight(model, conf){
     var nextFrame = null;
 
     var isOpened = false;
+
+    var padding = 15;
+    var headerHeight = 45;
     
     function init(){
         $view = conf.view;
@@ -19,8 +21,7 @@ function Highlight(model, conf){
         template = conf.template
 
         watch(model, "selectedPictureIndex", function(){
-            if (isOpened) return;
-            self.displayPicture();
+            onPictureSelected()
         });
 
         $view.click(function(){
@@ -42,6 +43,31 @@ function Highlight(model, conf){
         });
     }
 
+    function onPictureSelected(){
+        if (isOpened) {
+            if (model.selectedPictureIndex == null){
+                self.close();
+            }
+            return;
+        }
+        self.handleScroll();
+        self.displayPicture();
+    }
+    
+    function disableScroll(e){
+        if (e.target.id == 'el') return;
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    
+    this.handleScroll = function(){
+        $('body').on('mousewheel', disableScroll)
+    }
+
+    this.unhandleScroll = function(){
+        $('body').off('mousewheel', disableScroll)
+    }
+    
     this.hasPicturesToDisplay = function(){
         return (model.selectedPictureIndex!=null
                 && model.selectedPictureIndex >= 0
@@ -53,6 +79,7 @@ function Highlight(model, conf){
     this.close = function(){
         model.selectedPictureIndex = null;
         isOpened = false;
+        self.unhandleScroll();
         $view.fadeOut("slow");
     }
 
@@ -206,16 +233,18 @@ function Highlight(model, conf){
 
     function calculateDimension(picture){
         var $window = $view;
-        var newWidth = $window.width();
-        var newHeight = Math.round(newWidth / picture.ratio)
-        var x = 0
+        var newWidth = $window.width() - (padding * 2);
+        var newHeight = Math.round(newWidth / picture.ratio);
+        var x = 0;
         var y = Math.round(($window.height() - newHeight) / 2)
-        if (y < 0){
-            newHeight = $window.height()
-            newWidth = Math.round(newHeight * picture.ratio)
+        if (y < headerHeight){
+            newHeight = $window.height() - (headerHeight + (padding * 2));
+            newWidth = Math.round(newHeight * picture.ratio);
             y = 0;
-            x = Math.round(($window.width() - newWidth) / 2)
+            x = Math.round(($window.width() - newWidth) / 2);
         }
+        x = ($window.width() - newWidth) / 2;
+        y = (($window.height() - headerHeight - newHeight) / 2) + headerHeight;
         return {newWidth: newWidth, newHeight: newHeight, x:x, y:y, fullWidth: $window.width(), fullHeight: $window.height()}
     }
 

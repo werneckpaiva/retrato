@@ -37,22 +37,23 @@
             template: $("#albumTpl").html()
         });
 
-        (new Headroom(document.getElementById("breadcrumb"))).init();
         var breadcrumb = new AlbumBreadcrumb(albumModel, {
             view: $("#breadcrumb"), 
             templateHome: $("#breadcrumbHomeTpl").html(), 
             template: $("#breadcrumbTpl").html()
         });
 
+        (new Headroom(document.getElementById("breadcrumb"))).init();
+
         var deepLinking = new AlbumDeepLinking(albumModel);
 
-        var albumPhotos = new AlbumPhotos(albumModel, {
+         var albumPhotos = new AlbumPhotos(albumModel, {
             view: $("#photos"), 
             template: $("#photoTpl").html(),
             lazyLoad: true
         });
 
-        var highlight = new Highlight(albumModel, {
+         var highlight = new Highlight(albumModel, {
             view: $("#highlight"),
             template: $("#highlightTpl").html()
         })
@@ -70,23 +71,8 @@
             <script id="breadcrumbHomeTpl" type="text/html">{% verbatim %}<span><a href="{{url}}">{% endverbatim %}<img src="{% static 'media/home.svg' %}" width="30" height="30" />{% verbatim %}</a></span>{% endverbatim %}</script>
             <script id="breadcrumbTpl" type="text/html">{% verbatim %}<span>{{#url}}<a href="{{url}}">{{/url}}{{name}}{{#url}}</a>{{/url}}</span>{% endverbatim %}</script>
         </header>
-        <div id="main-content">
-            <section id="albuns">
-                <h2>albuns</h2>
-                <ul class="list">
-                    <script id="albumTpl" type="text/html">{% verbatim %}<li><a href="{{url}}">{{name}}</li>{% endverbatim %}</script>
-                </ul></section>
-            <section id="photos">
-                <script id="photoTpl" type="text/html">
-            {% verbatim %}
-                <div class="photo-container" style="width: {{width}}px; height: {{height}}px;">
-                    <img class="photo" width="{{width}}" height="{{height}}" src="{{photoUrl}}" style="display: inline;">
-                </div>
-            {% endverbatim %}
-            </script>
-            </section>
-            <div id="highlight">
-                <script id="highlightTpl" type="text/html">
+        <div id="highlight">
+        <script id="highlightTpl" type="text/html">
             {% verbatim %}
                 <div class="photo-frame">
                     <canvas class="box-blur"/>
@@ -96,8 +82,24 @@
                     </div>
                 </div>
             {% endverbatim %}
+        </script>
+        </div>
+        <div id="main-content">
+            <section id="albuns">
+                <h2>albuns</h2>
+                <ul class="list">
+                    <script id="albumTpl" type="text/html">{% verbatim %}<li><a href="{{url}}">{{name}}</li>{% endverbatim %}</script>
+                </ul>
+            </section>
+            <section id="photos">
+                <script id="photoTpl" type="text/html">
+            {% verbatim %}
+                <div class="photo-container" style="width: {{width}}px; height: {{height}}px;">
+                    <img class="photo" width="{{width}}" height="{{height}}" src="{{photoUrl}}" style="display: inline;">
+                </div>
+            {% endverbatim %}
             </script>
-            </div>
+            </section>
         </div>
     </div>
 </body>
