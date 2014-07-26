@@ -2,7 +2,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Fotos</title>
+<title>Minhas Fotos</title>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+
 <link rel="stylesheet" href="{% static 'css/album.css' %}">
 
 <script type="text/javascript" src="{% static 'js/lib/fast-blur.js' %}"></script>
@@ -12,6 +15,7 @@
 <script type="text/javascript" src="{% static 'js/lib/headroom.min.js' %}"></script>
 
 <script type="text/javascript" src="{% static 'js/album.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/highlight.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/resize.js' %}"></script>
 <script type="text/javascript">
 
@@ -66,22 +70,23 @@
             <script id="breadcrumbHomeTpl" type="text/html">{% verbatim %}<span><a href="{{url}}">{% endverbatim %}<img src="{% static 'media/home.svg' %}" width="30" height="30" />{% verbatim %}</a></span>{% endverbatim %}</script>
             <script id="breadcrumbTpl" type="text/html">{% verbatim %}<span>{{#url}}<a href="{{url}}">{{/url}}{{name}}{{#url}}</a>{{/url}}</span>{% endverbatim %}</script>
         </header>
-        <section id="albuns">
-            <h2>albuns</h2>
-            <ul class="list">
-                <script id="albumTpl" type="text/html">{% verbatim %}<li><a href="{{url}}">{{name}}</li>{% endverbatim %}</script>
-            </ul></section>
-        <section id="photos">
-            <script id="photoTpl" type="text/html">
+        <div id="main-content">
+            <section id="albuns">
+                <h2>albuns</h2>
+                <ul class="list">
+                    <script id="albumTpl" type="text/html">{% verbatim %}<li><a href="{{url}}">{{name}}</li>{% endverbatim %}</script>
+                </ul></section>
+            <section id="photos">
+                <script id="photoTpl" type="text/html">
             {% verbatim %}
                 <div class="photo-container" style="width: {{width}}px; height: {{height}}px;">
                     <img class="photo" width="{{width}}" height="{{height}}" src="{{photoUrl}}" style="display: inline;">
                 </div>
             {% endverbatim %}
             </script>
-        </section>
-        <div id="highlight">
-            <script id="highlightTpl" type="text/html">
+            </section>
+            <div id="highlight">
+                <script id="highlightTpl" type="text/html">
             {% verbatim %}
                 <div class="photo-frame">
                     <canvas class="box-blur"/>
@@ -92,6 +97,7 @@
                 </div>
             {% endverbatim %}
             </script>
+            </div>
         </div>
     </div>
 </body>

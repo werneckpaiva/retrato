@@ -12,7 +12,7 @@ body{
     overflow-y: scroll;
 }
 
-#content{
+#content, #main-content{
     margin-left: 0px;
     height: 100%;
 }
@@ -91,11 +91,9 @@ body{
 
 #albuns{
     display:none;
-    float:left;
-    width: 30%;
-    min-height: 100%;
+
     background: #4169E1;
-    text-align: right;
+    padding: 0 30px 30px 30px;
     
      -webkit-transition: all .25s ease-in-out;
     -moz-transition: all .25s ease-in-out;
@@ -107,21 +105,32 @@ body{
     transform: translateX(0);
 }
 
+@media (min-width: 700px) {
+    #albuns{
+        float:left;
+        width: 30%;
+        min-height: 100%;
+        padding-right: 15px;
+        text-align: right;
+    }
+
+    #albuns ul{
+        margin-left: 0px;
+    }
+}
+
 #albuns h2{
     padding:0px;
     margin: 0px;
     margin-top: 40px;
 
-    margin-right: 15px;
     font-size: 3em;
     line-height: 2em;
 }
 
 #albuns ul{
-    margin: 0px;
-    margin-right: 15px;
+    margin: 0px 10px 10px 30px;
     padding: 0px;
-    margin-bottom: 30px;
 }
 #albuns li{
     list-style: none;

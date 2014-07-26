@@ -1,65 +1,92 @@
-function Highlight(model, selector){
+function Highlight(model, conf){
 
-    var ANIMATION_DURATION = 2 * 100;
-    
-    var self = this
-    var $this = selector
-    var opened = false
+    var self = this;
 
-    var pictures = null;
+    var $view = null;
+    var $viewList = null;
+    var template = null;
+
     var currentPictureIndex = null;
-
     var currentFrame = null;
     var prevFrame = null;
     var nextFrame = null;
 
+    var isOpened = false;
+    
     function init(){
-        addEventListeners()
-    }
+        $view = conf.view;
+        $viewList = (conf.listClass)? $view.find("."+conf.listClass) : $view;
+        template = conf.template
 
-    function addEventListeners(){
-        $this.click(function(){
-            self.closePicture()
+        watch(model, "selectedPictureIndex", function(){
+            if (isOpened) return;
+            self.displayPicture();
+        });
+
+        $view.click(function(){
+            self.close()
         })
+
         $(window).resize(function(){
             self.updateDisplay();
         })
+
         $('body').keyup(function (event) {
             if (event.keyCode == 37){
-                self.displayPrevPicture()
+                self.displayPrevPicture();
             } else if (event.keyCode == 39){
-                self.displayNextPicture()
+                self.displayNextPicture();
             } else if (event.keyCode == 27){
-                self.closePicture();
+                self.close();
             }
         });
     }
 
-    this.setPictures = function(ps){
-        pictures = ps
+    this.hasPicturesToDisplay = function(){
+        return (model.selectedPictureIndex!=null
+                && model.selectedPictureIndex >= 0
+                && model.pictures
+                && model.pictures.length>=0);
+
+    }
+    
+    this.close = function(){
+        model.selectedPictureIndex = null;
+        isOpened = false;
+        $view.fadeOut("slow");
     }
 
-    this.displayPicture = function(index){
-        currentPictureIndex = index;
-        opened = true
+    function createHighlight(){
+        var $frame = $(Mustache.render(template, {}));
+        return $frame;
+    }
+
+    this.displayPicture = function(){
+        if (!self.hasPicturesToDisplay()){
+            self.close();
+            return;
+        }
+        isOpened = true;
+        $viewList.empty()
         createCurrentHighlight();
         createLeftHighlight();
         createRightHighlight();
-        createDetails();
         self.updateDisplay();
     }
 
     // Move from left to right
     this.displayPrevPicture = function(){
-        if (!pictures || currentPictureIndex <= 0) return;
-        $this.find(".large-photo").stop()
-        var newRightPicture = pictures[currentPictureIndex];
-        currentPictureIndex--;
+        if (!self.hasPicturesToDisplay()) return;
+        $viewList.find(".large-photo").stop()
+        if (model.selectedPictureIndex == 0) return;
+        var newRightPicture = model.pictures[model.selectedPictureIndex];
+        model.selectedPictureIndex--;
 
         var newCurrentFrame = prevFrame;
         newCurrentFrame.removeClass("prev-frame").addClass("current-frame")
-        var newCurrentPicture = pictures[currentPictureIndex]
+        var newCurrentPicture = model.pictures[model.selectedPictureIndex]
         var newCurrentDimension = calculateDimension(newCurrentPicture);
+        newCurrentFrame.find(".box-blur").hide();
         newCurrentFrame.find(".large-photo").animate({
             left: newCurrentDimension.x
         }, 500, "swing", function(){
@@ -73,7 +100,6 @@ function Highlight(model, selector){
         newRightFrame.find(".large-photo").animate({
             left: newRightDimension.x
         }, 500, "swing");
-        newRightFrame.find(".blur").removeClass("visible");
 
         if (nextFrame) nextFrame.remove();
         nextFrame = currentFrame;
@@ -81,9 +107,9 @@ function Highlight(model, selector){
         prevFrame = null;
 
         // Set Image to the new Left
-        if (currentPictureIndex > 0){
+        if (model.selectedPictureIndex > 0){
             createLeftHighlight()
-            var newLeftPicture = pictures[currentPictureIndex - 1];
+            var newLeftPicture = model.pictures[model.selectedPictureIndex - 1];
             var dimension = calculateDimensionLeft(newLeftPicture);
             setPosition(prevFrame, dimension)
             showLowResolution(prevFrame, newLeftPicture)
@@ -92,15 +118,17 @@ function Highlight(model, selector){
 
     // Move from right to left
     this.displayNextPicture = function(){
-        $this.find(".large-photo").stop()
-        if (!pictures || currentPictureIndex >= (pictures.length - 1)) return;
-        var newLeftPicture = pictures[currentPictureIndex];
-        currentPictureIndex++;
+        if (!self.hasPicturesToDisplay()) return;
+        $viewList.find(".large-photo").stop()
+        if (model.selectedPictureIndex >= (model.pictures.length - 1)) return;
+        var newLeftPicture = model.pictures[model.selectedPictureIndex];
+        model.selectedPictureIndex++;
 
         var newCurrentFrame = nextFrame;
         newCurrentFrame.removeClass("next-frame").addClass("current-frame")
-        var newCurrentPicture = pictures[currentPictureIndex]
+        var newCurrentPicture = model.pictures[model.selectedPictureIndex]
         var newCurrentDimension = calculateDimension(newCurrentPicture);
+        newCurrentFrame.find(".box-blur").hide();
         newCurrentFrame.find(".large-photo").animate({
             left: newCurrentDimension.x
         }, 500, "swing", function(){
@@ -114,7 +142,6 @@ function Highlight(model, selector){
         newLeftFrame.find(".large-photo").animate({
             left: newLeftDimension.x
         }, 500, "swing");
-        newLeftFrame.find(".blur").removeClass("visible");
 
         if (prevFrame) prevFrame.remove();
         prevFrame = currentFrame;
@@ -122,51 +149,64 @@ function Highlight(model, selector){
         nextFrame = null;
 
         // Set Image to the new Right
-        if (currentPictureIndex < (pictures.length - 1)){
+        if (model.selectedPictureIndex < (model.pictures.length - 1)){
             createRightHighlight()
-            var newRightPicture = pictures[currentPictureIndex + 1];
+            var newRightPicture = model.pictures[model.selectedPictureIndex + 1];
             var dimension = calculateDimensionRight(newRightPicture);
             setPosition(nextFrame, dimension)
             showLowResolution(nextFrame, newRightPicture)
         }
     }
 
-    function createHighlight(){
-        if (window.location.hash=="#canvas"){
-            var $frame = $("<div class=\"photo-frame\"><canvas class=\"box-blur\"/><div class=\"large-photo\"><img class=\"low-res\" /><img class=\"high-res\"/></div></div>");
-        } else {
-            var $frame = $("<div class=\"photo-frame\"><img class=\"blur\" /><div class=\"large-photo\"><img class=\"low-res\" /><img class=\"high-res\"/></div></div>");
-        }
-        return $frame;
-    }
-
-    function createDetails(){
-        $this.append("<div class=\"photo-details\"><div class='name item-detail'></div><div class='album item-detail'></div><div class='date item-detail'></div></div>")
-    }
-    
     function createCurrentHighlight(){
         currentFrame = createHighlight();
-        currentFrame.addClass("current-frame")
-        $this.append(currentFrame)
+        currentFrame.addClass("current-frame");
+        $viewList.append(currentFrame);
     }
 
     function createLeftHighlight(){
-        if (prevFrame) prevFrame.remove()
+        if (prevFrame) prevFrame.remove();
         prevFrame = createHighlight();
-        prevFrame.addClass("prev-frame")
-        $this.append(prevFrame)
+        prevFrame.addClass("prev-frame");
+        $viewList.append(prevFrame);
     }
 
     function createRightHighlight(){
-        if (nextFrame) nextFrame.remove()
+        if (nextFrame) nextFrame.remove();
         nextFrame = createHighlight();
-        nextFrame.addClass("next-frame")
-        $this.append(nextFrame)
+        nextFrame.addClass("next-frame");
+        $viewList.append(nextFrame);
+    }
+
+    this.updateDisplay = function(){
+        if (!self.hasPicturesToDisplay()) return;
+        if (!isOpened) return;
+        $view.fadeIn("slow");
+        if (currentFrame) {
+            var picture = model.pictures[model.selectedPictureIndex]
+            var dimension = calculateDimension(picture);
+            setPosition(currentFrame, dimension)
+            showLowResolution(currentFrame, picture)
+            showHighResolution(currentFrame, picture)
+            showBlur(currentFrame, picture)
+        }
+        if (prevFrame && model.selectedPictureIndex > 0) {
+            var picture = model.pictures[model.selectedPictureIndex - 1]
+            var dimension = calculateDimensionLeft(picture);
+            setPosition(prevFrame, dimension);
+            showLowResolution(prevFrame, picture)
+        }
+        if (nextFrame && model.selectedPictureIndex < model.pictures.length - 1) {
+            var picture = model.pictures[model.selectedPictureIndex + 1]
+            var dimension = calculateDimensionRight(picture);
+            setPosition(nextFrame, dimension);
+            showLowResolution(nextFrame, picture)
+        }
     }
 
     function calculateDimension(picture){
-        var $window = $this
-        var newWidth = $window.width()
+        var $window = $view;
+        var newWidth = $window.width();
         var newHeight = Math.round(newWidth / picture.ratio)
         var x = 0
         var y = Math.round(($window.height() - newHeight) / 2)
@@ -187,26 +227,25 @@ function Highlight(model, selector){
 
     function calculateDimensionRight(picture){
         var dimension = calculateDimension(picture);
-        dimension.x = $this.width() + 50;
+        dimension.x = $view.width() + 50;
         return dimension
     }
 
     function showHighResolution(frame, picture){
-        var $highRes = frame.find(".high-res")
+        var $highRes = frame.find(".high-res");
         $highRes.hide()
 
         image = new Image()
         image.onload = function(){
-            $highRes.attr("src", this.src)
+            $highRes.attr("src", this.src);
             $highRes.fadeIn();
         }
-        image.src = picture.highlight
+        image.src = picture.highlight;
     }
 
     function showLowResolution(frame, picture){
         var $lowRes = frame.find(".low-res");
         $lowRes.attr("src", picture.thumb)
-        showInfoDetails()
     }
 
     function setPosition(frame, dimension){
@@ -216,67 +255,12 @@ function Highlight(model, selector){
     }
 
     function showBlur(frame, picture){
-        if (window.location.hash=="#canvas"){
-            setTimeout(function(){
-                blur = frame.find('.box-blur').hide()
-                blur.fadeIn(2000)
-                boxBlurImage(frame.find('.low-res').get(0), blur.get(0), 20, false, 2);
-            }, 500)
-        } else {
-           var $blur = frame.find(".blur");
-            $blur.attr("src", picture.thumb);
-            setTimeout(function(){
-                $blur.addClass("visible");
-            }, 500)
-        }
+        setTimeout(function(){
+            blur = frame.find('.box-blur').hide()
+            blur.fadeIn(2000)
+            boxBlurImage(frame.find('.low-res').get(0), blur.get(0), 20, false, 2);
+        }, 500);
     }
 
-    function showInfoDetails(){
-        var $details = $this.find(".photo-details");
-        var picture = pictures[currentPictureIndex]
-        $details.find(".name").html(picture.name);
-        $details.find(".album").html( $("#photos").attr("data-album-name") );
-        $details.find(".date").html( picture.date.split(" ")[0].split("-").reverse().join("/") );
-    }
-
-    this.updateDisplay = function(){
-        $this.fadeIn("slow");
-        if (!opened || !pictures || pictures.length==0) return;
-        if (currentFrame) {
-            var picture = pictures[currentPictureIndex]
-            var dimension = calculateDimension(picture);
-            setPosition(currentFrame, dimension)
-            showLowResolution(currentFrame, picture)
-            showHighResolution(currentFrame, picture)
-            showBlur(currentFrame, picture)
-        }
-        if (prevFrame && currentPictureIndex > 0) {
-            var picture = pictures[currentPictureIndex - 1]
-            var dimension = calculateDimensionLeft(picture);
-            setPosition(prevFrame, dimension);
-            showLowResolution(prevFrame, picture)
-        }
-        if (nextFrame && currentPictureIndex < pictures.length - 1) {
-            var picture = pictures[currentPictureIndex + 1]
-            var dimension = calculateDimensionRight(picture);
-            setPosition(nextFrame, dimension);
-            showLowResolution(nextFrame, picture)
-        }
-    }
-
-    this.closePicture = function(){
-        $this.fadeOut("slow", function(){
-            $this.empty();
-        });
-        currentFrame = null;
-        prevFrame = null;
-        nextFrame = null;
-        opened = false
-    }
-
-    this.isOpened = function(){
-        return opened;
-    }
-
-    init()
+    init();
 }
