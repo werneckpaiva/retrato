@@ -43,7 +43,12 @@
             template: $("#breadcrumbTpl").html()
         });
 
-        (new Headroom(document.getElementById("breadcrumb"))).init();
+        (new Headroom(document.getElementById("top-menu"))).init();
+        var menu = new AlbumMenu(albumModel, {
+            view: $("#top-menu"),
+            detailsHandlerOpen: $("#top-menu .plus .open"),
+            detailsHandlerClose: $("#top-menu .plus .close"),
+        })
 
         var deepLinking = new AlbumDeepLinking(albumModel);
 
@@ -55,7 +60,9 @@
 
          var highlight = new Highlight(albumModel, {
             view: $("#highlight"),
-            template: $("#highlightTpl").html()
+            listClass:'pictures',
+            template: $("#highlightTpl").html(),
+            detailsView: $("#highlight .details")
         })
     })
 
@@ -67,23 +74,37 @@
 <body>
     <div id="content">
         <div id="loading"><img src="{% static 'media/loading.gif' %}" width="40" height="40"/></div>
-        <header id="breadcrumb" class="slide">
-            <script id="breadcrumbHomeTpl" type="text/html">{% verbatim %}<span><a href="{{url}}">{% endverbatim %}<img src="{% static 'media/home.svg' %}" width="30" height="30" />{% verbatim %}</a></span>{% endverbatim %}</script>
-            <script id="breadcrumbTpl" type="text/html">{% verbatim %}<span>{{#url}}<a href="{{url}}">{{/url}}{{name}}{{#url}}</a>{{/url}}</span>{% endverbatim %}</script>
+        <header id="top-menu" class="slide">
+            <nav id="breadcrumb">
+                <script id="breadcrumbHomeTpl" type="text/html">{% verbatim %}<span><a href="{{url}}">{% endverbatim %}<img src="{% static 'media/home.svg' %}" width="30" height="30" />{% verbatim %}</a></span>{% endverbatim %}</script>
+                <script id="breadcrumbTpl" type="text/html">{% verbatim %}<span>{{#url}}<a href="{{url}}">{{/url}}{{name}}{{#url}}</a>{{/url}}</span>{% endverbatim %}</script>
+            </nav>
+            <div class="plus"><a class="open" href="#">[ <span>+</span> ]</a><a class="close" href="#">[ <span>-</span> ]</a></div>
         </header>
-        <div id="highlight">
-        <script id="highlightTpl" type="text/html">
-            {% verbatim %}
-                <div class="photo-frame">
-                    <canvas class="box-blur"/>
-                    <div class="large-photo">
-                        <img class="low-res" />
-                        <img class="high-res"/>
+        <section id="highlight">
+            <div class="pictures">
+                <script id="highlightTpl" type="text/html">
+                {% verbatim %}
+                    <div class="photo-frame">
+                        <canvas class="box-blur"/>
+                        <div class="large-photo">
+                            <img class="low-res" />
+                            <img class="high-res"/>
+                        </div>
                     </div>
-                </div>
-            {% endverbatim %}
-        </script>
-        </div>
+                {% endverbatim %}
+            </script>
+            </div>
+            <aside class="details">
+                <h3>Detalhes</h3>
+                <ul>
+                    <li><label>Arquivo:</label><span class="value file-name"></span></li>
+                    <li><label>Data:</label><span class="value file-date"></span></li>
+                    <li><label>Largura:</label><span class="value file-width"></span></li>
+                    <li><label>Altura:</label><span class="value file-height"></span></li>
+                </ul>
+            </aside>
+        </section>
         <div id="main-content">
             <section id="albuns">
                 <h2>albuns</h2>

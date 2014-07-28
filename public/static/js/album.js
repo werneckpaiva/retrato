@@ -29,6 +29,7 @@ function AlbumModel(albumDelegate){
 
     this.selectedPictureIndex = null;
     this.highlightOn = false;
+    this.detailsOn = false;
 
     this.loadAlbum = function(albumPath){
         albumPath = albumPath.replace(Settings.URL_PREFIX, '')
@@ -89,11 +90,14 @@ function AlbumNavigator(model, conf){
     var template = null;
     var $view = null;
     var $viewList = null;
+    
+    var animate = true;
 
     function init(){
         $view = conf.view;
         template = conf.template;
-        $viewList = (conf.listClass)? $view.find("."+conf.listClass) : $view
+        $viewList = (conf.listClass)? $view.find("."+conf.listClass) : $view;
+        animate = (conf.listClass)? conf.listClass : true;
 
         watch(model, "albuns", function(){
             displayAlbuns();
@@ -109,10 +113,10 @@ function AlbumNavigator(model, conf){
     
     function displayAlbuns(){
         if(!model.albuns || model.albuns.length == 0){
-            $view.hide();
+            $view.removeClass("visible");
             return;
         }
-        $view.show();
+        $view.addClass("visible");
         content = "";
         for (var i=0; i<model.albuns.length; i++){
             var albumName = model.albuns[i]
@@ -157,18 +161,10 @@ function AlbumBreadcrumb(model, conf){
         });
 
         watch(model, "selectedPictureIndex", function(){
-            pinBreadcrumb();
             self.updatePath();
         });
     }
 
-    function pinBreadcrumb(){
-        if (model.selectedPictureIndex != null){
-            $view.addClass("headroom--pinned").addClass("headroom--top")
-            $view.removeClass("headroom--not-top").removeClass("headroom--unpinned")
-        }
-    }
-    
     function getAlbumUrl(albumName){
         var url = Settings.URL_PREFIX + model.path + '/' + albumName;
         url = StringUtil.sanitizeUrl(url);
@@ -206,6 +202,67 @@ function AlbumBreadcrumb(model, conf){
             model.loadAlbum($(this).attr("href"));
             return false;
         })
+    }
+
+    init()
+}
+
+
+function AlbumMenu(model, conf){
+
+    var self = this;
+
+    var $view = null;
+    var $detailsHandlerOpen = null;
+    var $detailsHandlerClose = null;
+
+    function init(){
+        $view = conf.view;
+        $detailsHandlerOpen = conf.detailsHandlerOpen;
+        $detailsHandlerClose = conf.detailsHandlerClose;
+
+        watch(model, "selectedPictureIndex", function(){
+            pinMenu();
+            enablePhotoDetails();
+        });
+        
+        $detailsHandlerOpen.click(function(event){
+            event.preventDefault();
+            showDetails();
+        });
+
+        $detailsHandlerClose.click(function(event){
+            event.preventDefault();
+            hideDetails();
+        })
+    }
+
+    function pinMenu(){
+        if (model.selectedPictureIndex != null){
+            $view.addClass("headroom--pinned").addClass("headroom--top")
+            $view.removeClass("headroom--not-top").removeClass("headroom--unpinned")
+        }
+    }
+
+    function enablePhotoDetails(){
+        $detailsHandlerClose.removeClass("visible");
+        $detailsHandlerOpen.removeClass("visible");
+        if (model.selectedPictureIndex == null){
+            return
+        }
+        $detailsHandlerOpen.addClass("visible");
+    }
+
+    function showDetails(){
+        $detailsHandlerOpen.removeClass("visible");
+        $detailsHandlerClose.addClass("visible");
+        model.detailsOn = true;
+    }
+
+    function hideDetails(){
+        $detailsHandlerOpen.addClass("visible");
+        $detailsHandlerClose.removeClass("visible");
+        model.detailsOn = false;
     }
 
     init()
@@ -265,6 +322,8 @@ function AlbumPhotos(model, conf){
     var template = null;
     var currentWidth = 0;
 
+    var margin = 4;
+
     function init(){
         $view = conf.view;
         $viewList = (conf.listClass)? $view.find("."+conf.listClass) : $view
@@ -296,8 +355,8 @@ function AlbumPhotos(model, conf){
         for (var i=0; i<newPictures.length; i++){
             var p = newPictures[i]
             var params = {
-                    width: p.newWidth-4, 
-                    height: p.newHeight-4
+                    width: p.newWidth-margin,
+                    height: p.newHeight-margin
             }
             if (!conf.lazyLoad){
                 params.src = p.thumb 
@@ -321,8 +380,8 @@ function AlbumPhotos(model, conf){
         var newPictures = resize.doResize(currentWidth, $(window).height());
         $viewList.children().each(function(index, item){
             var p = newPictures[index]
-            var width = (p.newWidth-4);
-            var height = (p.newHeight-4);
+            var width = (p.newWidth-margin);
+            var height = (p.newHeight-margin);
             $(this).css("width", width).css("height", height)
             $(this).find("img").attr("width", width).attr("height", height)
         })
