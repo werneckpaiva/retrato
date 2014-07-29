@@ -86,11 +86,10 @@ function Highlight(model, conf){
     }
     
     this.close = function(){
-        model.selectedPictureIndex = null;
         isOpened = false;
-        model.detailsOn = false;
         self.unhandleScroll();
         $view.fadeOut("slow");
+        model.selectedPictureIndex = null;
     }
 
     function createHighlight(){

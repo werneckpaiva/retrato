@@ -113,7 +113,7 @@ body{
 #loading{
     background: url("/static/media/loading.gif") no-repeat center;
     position: absolute;
-    z-index: 2;
+    z-index: 30;
 }
 
 
@@ -123,6 +123,15 @@ body{
     background: #4169E1;
     padding: 0 30px 30px 30px;
     display:none;
+    
+    -webkit-transition: all .25s ease-in-out;
+    -moz-transition: all .25s ease-in-out;
+    -o-transition: all .25s ease-in-out;
+    transition: all .25s ease-in-out;
+    
+    -webkit-transform: translateX(0);
+    -ms-transform: translateX(0);
+    transform: translateX(0);
 }
 
 #albuns.visible {
@@ -286,19 +295,23 @@ body{
     font-style: italic;
 }
 
-.current-frame{
+.current-frame .large-photo{
+    z-index:5;
+}
+.current-frame .box-blur{
     z-index:1;
 }
-.next-frame, .prev-frame{
+.next-frame .large-photo, .next-frame .box-blur, .prev-frame .large-photo, .prev-frame .box-blur{
     z-index: 0;
 }
+
 
 #highlight .details{
     height:100%;
     width: 20%;
     background: #000;
     opacity:0.5;
-    z-index: 10;
+    z-index: 3;
     position: absolute;
     display: block;
     right: -30%;

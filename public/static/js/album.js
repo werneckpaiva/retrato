@@ -132,6 +132,7 @@ function AlbumNavigator(model, conf){
         $view.find("a").click(function(){
             var $link = $(this);
 //            $viewList.slideUp(function(){
+                $('html,body').animate({scrollTop:0}, 500);
                 model.loadAlbum($link.attr("href"))
 //            });
             return false;
@@ -249,8 +250,11 @@ function AlbumMenu(model, conf){
         $detailsHandlerOpen.removeClass("visible");
         if (model.selectedPictureIndex == null){
             return
+        } else if (model.detailsOn){
+            showDetails();
+        } else {
+            hideDetails();
         }
-        $detailsHandlerOpen.addClass("visible");
     }
 
     function showDetails(){
