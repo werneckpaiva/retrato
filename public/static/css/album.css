@@ -141,7 +141,7 @@ body{
 /* Loading */
 
 #loading{
-    background: url("/static/media/loading.gif") ;
+    background: url("/static/media/loading.gif") no-repeat center;
     position: absolute;
     z-index: 30;
     top:2px;
