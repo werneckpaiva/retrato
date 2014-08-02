@@ -1,8 +1,10 @@
-function Resize(pictures){
-    this.pictures = pictures
+function Resize(pictures, heightProportion){
+    this.pictures = pictures;
+    this.HEIGHT_PROPORTION = 0.45;
+    if (heightProportion){
+        this.HEIGHT_PROPORTION = heightProportion
+    }
 }
-
-Resize.prototype.HEIGHT_PROPORTION = 0.45
 
 Resize.prototype.doResize = function(viewWidth, viewHeight){
     var idealHeight = parseInt(viewHeight * this.HEIGHT_PROPORTION)

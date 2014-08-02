@@ -129,13 +129,10 @@ function AlbumNavigator(model, conf){
     }
 
     function enableAsynchronous(){
-        $view.find("a").click(function(){
-            var $link = $(this);
-//            $viewList.slideUp(function(){
-                $('html,body').animate({scrollTop:0}, 500);
-                model.loadAlbum($link.attr("href"))
-//            });
-            return false;
+        $view.find("a").click(function(event){
+            event.preventDefault();
+            $('html,body').animate({scrollTop:0}, 500);
+            model.loadAlbum($(this).attr("href"))
         })
     }
 
@@ -214,28 +211,23 @@ function AlbumMenu(model, conf){
     var self = this;
 
     var $view = null;
-    var $detailsHandlerOpen = null;
-    var $detailsHandlerClose = null;
+    var $detailsButton = null;
 
     function init(){
         $view = conf.view;
-        $detailsHandlerOpen = conf.detailsHandlerOpen;
-        $detailsHandlerClose = conf.detailsHandlerClose;
+        $detailsButton = conf.detailsButton;
 
         watch(model, "selectedPictureIndex", function(){
             pinMenu();
-            enablePhotoDetails();
-        });
-        
-        $detailsHandlerOpen.click(function(event){
-            event.preventDefault();
-            showDetails();
+            showHideDetailsButton();
         });
 
-        $detailsHandlerClose.click(function(event){
+        $detailsButton.click(function(event){
             event.preventDefault();
-            hideDetails();
-        })
+            showHideDetails();
+        });
+
+        showHideDetailsButton();
     }
 
     function pinMenu(){
@@ -245,28 +237,24 @@ function AlbumMenu(model, conf){
         }
     }
 
-    function enablePhotoDetails(){
-        $detailsHandlerClose.removeClass("visible");
-        $detailsHandlerOpen.removeClass("visible");
+    function showHideDetailsButton(){
         if (model.selectedPictureIndex == null){
-            return
-        } else if (model.detailsOn){
-            showDetails();
+            model.detailsOn = false;
+            $detailsButton.hide();
         } else {
-            hideDetails();
+            $detailsButton.show();
         }
     }
 
-    function showDetails(){
-        $detailsHandlerOpen.removeClass("visible");
-        $detailsHandlerClose.addClass("visible");
-        model.detailsOn = true;
-    }
-
-    function hideDetails(){
-        $detailsHandlerOpen.addClass("visible");
-        $detailsHandlerClose.removeClass("visible");
-        model.detailsOn = false;
+    function showHideDetails(){
+        console.log("showHideDetails")
+        if (model.detailsOn){
+            $detailsButton.removeClass("selected");
+            model.detailsOn = false;
+        } else {
+            $detailsButton.addClass("selected");
+            model.detailsOn = true;
+        }
     }
 
     init()
@@ -325,13 +313,17 @@ function AlbumPhotos(model, conf){
     var $viewList = null;
     var template = null;
     var currentWidth = 0;
+    var heightProportion = 0.45;
 
-    var margin = 4;
+    var margin = 2;
 
     function init(){
         $view = conf.view;
         $viewList = (conf.listClass)? $view.find("."+conf.listClass) : $view
         template = conf.template
+        if (conf.heightProportion){
+            heightProportion = conf.heightProportion
+        }
 
         watch(model, "pictures", function(){
             displayPictures();
@@ -350,7 +342,7 @@ function AlbumPhotos(model, conf){
         }
         $view.show();
 
-        var resize = new Resize(model.pictures);
+        var resize = new Resize(model.pictures, heightProportion);
         currentWidth = $view.width()
         console.log("currentWidth: "+currentWidth)
         var newPictures = resize.doResize(currentWidth, $(window).height());
@@ -380,7 +372,7 @@ function AlbumPhotos(model, conf){
         var newWidth = $view.width()
         if (newWidth == currentWidth) return;
         currentWidth = $view.width()
-        var resize = new Resize(model.pictures);
+        var resize = new Resize(model.pictures, heightProportion);
         var newPictures = resize.doResize(currentWidth, $(window).height());
         $viewList.children().each(function(index, item){
             var p = newPictures[index]
@@ -412,5 +404,45 @@ function AlbumPhotos(model, conf){
         loadNextPicture()
     }
 
+    init();
+}
+
+function AlbumPageTitle(model, conf){
+
+    var template = 'Album {{title}}';
+    var templateEmpty = '';
+    var separator = ' | '
+
+    function init(){
+        if (conf && conf.template) {
+            template = conf.template;
+        }
+        if (conf && conf.templateEmpty) {
+            templateEmpty = conf.templateEmpty;
+        } else {
+            templateEmpty = template;
+        }
+        watch(model, "path", function(){
+            self.updateTitle()
+        });
+        watch(model, "selectedPictureIndex", function(){
+            self.updateTitle();
+        });
+    }
+
+    this.updateTitle = function(){
+        var path = model.path;
+        path = path.replace(/^\//, '');
+        path = path.replace(/\/$/, '');
+        path = path.replace(/[\/]+/g,  separator);
+        var newTitle = ''
+        if (path){
+            newTitle = Mustache.render(template, {title: path});
+        } else {
+            newTitle = Mustache.render(templateEmpty);
+        }
+        document.title = newTitle
+    }
+    
     init();
 }

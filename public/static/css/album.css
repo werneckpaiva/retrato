@@ -62,8 +62,17 @@ body{
     transform: translateY(-110%);
 }
 
+#top-menu .menu-container{
+    margin: 0 10px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+    align-items: center;
+}
+
 #breadcrumb{
-    padding: 0 5px;
+    margin-left: 10px;
 }
 
 #breadcrumb a{
@@ -87,33 +96,56 @@ body{
     vertical-align: text-bottom;
 }
 
-#top-menu .plus {
-    margin: 0 10px;
+
+.menu-container a{
+
 }
 
-#top-menu .plus a{
+.menu-container a:hover{
+    opacity: 1;
+}
+
+.menu-container button{
+    width: 25px;
+    height: 25px;
+    border: none;
+    margin: 0 0 0 30px;
+    padding: 0;
+
+    opacity: 0.6;
+}
+
+.menu-container button:hover{
+    opacity: 1;
+}
+
+.menu-container button span{
     display: none;
 }
 
-#top-menu .plus a.visible {
-    display: block;
+.menu-container button:focus{
+    border: none;
+    outline: none;
 }
 
-#top-menu .plus a{
-    text-decoration: none;
-    color: #fff;
+.menu-container button.details{
+    background: url("/static/media/plus.svg") no-repeat center;
+    background-size: 25px 25px;
 }
 
-#top-menu .plus a:hover span{
-    color: #FF8817;
+.menu-container button.details.selected{
+    background: url("/static/media/right.svg") no-repeat center;
+    background-size: 25px 25px;
 }
 
 /* Loading */
 
 #loading{
-    background: url("/static/media/loading.gif") no-repeat center;
+    background: url("/static/media/loading.gif") ;
     position: absolute;
     z-index: 30;
+    top:2px;
+    left:2px
 }
 
 
@@ -156,6 +188,7 @@ body{
     #albuns ul{
         margin-left: 0px;
     }
+    
 }
 
 #albuns h2{
@@ -199,7 +232,7 @@ body{
     float:left;
     position: relative;
     background-color: #fff;
-    margin: 2px;
+    margin: 1px;
 }
 
 #photos .photo{
@@ -318,7 +351,7 @@ body{
 }
 
 #highlight .details h3{
-    margin: 60px 15px 15px 15px;
+    margin: 50px 15px 15px 15px;
     font-color: #fff;
     opacity: .5;
     font-size: 2em;

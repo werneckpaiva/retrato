@@ -2,54 +2,137 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Album Admin</title>
+<title>Albuns Admin</title>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+
 <link rel="stylesheet" href="{% static 'css/album.css' %}">
 <link rel="stylesheet" href="{% static 'css/admin.css' %}">
-<link rel="stylesheet" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
 
+<script type="text/javascript" src="{% static 'js/lib/fast-blur.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/lib/mustache.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/lib/jquery.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/highlight.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/lib/watch.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/lib/headroom.min.js' %}"></script>
+
 <script type="text/javascript" src="{% static 'js/album.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/admin.album.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/highlight.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/resize.js' %}"></script>
- <script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+<script type="text/javascript" src="{% static 'js/admin.album.js' %}"></script>
 <script type="text/javascript">
 
     $(function(){
-        var albumPresentationModel = new AlbumPresentationModel();
-        albumPresentationModel.URL_PREFIX = "/admin/album"
-        albumPresentationModel.URL_DATA_PREFIX = "/admin/album/api"
 
-        var highlight = new Highlight($("#highlight"))
-        var albumAdminController = new AlbumAdminController(albumPresentationModel)
-        var album = new AlbumAdminView(albumAdminController, highlight, $("#album-name"), $("#albuns"), $("#photos"), $("#loading"), albumPresentationModel);
-        $( "#slider" ).slider({
-            min:0, max:10,
-            slide: function(event, ui){
-                var MIN = .1
-                var MAX = .6
-                var range = MAX - MIN
-                var value = MIN + (range * (ui.value / 10))
-                album.changeProportion(value)
-            }})
-        $("#slider").slider("value", 4)
+        Settings.URL_PREFIX = "/admin/album/";
+        Settings.URL_DATA_PREFIX = "/admin/album/api/";
+
+        var albumDelegate = new AlbumAdminDelegate();
+        var albumModel = new AlbumAdminModel(albumDelegate);
+
+        var loading = new Loading(albumModel, {
+            view: $("#loading") 
+        });
+
+        var navigator = new AlbumNavigator(albumModel, {
+            view: $("#albuns"),
+            listClass: "list",
+            template: $("#albumTpl").html()
+        });
+
+        var albumTitle = AlbumPageTitle(albumModel, {
+            template: $("#titleTpl").html(),
+            templateEmpty: 'Albuns Admin'
+        });
+        
+        var breadcrumb = new AlbumBreadcrumb(albumModel, {
+            view: $("#breadcrumb"), 
+            templateHome: $("#breadcrumbHomeTpl").html(), 
+            template: $("#breadcrumbTpl").html()
+        });
+
+        var menu = new AlbumAdminMenu(albumModel, {
+            view: $("#top-menu"),
+            detailsButton: $(".menu-container .details"),
+            publishButton: $(".menu-container .publish")
+        })
+
+        var deepLinking = new AlbumDeepLinking(albumModel);
+
+         var albumPhotos = new AlbumPhotos(albumModel, {
+            view: $("#photos"), 
+            template: $("#photoTpl").html(),
+            lazyLoad: true,
+            heightProportion: 0.35
+        });
+
+         var highlight = new Highlight(albumModel, {
+            view: $("#highlight"),
+            listClass:'pictures',
+            template: $("#highlightTpl").html(),
+            detailsView: $("#highlight .details")
+        })
     })
 
 </script>
+
+
 </head>
+<script id="titleTpl" type="text/html">{% verbatim %}Albuns Admin - {{title}}{% endverbatim %}</script>
 <body>
-<div id="admin">
-    <section id="album-name">
-        <a class="star star-off" href="#"><span>Star</span></a>
-        <span class="input" contenteditable="false"></span>
-    </section>
-    <div id="slider"></div>
-    <div id="contet">
-        <div id="loading"><img src="{% static 'media/spinner.gif' %}" width="80" height="79"/></div>
-        <section id="albuns"></section>
-        <section id="photos"></section>
+    <div id="content">
+        <div id="loading"><img src="{% static 'media/loading.gif' %}" width="40" height="40"/></div>
+        <header id="top-menu" class="slide">
+            <nav id="breadcrumb">
+                <script id="breadcrumbHomeTpl" type="text/html">{% verbatim %}<span><a href="{{url}}">{% endverbatim %}<img src="{% static 'media/admin.svg' %}" width="30" height="30" />{% verbatim %}</a></span>{% endverbatim %}</script>
+                <script id="breadcrumbTpl" type="text/html">{% verbatim %}<span>{{#url}}<a href="{{url}}">{{/url}}{{name}}{{#url}}</a>{{/url}}</span>{% endverbatim %}</script>
+            </nav>
+            <div class="menu-container">
+                <button class="publish"><span>star</span></button>
+                <button class="details"><span>details</span></button>
+            </div>
+        </header>
+        <section id="highlight">
+            <div class="pictures">
+                <script id="highlightTpl" type="text/html">
+                {% verbatim %}
+                    <div class="photo-frame">
+                        <canvas class="box-blur"/>
+                        <div class="large-photo">
+                            <img class="low-res" />
+                            <img class="high-res"/>
+                        </div>
+                    </div>
+                {% endverbatim %}
+            </script>
+            </div>
+            <aside class="details">
+                <h3>Detalhes</h3>
+                <ul>
+                    <li><label>Arquivo:</label><span class="value file-name"></span></li>
+                    <li><label>Data:</label><span class="value file-date"></span></li>
+                    <li><label>Largura:</label><span class="value file-width"></span></li>
+                    <li><label>Altura:</label><span class="value file-height"></span></li>
+                </ul>
+            </aside>
+        </section>
+        <div id="main-content">
+            <section id="albuns">
+                <h2>albuns</h2>
+                <ul class="list">
+                    <script id="albumTpl" type="text/html">{% verbatim %}<li><a href="{{url}}">{{name}}</li>{% endverbatim %}</script>
+                </ul>
+            </section>
+            <section id="photos">
+                <script id="photoTpl" type="text/html">
+            {% verbatim %}
+                <div class="photo-container unshared" style="width: {{width}}px; height: {{height}}px;">
+                    <img class="photo" width="{{width}}" height="{{height}}" src="{{photoUrl}}" style="display: inline;">
+                </div>
+            {% endverbatim %}
+            </script>
+            </section>
+        </div>
     </div>
-    <div id="highlight"></div>
-</div>
 </body>
+
 </html>

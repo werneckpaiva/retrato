@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Minhas Fotos</title>
+<title>Retrato</title>
 <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
 
@@ -22,7 +22,7 @@
     $(function(){
 
         Settings.URL_PREFIX = "/album/";
-        Settings.URL_DATA_PREFIX = "/admin/album/api/";
+        Settings.URL_DATA_PREFIX = "/album/api/";
 
         var albumDelegate = new AlbumDelegate();
         var albumModel = new AlbumModel(albumDelegate);
@@ -37,6 +37,11 @@
             template: $("#albumTpl").html()
         });
 
+        var albumTitle = AlbumPageTitle(albumModel, {
+            template: $("#titleTpl").html(),
+            templateEmpty: 'Retrato'
+        });
+        
         var breadcrumb = new AlbumBreadcrumb(albumModel, {
             view: $("#breadcrumb"), 
             templateHome: $("#breadcrumbHomeTpl").html(), 
@@ -46,8 +51,7 @@
         (new Headroom(document.getElementById("top-menu"))).init();
         var menu = new AlbumMenu(albumModel, {
             view: $("#top-menu"),
-            detailsHandlerOpen: $("#top-menu .plus .open"),
-            detailsHandlerClose: $("#top-menu .plus .close"),
+            detailsButton: $(".menu-container .details")
         })
 
         var deepLinking = new AlbumDeepLinking(albumModel);
@@ -70,7 +74,7 @@
 
 
 </head>
-
+<script id="titleTpl" type="text/html">{% verbatim %}Retrato - {{title}}{% endverbatim %}</script>
 <body>
     <div id="content">
         <div id="loading"><img src="{% static 'media/loading.gif' %}" width="40" height="40"/></div>
@@ -79,7 +83,9 @@
                 <script id="breadcrumbHomeTpl" type="text/html">{% verbatim %}<span><a href="{{url}}">{% endverbatim %}<img src="{% static 'media/home.svg' %}" width="30" height="30" />{% verbatim %}</a></span>{% endverbatim %}</script>
                 <script id="breadcrumbTpl" type="text/html">{% verbatim %}<span>{{#url}}<a href="{{url}}">{{/url}}{{name}}{{#url}}</a>{{/url}}</span>{% endverbatim %}</script>
             </nav>
-            <div class="plus"><a class="open" href="#">[ <span>+</span> ]</a><a class="close" href="#">[ <span>-</span> ]</a></div>
+            <div class="menu-container">
+                <button class="details"><span>details</span></button>
+            </div>
         </header>
         <section id="highlight">
             <div class="pictures">

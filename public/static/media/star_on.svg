@@ -1,4 +1,6 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="1235" height="1175">
-<path fill="#FF7400" d="M0,449h1235l-999,726 382-1175 382,1175z"/>
+<svg width="512" height="512" xmlns="http://www.w3.org/2000/svg">
+ <g>
+  <title>Layer 1</title>
+  <path d="m482,171l-143,-11l-64,-141c-4,-8 -11,-12 -20,-12s-16,4 -20,12l-64,141l-143,11c-18,1 -28,25 -13,38l120,101l-40,141c-2,9 1,19 8,24s16,6 24,1l128,-83l127,83c4,2 8,3 12,3c15,0 25,-15 21,-28l-40,-141l119,-101c15,-13 6,-37 -12,-38z" id="svg_1" fill="#ffffff" class="content"/>
+ </g>
 </svg>
