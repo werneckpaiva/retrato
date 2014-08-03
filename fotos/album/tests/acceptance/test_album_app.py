@@ -15,7 +15,7 @@ class TestAlbumAppAcceptance(TestCase):
 
         content = json.loads(response.content)
         self.assert_(content)
-        self.assertEquals(content['album'], {'name': '/'})
+        self.assertEquals(content['path'], '/')
         self.assertTrue(len(content['albuns']) >= 2)
         self.assertEquals(content['pictures'], [])
 
@@ -26,7 +26,7 @@ class TestAlbumAppAcceptance(TestCase):
 
         content = json.loads(response.content)
         self.assert_(content)
-        self.assertEquals(content['album'], {'name': '/album1/'})
+        self.assertEquals(content['path'], '/album1/')
         self.assertEquals(len(content['albuns']), 0)
         self.assertEquals(len(content['pictures']), 0)
 
@@ -37,7 +37,7 @@ class TestAlbumAppAcceptance(TestCase):
 
         content = json.loads(response.content)
         self.assert_(content)
-        self.assertEquals(content['album'], {'name': '/album2/'})
+        self.assertEquals(content['path'], '/album2/')
         self.assertEquals(len(content['albuns']), 0)
         self.assertEquals(len(content['pictures']), 4)
 

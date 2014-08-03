@@ -36,5 +36,6 @@ Requirements:
 - Pillow==2.3.0
 - django-jasmine==0.4.1
 
-
-
+Installation:
+-------------
+pip install -r requirements.txt

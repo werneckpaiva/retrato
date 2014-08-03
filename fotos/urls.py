@@ -15,5 +15,5 @@ urlpatterns = patterns('',
     url(r'^admin/album', include('fotos.album.admin.urls')),
     url(r'^admin/photo', include('fotos.photo.admin.urls')),
 
-#     url(r'^jasmine/', include('django_jasmine.urls')),
+    url(r'^jasmine/', include('django_jasmine.urls')),
 )

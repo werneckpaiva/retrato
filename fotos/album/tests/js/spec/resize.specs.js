@@ -4,23 +4,24 @@ var PORTRAIT = 0.750
 describe("Resize pictures", function() {
 
     it("should resize 2 landscape pictures to fit all in the screen", function(){
-        var pictures = [{ratio: LANDSCAPE}, {ratio:LANDSCAPE}]
-        var resize = new Resize(pictures)
+        var picturesInput = [{ratio: LANDSCAPE}, {ratio:LANDSCAPE}]
+        var resize = new Resize(picturesInput)
         resize.HEIGHT_PROPORTION = 0.5
-        resize.doResize(1100, 800)
+        var pictures = resize.doResize(1100, 800)
 
+        console.log(pictures)
         for (i in pictures){
-            expect(pictures[i].newHeight).toBe(400);
-            expect(pictures[i].newWidth).toBe(533);
+            expect(pictures[i].newHeight).toBe(412);
+            expect(pictures[i].newWidth).toBe(550);
         }
     });
 
     
     it("should resize 4 landscape pictures in 2 rows", function(){
-        var pictures = [{ratio: LANDSCAPE}, {ratio:LANDSCAPE}, {ratio:LANDSCAPE}, {ratio:LANDSCAPE}]
+        var picturesInput = [{ratio: LANDSCAPE}, {ratio:LANDSCAPE}, {ratio:LANDSCAPE}, {ratio:LANDSCAPE}]
         var resize = new Resize(pictures)
         resize.HEIGHT_PROPORTION = 0.5
-        resize.doResize(1100, 800)
+        var pictures = resize.doResize(1100, 800)
 
         for (i in pictures){
             expect(pictures[i].newHeight).toBe(412);

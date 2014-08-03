@@ -1,7 +1,7 @@
 {
     "name": "Main Test Suite",
     "js_files": [
-        "/static/js/lib/jquery.js",
+        "/static/js/lib/jquery.min.js",
         "/static/js/resize.js"
     ],
     "media_files": [
