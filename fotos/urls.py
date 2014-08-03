@@ -1,5 +1,6 @@
 from django.conf.urls import patterns, include, url
 from django.views.generic.base import RedirectView
+from django.conf import settings
 
 # from django.contrib import admin
 # from django.contrib.auth.models import Group
@@ -14,6 +15,7 @@ urlpatterns = patterns('',
 
     url(r'^admin/album', include('fotos.album.admin.urls')),
     url(r'^admin/photo', include('fotos.photo.admin.urls')),
-
-    url(r'^jasmine/', include('django_jasmine.urls')),
 )
+
+if 'django_jasmine' in settings.INSTALLED_APPS:
+    urlpatterns += patterns('', url(r'^jasmine/', include('django_jasmine.urls')))
