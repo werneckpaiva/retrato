@@ -8,6 +8,10 @@ from fotos.photo.models import Photo
 from shutil import rmtree
 
 
+class AlbumNotFoundError(Exception):
+    pass
+
+
 class Album(object):
 
     VISIBILITY_PUBLIC = "public"
@@ -24,6 +28,8 @@ class Album(object):
 
     def _load(self):
         self._realpath = os.path.join(self._root_folder, self._path)
+        if not os.path.isdir(self._realpath):
+            raise AlbumNotFoundError()
 
     @property
     def root_folder(self):
@@ -101,7 +107,8 @@ class Album(object):
         for picture in pictures_name:
             photo_file = os.path.join(self._realpath, picture)
             virtual_file = os.path.join(virtual_folder, picture)
-            os.symlink(photo_file, virtual_file)
+            if not os.path.islink(virtual_file):
+                os.symlink(photo_file, virtual_file)
 
     @classmethod
     def get_virtual_base_folder(cls):
@@ -126,3 +133,23 @@ class Album(object):
             if not os.path.islink(virtual_file):
                 raise Exception('Can\'t make the album private')
         rmtree(virtual_folder)
+
+    def get_photo_visibility(self, picture):
+        virtual_folder = self.get_virtual_album()
+        virtual_file = os.path.join(virtual_folder, picture)
+        if os.path.islink(virtual_file):
+            return Album.VISIBILITY_PUBLIC
+        else:
+            return Album.VISIBILITY_PRIVATE
+
+    def set_photo_visibility(self, picture, visibility):
+        virtual_folder = self.get_virtual_album()
+        virtual_file = os.path.join(virtual_folder, picture)
+        link_exists = os.path.islink(virtual_file)
+
+        if visibility == Album.VISIBILITY_PUBLIC and not link_exists:
+            self.make_it_public()
+            photo_file = os.path.join(self._realpath, picture)
+            os.symlink(photo_file, virtual_file)
+        elif visibility == Album.VISIBILITY_PRIVATE and link_exists:
+            os.unlink(virtual_file)

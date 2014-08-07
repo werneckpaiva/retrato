@@ -1,28 +1,39 @@
-from django.core.urlresolvers import reverse
-from django.conf import settings
-from django.http import HttpResponse
 import json
-from django.views.generic.base import View
-from fotos.album.models import Album
-import time
 import os
+import time
+
+from django.conf import settings
+from django.core.urlresolvers import reverse
+from django.http import HttpResponse
+from django.views.generic.detail import BaseDetailView
+
+from fotos.album.models import Album, AlbumNotFoundError
+from django.http.response import Http404
 
 
-class AlbumView(View):
+class AlbumView(BaseDetailView):
 
-    def get(self, request, album_path=''):
-        root_folder = self._get_root_folder()
+    def get_object(self):
+        root_folder = self.get_album_base()
+        try:
+            album = Album(root_folder, self.kwargs['album_path'])
+            return album
+        except AlbumNotFoundError:
+            raise Http404
 
-        album = Album(root_folder, album_path)
-        content = {
-            'path': '/%s' % album_path,
-            'visibility': album.get_visibility(),
-            'pictures': self._load_pictures(album),
-            'albuns': self._load_albuns(album)
+    def get_context_data(self, **kwargs):
+        album = self.object
+        context = {
+                   'path': '/%s' % self.kwargs['album_path'],
+                   'pictures': self._load_pictures(album),
+                   'albuns': self._load_albuns(album)
         }
-        return HttpResponse(json.dumps(content), content_type="application/json")
+        return context
 
-    def _get_root_folder(self):
+    def render_to_response(self, context):
+        return HttpResponse(json.dumps(context), content_type="application/json")
+
+    def get_album_base(self):
         if getattr(settings, 'USE_ADMIN', False):
             BASE_CACHE_DIR = getattr(settings, 'BASE_CACHE_DIR', '/')
             root_folder = os.path.join(BASE_CACHE_DIR, "album")

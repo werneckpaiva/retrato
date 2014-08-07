@@ -53,8 +53,8 @@ INSTALLED_APPS = (
     'fotos.photo',
 )
 
-# JASMINE_TEST_DIRECTORY = os.path.join(BASE_DIR, "fotos/album/tests/js")
-# INSTALLED_APPS += ('django_jasmine', )
+JASMINE_TEST_DIRECTORY = os.path.join(BASE_DIR, "fotos/album/tests/js")
+INSTALLED_APPS += ('django_jasmine', )
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',

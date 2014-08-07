@@ -51,6 +51,7 @@ function AlbumModel(albumDelegate){
 
     function loadAlbumFailHandler(error){
         self.loading = false
+        alert("Album does not exist")
     }
 
     return this;

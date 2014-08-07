@@ -1,43 +1,45 @@
 from django.conf import settings
 from django.http import HttpResponse
-from django.views.generic.base import View
 from django.http.response import Http404, HttpResponseNotModified
 from fotos.photo.models import Photo
 from fotos.photo.models.photo_cache import PhotoCache
 import os
 import time
 from rfc822 import parsedate
+from django.views.generic.detail import BaseDetailView
 
 
-class PhotoView(View):
+class PhotoView(BaseDetailView):
 
-    def get(self, request, photo=None):
-        photo = self.get_photo(photo)
+    def get_object(self):
+        photo_path = self.kwargs['photo']
+        photo = None
+        if photo_path:
+            parts = photo_path.split('/')
+            if len(parts) == 1:
+                album = ''
+                filename = parts[0]
+            else:
+                album = '/'.join(parts[:-1])
+                filename = parts[-1]
+            photo = Photo(self.get_photo_base(), album, filename)
+        if not photo or not photo.exists():
+            raise Http404
+        return photo
 
-        self.check_if_exists(photo)
+    def render_to_response(self, context):
+        photo = self.object
 
         cache = PhotoCache(photo)
-        response304 = self.check_modified_since(request, cache)
+        response304 = self.check_modified_since(cache)
         if response304:
             return response304
-
         cache.rotate_based_on_orientation()
-        self.set_photo_size(request, cache)
+        self.set_photo_size(cache)
 
         filename = cache.get_file()
 
-        return self.return_file(filename)
-
-    def get_photo(self, photo):
-        if not photo:
-            return None
-        parts = photo.split('/')
-        if len(parts) == 1:
-            return Photo(self.get_photo_base(), '', parts[0])
-        else:
-            album = '/'.join(parts[:-1])
-            filename = parts[-1]
-            return Photo(self.get_photo_base(), album, filename)
+        return self.output_file(filename)
 
     def get_photo_base(self):
         if getattr(settings, 'USE_ADMIN', False):
@@ -47,24 +49,20 @@ class PhotoView(View):
             root_folder = getattr(settings, 'PHOTOS_ROOT_DIR', '/')
         return root_folder
 
-    def check_if_exists(self, photo):
-        if not photo or not photo.exists():
-            raise Http404
-
-    def set_photo_size(self, request, cache):
-        size = request.GET.get('size', None)
+    def set_photo_size(self, cache):
+        size = self.request.GET.get('size', None)
         if size:
             cache.set_max_dimension(int(size))
 
-    def check_modified_since(self, request, cache):
-        modified_since_str = request.META.get("HTTP_IF_MODIFIED_SINCE", None)
+    def check_modified_since(self, cache):
+        modified_since_str = self.request.META.get("HTTP_IF_MODIFIED_SINCE", None)
         if modified_since_str:
             modified_since = time.mktime(parsedate(modified_since_str))
             file_time = time.mktime(cache.original_file_time())
             if modified_since >= file_time:
                 return HttpResponseNotModified()
 
-    def return_file(self, filename):
+    def output_file(self, filename):
         with open(filename, "rb") as f:
             response = HttpResponse(f.read(), content_type="image/jpeg")
             response['Content-Length'] = f.tell()

@@ -57,6 +57,9 @@ class TestAlbumAdminAcceptance(TestCase):
         if os.path.isdir(album_folder):
             rmtree(album_folder)
 
+        response_not_found = self.client.get('/album/api/album2/')
+        self.assertEqual(response_not_found.status_code, 404)
+
         response1 = self.client.post('/admin/album/api/album2/', {'visibility': 'public'})
         self.assertEqual(response1.status_code, 200)
         self.assertTrue(os.path.isdir(album_folder))
@@ -68,7 +71,6 @@ class TestAlbumAdminAcceptance(TestCase):
         self.assertEquals(content['path'], '/album2/')
         self.assertEquals(len(content['albuns']), 0)
         self.assertEquals(len(content['pictures']), 4)
-        self.assertEquals(content['visibility'], Album.VISIBILITY_PUBLIC)
 
     def test_make_album_private(self):
         settings.USE_ADMIN = True
@@ -84,7 +86,7 @@ class TestAlbumAdminAcceptance(TestCase):
         self.assertFalse(os.path.isdir(album_folder))
 
         response2 = self.client.get('/album/api/album1/')
-        self.assertEqual(response2.status_code, 200)
-        content = json.loads(response2.content)
-        self.assert_(content)
-        self.assertEquals(content['visibility'], Album.VISIBILITY_PRIVATE)
+        self.assertEqual(response2.status_code, 404)
+
+    def test_make_parent_album_private(self):
+        assert False

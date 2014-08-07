@@ -1,35 +1,40 @@
-from django.core.urlresolvers import reverse
 from fotos.album.views import AlbumView
 from django.conf import settings
 from django.http import HttpResponse
-from fotos.album.models import Album
 import json
 
 
 class AlbumAdminView(AlbumView):
 
-    def _get_root_folder(self):
+    def get_context_data(self, **kwargs):
+        album = self.object
+        context = super(AlbumAdminView, self).get_context_data(**kwargs)
+        context['visibility'] = album.get_visibility()
+        self._get_pictures_visibility(context)
+        return context
+
+    # @override
+    def get_album_base(self):
         root_folder = getattr(settings, 'PHOTOS_ROOT_DIR', '/')
         return root_folder
 
-    def _get_photo_url(self, photo):
-        relative_url = photo.relative_url()
-        url = reverse('admin_photo', args=(relative_url,))
-        return url
+    def _get_pictures_visibility(self, context):
+        album = self.object
+        for picture in context["pictures"]:
+            picture["visibility"] = album.get_photo_visibility(picture["filename"])
 
-    def post(self, request, album_path='', *args, **kwargs):
-        root_folder = self._get_root_folder()
-        album = Album(root_folder, album_path)
+    def post(self, request, *args, **kwargs):
+        album = self.get_object()
+        context = {
+            'album': '/%s' % self.kwargs['album_path']
+        }
 
         visibility = request.POST.get('visibility', None)
         if visibility:
             try:
                 album.set_visibility(visibility)
-                content = {
-                   'album': '/%s' % album_path,
-                   'visibility': album.get_visibility(),
-                }
-                return HttpResponse(json.dumps(content), content_type="application/json")
-            except:
+                context['visibility'] = album.get_visibility()
+            except Exception:
                 pass
-        return HttpResponse(status=410)
+
+        return HttpResponse(json.dumps(context), content_type="application/json")

@@ -2,17 +2,28 @@ function AlbumAdminModel(albumDelegate){
     var model = AlbumModel(albumDelegate);
 
     model.changeVisibility = function(visibility){
-        albumDelegate.changeVisibility(model.path, visibility, changeAlbumVisibilityResultHandler, changeAlbumVisibilityFailHandler)
+        albumDelegate.changeVisibility(model.path, visibility, 
+                function(result){
+                    model.loading = false
+                    model.visibility = result.visibility;
+                }, 
+                function(error){
+                    model.loading = false
+                });
         model.loading = true
     }
 
-    function changeAlbumVisibilityResultHandler(result){
-        model.loading = false
-        model.visibility = result.visibility;
-    }
-
-    function changeAlbumVisibilityFailHandler(error){
-        model.loading = false
+    model.changePictureVisibility = function(pictureIndex, visibility){
+        albumDelegate.changePictureVisibility(model.pictures[pictureIndex].url, visibility, 
+                function(result){
+                    model.loading = false
+                    model.pictures[pictureIndex].visibility = result.visibility;
+                    callWatchers(model, "pictures");
+                }, 
+                function(error){
+                    model.loading = false
+                });
+        model.loading = true
     }
 
     return model;
@@ -34,6 +45,17 @@ function AlbumAdminDelegate(){
         });
     }
 
+    delegate.changePictureVisibility = function(picturePath, visibility, resultHandler, failHandler){
+        var data = {
+                'visibility': visibility
+        }
+        var url = "/admin" + picturePath; // TODO: Move to another URL
+        $.post(url, data, function(result) {
+            resultHandler(result)
+        }).fail(function(status, s){
+            failHandler(status)
+        });
+    }
     return delegate;
 }
 
@@ -51,26 +73,54 @@ function AlbumAdminMenu(model, conf){
         });
 
         watch(model, "visibility", function(){
-            showVisibilityStatus();
+            showPublishButtonStatus();
         });
 
-        showVisibilityStatus()
+        watch(model, "selectedPictureIndex", function(){
+            showPublishButtonStatus();
+        });
+
+        watch(model, "pictures", function(){
+            console.log("pictures changed")
+            showPublishButtonStatus();
+        }, 2);
+
+        showPublishButtonStatus()
     }
 
     function togglePublish(){
-        if (model.visibility=="public"){
-            model.changeVisibility("private");
-        } else if (model.visibility=="private"){
-            model.changeVisibility("public");
+        if (model.selectedPictureIndex == null){
+            var albumVisibility = model.visibility;
+            if (albumVisibility=="public"){
+                model.changeVisibility("private");
+            } else if (albumVisibility=="private"){
+                model.changeVisibility("public");
+            }
+        } else {
+            var pictureVisibility = model.pictures[model.selectedPictureIndex].visibility
+            if (pictureVisibility == "public"){
+                model.changePictureVisibility(model.selectedPictureIndex, "private")
+            } else if (pictureVisibility == "private") {
+                model.changePictureVisibility(model.selectedPictureIndex, "public")
+            }
         }
     }
 
-    function showVisibilityStatus(){
-        console.log(model.visibility);
-        if (model.visibility=="public"){
-            $publishButton.addClass("selected");
-        } else if (model.visibility=="private"){
-            $publishButton.removeClass("selected");
+    function showPublishButtonStatus(){
+        if (model.selectedPictureIndex == null){
+            if (model.visibility=="public"){
+                $publishButton.addClass("selected");
+            } else if (model.visibility=="private"){
+                $publishButton.removeClass("selected");
+            }
+        } else {
+            
+            var pictureVisibility = model.pictures[model.selectedPictureIndex].visibility
+            if (pictureVisibility=="public"){
+                $publishButton.addClass("selected");
+            } else if (pictureVisibility=="private"){
+                $publishButton.removeClass("selected");
+            }
         }
     }
 
