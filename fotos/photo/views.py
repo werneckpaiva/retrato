@@ -29,7 +29,6 @@ class PhotoView(BaseDetailView):
 
     def render_to_response(self, context):
         photo = self.object
-
         cache = PhotoCache(photo)
         response304 = self.check_modified_since(cache)
         if response304:
@@ -43,10 +42,10 @@ class PhotoView(BaseDetailView):
 
     def get_photo_base(self):
         if getattr(settings, 'USE_ADMIN', False):
+            root_folder = getattr(settings, 'PHOTOS_ROOT_DIR', '/')
+        else:
             BASE_CACHE_DIR = getattr(settings, 'BASE_CACHE_DIR', '/')
             root_folder = os.path.join(BASE_CACHE_DIR, "album")
-        else:
-            root_folder = getattr(settings, 'PHOTOS_ROOT_DIR', '/')
         return root_folder
 
     def set_photo_size(self, cache):

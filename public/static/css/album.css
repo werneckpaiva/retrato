@@ -334,7 +334,7 @@ body{
 .current-frame .box-blur{
     z-index:1;
 }
-.next-frame .large-photo, .next-frame .box-blur, .prev-frame .large-photo, .prev-frame .box-blur{
+.next-frame .box-blur, .prev-frame .box-blur{
     z-index: 0;
 }
 

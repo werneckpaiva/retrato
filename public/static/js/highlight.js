@@ -24,6 +24,7 @@ function Highlight(model, conf){
 
         watch(model, "selectedPictureIndex", function(){
             onPictureSelected()
+            updateDetailValues();
         });
         watch(model, "detailsOn", function(){
             if (model.detailsOn){
@@ -115,6 +116,7 @@ function Highlight(model, conf){
         if (!self.hasPicturesToDisplay()) return;
         $viewList.find(".large-photo").stop()
         if (model.selectedPictureIndex == 0) return;
+
         var newRightPicture = model.pictures[model.selectedPictureIndex];
         model.selectedPictureIndex--;
 
@@ -129,8 +131,6 @@ function Highlight(model, conf){
             showBlur(newCurrentFrame, newCurrentPicture);
             showHighResolution(newCurrentFrame, newCurrentPicture)
         });
-
-        updateDetailValues(newCurrentPicture);
 
         var newRightFrame = currentFrame
         newRightFrame.removeClass("current-frame").addClass("next-frame")
@@ -159,6 +159,7 @@ function Highlight(model, conf){
         if (!self.hasPicturesToDisplay()) return;
         $viewList.find(".large-photo").stop()
         if (model.selectedPictureIndex >= (model.pictures.length - 1)) return;
+
         var newLeftPicture = model.pictures[model.selectedPictureIndex];
         model.selectedPictureIndex++;
 
@@ -173,8 +174,6 @@ function Highlight(model, conf){
             showBlur(newCurrentFrame, newCurrentPicture)
             showHighResolution(newCurrentFrame, newCurrentPicture)
         });
-
-        updateDetailValues(newCurrentPicture);
 
         var newLeftFrame = currentFrame;
         newLeftFrame.removeClass("current-frame").addClass("prev-frame")
@@ -228,7 +227,6 @@ function Highlight(model, conf){
             setPosition(currentFrame, dimension)
             showLowResolution(currentFrame, picture)
             showHighResolution(currentFrame, picture)
-            updateDetailValues(picture);
             if (!currentFrame.find('.box-blur').is(':visible')){
                 showBlur(currentFrame, picture)
             }
@@ -314,12 +312,13 @@ function Highlight(model, conf){
             height: dimension.newHeight
         }, 500);
     }
-    
+
     function showBlur(frame, picture){
-        setTimeout(function(){
-            blur = frame.find('.box-blur').hide()
+        self.blurTimeout = setTimeout(function(){
+            var blur = frame.find('.box-blur').hide()
             blur.fadeIn(2000)
             boxBlurImage(frame.find('.low-res').get(0), blur.get(0), 20, false, 2);
+            blur.show()
         }, 500);
     }
 
@@ -339,7 +338,8 @@ function Highlight(model, conf){
         }
     }
 
-    function updateDetailValues(picture){
+    function updateDetailValues(){
+        var picture = model.pictures[model.selectedPictureIndex]
         $detailsView.find(".file-name").html(picture.filename);
         $detailsView.find(".file-date").html(picture.date);
         $detailsView.find(".file-width").html(picture.width);
