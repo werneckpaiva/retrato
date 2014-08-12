@@ -32,6 +32,10 @@ class Album(object):
             raise AlbumNotFoundError()
 
     @property
+    def path(self):
+        return self._path
+
+    @property
     def root_folder(self):
         return self._root_folder
 
@@ -132,7 +136,15 @@ class Album(object):
             virtual_file = os.path.join(virtual_folder, picture)
             if not os.path.islink(virtual_file):
                 raise Exception('Can\'t make the album private')
-        rmtree(virtual_folder)
+            os.unlink(virtual_file)
+        path = virtual_folder
+        base_folder = Album.get_virtual_base_folder()
+        while path != '/' and len(path) > len(base_folder):
+            if os.listdir(path) == []:
+                os.rmdir(path)
+            else:
+                break
+            (path, current_folder) = os.path.split(path)
 
     def get_photo_visibility(self, picture):
         virtual_folder = self.get_virtual_album()

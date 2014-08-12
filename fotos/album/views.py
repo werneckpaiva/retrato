@@ -22,6 +22,7 @@ class AlbumView(BaseDetailView):
             raise Http404
 
     def get_context_data(self, **kwargs):
+        print "NO CACHE '%s'" % self.kwargs['album_path']
         album = self.object
         context = {
                    'path': '/%s' % self.kwargs['album_path'],

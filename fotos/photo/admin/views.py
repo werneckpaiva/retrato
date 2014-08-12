@@ -3,9 +3,10 @@ from fotos.photo.views import PhotoView
 from django.http import HttpResponse
 import json
 from fotos.album.models import Album
+from fotos.album.admin.views import AlbumCacheManager
 
 
-class PhotoAdminView(PhotoView):
+class PhotoAdminView(PhotoView, AlbumCacheManager):
 
     # @override
     def get_photo_base(self):
@@ -27,16 +28,3 @@ class PhotoAdminView(PhotoView):
             self.purge_album_cache(photo.album)
 
         return HttpResponse(json.dumps(context), content_type="application/json")
-
-    def purge_album_cache(self, album_path):
-        from django.core.urlresolvers import reverse
-        from django.http import HttpRequest
-        from django.utils.cache import get_cache_key
-        from django.core.cache import cache
-
-        request = HttpRequest()
-        request.path = reverse('album_data', kwargs={'album_path': album_path})
-        key = get_cache_key(request)
-        if key:
-            if cache.get(key):
-                cache.set(key, None, 0)

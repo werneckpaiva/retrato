@@ -2,9 +2,28 @@ from fotos.album.views import AlbumView
 from django.conf import settings
 from django.http import HttpResponse
 import json
+import logging
+from fotos.album.models import Album
 
 
-class AlbumAdminView(AlbumView):
+class AlbumCacheManager():
+
+    def purge_album_cache(self, album_path):
+        from django.core.urlresolvers import reverse
+        from django.http import HttpRequest
+        from django.utils.cache import get_cache_key
+        from django.core.cache import cache
+
+        request = HttpRequest()
+        request.path = reverse('album_data', kwargs={'album_path': album_path})
+        key = get_cache_key(request)
+        if key:
+            if cache.get(key):
+                print "Purge cache '%s'" % request.path
+                cache.set(key, None, 0)
+
+
+class AlbumAdminView(AlbumView, AlbumCacheManager):
 
     def get_context_data(self, **kwargs):
         album = self.object
@@ -36,5 +55,14 @@ class AlbumAdminView(AlbumView):
                 context['visibility'] = album.get_visibility()
             except Exception:
                 pass
-
+        self.purge_albunm_cache_recursively(album.path)
         return HttpResponse(json.dumps(context), content_type="application/json")
+
+    def purge_albunm_cache_recursively(self, album_path):
+        parts = album_path.split("/")
+        partial_path = ''
+        parts.insert(0, '')
+        for path in parts:
+            partial_path = Album.sanitize_path(partial_path + '/%s' % path)
+            partial_path = partial_path.strip("/")
+            self.purge_album_cache(partial_path)
