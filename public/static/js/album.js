@@ -338,7 +338,7 @@ function AlbumPhotos(model, conf){
 
     this.picturesChanged = function(){
         var imgs = $viewList.find("img")
-        if (imgs.length == 0){
+        if (imgs.length == 0 || model.pictures.length == 0){
             return true;
         }
         var changed = false
