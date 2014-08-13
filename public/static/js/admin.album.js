@@ -136,7 +136,7 @@ function AlbumAdminPhotos(model, conf){
     var $view = null;
     var $viewList = null;
 
-    var dirtyData = false;
+    var self = this;
 
     function init(){
         $view = conf.view;
@@ -146,25 +146,26 @@ function AlbumAdminPhotos(model, conf){
     var _displayPictures = albumPhotos.displayPictures;
     albumPhotos.displayPictures = function(){
         _displayPictures();
+        var picturesChanged = albumPhotos.picturesChanged();
         $viewList.find('.photo-container').each(function(i, element){
             var isPrivate = (model.pictures[i].visibility == "private");
             $element = $(element)
             $element.toggleClass("private", isPrivate)
-            var photoShare = $element.find(".photo-share")
-            var publishBtn = photoShare.find(".publish");
-            publishBtn.data("index", i)
-            publishBtn.click(function(event){
-                event.preventDefault();
-                console.log("dirtyData: "+dirtyData)
-                var dataIndex = $(this).data("index");
-                var pictureVisibility = model.pictures[dataIndex].visibility
-                if (pictureVisibility == "public"){
-                    model.changePictureVisibility(dataIndex, "private")
-                } else if (pictureVisibility == "private") {
-                    model.changePictureVisibility(dataIndex, "public")
-                }
-            })
-            
+            if (picturesChanged){
+                var photoShare = $element.find(".photo-share")
+                var publishBtn = photoShare.find(".publish");
+                publishBtn.data("index", i)
+                publishBtn.click(function(event){
+                    event.preventDefault();
+                    var dataIndex = $(this).data("index");
+                    var pictureVisibility = model.pictures[dataIndex].visibility
+                    if (pictureVisibility == "public"){
+                        model.changePictureVisibility(dataIndex, "private")
+                    } else if (pictureVisibility == "private") {
+                        model.changePictureVisibility(dataIndex, "public")
+                    }
+                })
+            }
         })
     }
 
