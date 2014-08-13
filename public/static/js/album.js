@@ -336,7 +336,25 @@ function AlbumPhotos(model, conf){
         })
     }
 
+    this.picturesChanged = function(){
+        var imgs = $viewList.find("img")
+        if (imgs.length == 0){
+            return true;
+        }
+        var changed = false
+        for (var i=0; i<imgs.length; i++){
+            if (model.pictures[i] && imgs[i].src.indexOf(model.pictures[i].thumb) == -1){
+                changed = true
+            }
+        }
+        return changed;
+    }
+    
     this.displayPictures = function(){
+        if (!self.picturesChanged()){
+            return;
+        }
+        
         $viewList.empty();
         if(!model.pictures || model.pictures.length == 0){
             $view.hide();
@@ -386,7 +404,20 @@ function AlbumPhotos(model, conf){
     }
     
     function lazyLoad(){
-        $viewList.find("img").hide();
+
+        function loadNextPicture(){
+            if (index >= model.pictures.length){
+                return
+            }
+            $viewList.find("img:eq("+index+")").data("index", index)
+            if (image.src == model.pictures[index].thumb){
+                index++;
+                loadNextPicture();
+            } else {
+                image.src = model.pictures[index].thumb
+            }
+        }
+
         var index = 0;
         var image = new Image()
         image.onload = function(){
@@ -396,13 +427,7 @@ function AlbumPhotos(model, conf){
             index++
             loadNextPicture()
         }
-        function loadNextPicture(){
-            if (index >= model.pictures.length){
-                return
-            }
-            $viewList.find("img:eq("+index+")").data("index", index)
-            image.src = model.pictures[index].thumb
-        }
+        
         loadNextPicture()
     }
 

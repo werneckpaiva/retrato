@@ -136,6 +136,8 @@ function AlbumAdminPhotos(model, conf){
     var $view = null;
     var $viewList = null;
 
+    var dirtyData = false;
+
     function init(){
         $view = conf.view;
         $viewList = (conf.listClass)? $view.find("."+conf.listClass) : $view
@@ -149,11 +151,18 @@ function AlbumAdminPhotos(model, conf){
             $element = $(element)
             $element.toggleClass("private", isPrivate)
             var photoShare = $element.find(".photo-share")
-            photoShare.data("index", i)
-            photoShare.click(function(){
-                var dataIndex = $(this).data("index")
-                model.selectedPictureIndex = dataIndex;
-                console.log(dataIndex)
+            var publishBtn = photoShare.find(".publish");
+            publishBtn.data("index", i)
+            publishBtn.click(function(event){
+                event.preventDefault();
+                console.log("dirtyData: "+dirtyData)
+                var dataIndex = $(this).data("index");
+                var pictureVisibility = model.pictures[dataIndex].visibility
+                if (pictureVisibility == "public"){
+                    model.changePictureVisibility(dataIndex, "private")
+                } else if (pictureVisibility == "private") {
+                    model.changePictureVisibility(dataIndex, "public")
+                }
             })
             
         })

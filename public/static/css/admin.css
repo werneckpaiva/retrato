@@ -7,27 +7,31 @@
     background-size: 25px 25px;
 }
 
-.menu-container button.publish{
-    background: url("/static/media/star.svg") no-repeat center;
-    background-size: 25px 25px;
-}
-
 .menu-container button.publish.selected{
     background: url("/static/media/star_on.svg") no-repeat center;
     background-size: 25px 25px;
 }
 
-.photo-container .photo{
-
-}
-
 .photo-share{
+    position: absolute;
     width: 100%;
     height: 100%;
-/*     background: rgba(0, 0, 0, 0.5); */
-    position: absolute;
+    background: rgba(0, 0, 0, 0);
     z-index: 2;
-    display: none;
+
+    visibility: hidden;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: flex-start;
+
+    -webkit-transition: all .25s ease-in-out;
+    -moz-transition: all .25s ease-in-out;
+    -o-transition: all .25s ease-in-out;
+    transition: all .25s ease-in-out;
+
+    pointer-events:none;
 }
 
 .photo-container.private .photo{
@@ -38,6 +42,44 @@
     opacity: 1;
 }
 
-.photo-container.private .photo-share{
-    display: block;
+.photo-container:hover .photo-share{
+    visibility: visible;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.photo-share button{
+    width: 25px;
+    height: 25px;
+    border: none;
+    margin: 15px 15px 0 0;
+    padding: 0;
+
+    opacity: 0.6;
+    pointer-events: auto;
+
+    -webkit-filter: drop-shadow( 1px 1px 1px #000 );
+    filter: drop-shadow( 1px 1px 1px #000 );
+}
+
+.photo-share button:hover{
+    opacity: 1;
+}
+
+.photo-container button span{
+    display: none;
+}
+
+.photo-container button:focus{
+    border: none;
+    outline: none;
+}
+
+.photo-container.private button.publish{
+    background: url("/static/media/star.svg") no-repeat center;
+    background-size: 25px 25px;
+}
+
+.photo-container button.publish{
+    background: url("/static/media/star_on.svg") no-repeat center;
+    background-size: 25px 25px;
 }

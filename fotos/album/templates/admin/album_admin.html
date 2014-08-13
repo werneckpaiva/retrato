@@ -87,7 +87,7 @@
                 <script id="breadcrumbTpl" type="text/html">{% verbatim %}<span>{{#url}}<a href="{{url}}">{{/url}}{{name}}{{#url}}</a>{{/url}}</span>{% endverbatim %}</script>
             </nav>
             <div class="menu-container">
-                <button class="publish"><span>star</span></button>
+                <button class="publish"><span>publish</span></button>
                 <button class="details"><span>details</span></button>
             </div>
         </header>
@@ -126,7 +126,7 @@
                 <script id="photoTpl" type="text/html">
             {% verbatim %}
                 <div class="photo-container" style="width: {{width}}px; height: {{height}}px;">
-                    <div class="photo-share"></div>
+                    <div class="photo-share"><button class="publish"><span>publish</span></button></div>
                     <img class="photo" width="{{width}}" height="{{height}}" src="{{photoUrl}}" style="display: inline;">
                 </div>
             {% endverbatim %}
