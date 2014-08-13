@@ -16,3 +16,28 @@
     background: url("/static/media/star_on.svg") no-repeat center;
     background-size: 25px 25px;
 }
+
+.photo-container .photo{
+
+}
+
+.photo-share{
+    width: 100%;
+    height: 100%;
+/*     background: rgba(0, 0, 0, 0.5); */
+    position: absolute;
+    z-index: 2;
+    display: none;
+}
+
+.photo-container.private .photo{
+    opacity: .5;
+}
+
+.photo-container.private:hover .photo{
+    opacity: 1;
+}
+
+.photo-container.private .photo-share{
+    display: block;
+}

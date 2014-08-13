@@ -58,7 +58,7 @@
 
         var deepLinking = new AlbumDeepLinking(albumModel);
 
-         var albumPhotos = new AlbumPhotos(albumModel, {
+         var albumPhotos = new AlbumAdminPhotos(albumModel, {
             view: $("#photos"), 
             template: $("#photoTpl").html(),
             lazyLoad: true,
@@ -125,7 +125,8 @@
             <section id="photos">
                 <script id="photoTpl" type="text/html">
             {% verbatim %}
-                <div class="photo-container unshared" style="width: {{width}}px; height: {{height}}px;">
+                <div class="photo-container" style="width: {{width}}px; height: {{height}}px;">
+                    <div class="photo-share"></div>
                     <img class="photo" width="{{width}}" height="{{height}}" src="{{photoUrl}}" style="display: inline;">
                 </div>
             {% endverbatim %}

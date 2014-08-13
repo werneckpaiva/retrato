@@ -310,6 +310,7 @@ function AlbumDeepLinking(model){
 
 function AlbumPhotos(model, conf){
 
+    var self = this;
     var $view = null;
     var $viewList = null;
     var template = null;
@@ -327,15 +328,15 @@ function AlbumPhotos(model, conf){
         }
 
         watch(model, "pictures", function(){
-            displayPictures();
+            self.displayPictures();
         });
 
         $(window).resize(function(){
-            resizePictures();
+            self.resizePictures();
         })
     }
 
-    function displayPictures(){
+    this.displayPictures = function(){
         $viewList.empty();
         if(!model.pictures || model.pictures.length == 0){
             $view.hide();
@@ -369,7 +370,7 @@ function AlbumPhotos(model, conf){
         }
     }
 
-    function resizePictures(){
+    this.resizePictures = function(){
         var newWidth = $view.width()
         if (newWidth == currentWidth) return;
         currentWidth = $view.width()

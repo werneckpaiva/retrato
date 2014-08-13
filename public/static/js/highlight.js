@@ -340,6 +340,7 @@ function Highlight(model, conf){
 
     function updateDetailValues(){
         var picture = model.pictures[model.selectedPictureIndex]
+        if (!picture) return;
         $detailsView.find(".file-name").html(picture.filename);
         $detailsView.find(".file-date").html(picture.date);
         $detailsView.find(".file-width").html(picture.width);

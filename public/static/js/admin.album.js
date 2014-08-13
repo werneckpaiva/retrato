@@ -6,6 +6,7 @@ function AlbumAdminModel(albumDelegate){
                 function(result){
                     model.loading = false
                     model.visibility = result.visibility;
+                    model.loadAlbum(model.path)
                 }, 
                 function(error){
                     model.loading = false
@@ -126,4 +127,44 @@ function AlbumAdminMenu(model, conf){
 
     init();
     return albumMenu;
+}
+
+
+function AlbumAdminPhotos(model, conf){
+
+    var albumPhotos = new AlbumPhotos(model, conf);
+    var $view = null;
+    var $viewList = null;
+
+    function init(){
+        $view = conf.view;
+        $viewList = (conf.listClass)? $view.find("."+conf.listClass) : $view
+    }
+
+    var _displayPictures = albumPhotos.displayPictures;
+    albumPhotos.displayPictures = function(){
+        _displayPictures();
+        $viewList.find('.photo-container').each(function(i, element){
+            var isPrivate = (model.pictures[i].visibility == "private");
+            $element = $(element)
+            $element.toggleClass("private", isPrivate)
+            var photoShare = $element.find(".photo-share")
+            photoShare.data("index", i)
+            photoShare.click(function(){
+                var dataIndex = $(this).data("index")
+                model.selectedPictureIndex = dataIndex;
+                console.log(dataIndex)
+            })
+            
+        })
+    }
+
+    var _resizePictures = albumPhotos.resizePictures;
+    albumPhotos.resizePictures = function(){
+        _resizePictures();
+        
+    }
+    
+    init();
+    return albumPhotos;
 }

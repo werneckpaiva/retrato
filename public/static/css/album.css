@@ -226,6 +226,7 @@ body{
 #photos{
     width: 100%;
     margin-top: 10px;
+    background: #eee;
 }
 
 #photos .photo-container{
@@ -233,14 +234,31 @@ body{
     position: relative;
     background-color: #fff;
     margin: 1px;
+    position: relative;
+    overflow: hidden;
 }
 
 #photos .photo{
     background-position: center;
     background-size: 100% 100%;
     display:none;
+    position: absolute;
+    z-index: 1;
+    cursor: pointer;
+
+    -webkit-transition: all .25s ease-in-out;
+    -moz-transition: all .25s ease-in-out;
+    -o-transition: all .25s ease-in-out;
+    transition: all .25s ease-in-out;
 }
 
+/* .photo-container:hover .photo{
+    -webkit-transform: scale(1.05,1.05);
+    -moz-transform: scale(1.05,1.05);
+    -ms-transform: scale(1.05,1.05);
+    -o-transform: scale(1.05,1.05);
+    transform: scale(1.05,1.05);
+} */
 
 /* Highlight */
 
