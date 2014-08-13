@@ -245,11 +245,6 @@ body{
     position: absolute;
     z-index: 1;
     cursor: pointer;
-
-    -webkit-transition: all .25s ease-in-out;
-    -moz-transition: all .25s ease-in-out;
-    -o-transition: all .25s ease-in-out;
-    transition: all .25s ease-in-out;
 }
 
 /* Highlight */
