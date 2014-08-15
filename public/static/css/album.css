@@ -69,6 +69,7 @@ body{
     flex-wrap: nowrap;
     justify-content: flex-end;
     align-items: center;
+    align-items: center;
 }
 
 #breadcrumb{
@@ -109,7 +110,7 @@ body{
     width: 25px;
     height: 25px;
     border: none;
-    margin: 0 0 0 30px;
+    margin: 0 0 0 20px;
     padding: 0;
 
     opacity: 0.6;
@@ -136,6 +137,16 @@ body{
 .menu-container button.details.selected{
     background: url("/static/media/right.svg") no-repeat center;
     background-size: 25px 25px;
+}
+
+.menu-container button.fullscreen {
+    background: url("/static/media/fullscreen.svg") no-repeat center;
+    background-size: 20px 20px;
+}
+
+.menu-container button.fullscreen.selected {
+    background: url("/static/media/fullscreen_close.svg") no-repeat center center;
+    background-size: 28px 28px;
 }
 
 /* Loading */

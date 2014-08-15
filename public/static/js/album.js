@@ -15,6 +15,47 @@ var StringUtil = {
     }
 }
 
+
+var Fullscreen = {
+    open: function(element){
+        if (element.requestFullscreen) {
+            element.requestFullscreen();
+        } else if (element.webkitRequestFullscreen) {
+            element.webkitRequestFullscreen();
+        } else if (element.mozRequestFullScreen) {
+            element.mozRequestFullScreen();
+        } else if (element.msRequestFullscreen) {
+            element.msRequestFullscreen();
+        }
+    },
+
+    close: function close() {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+        } else if (document.mozCancelFullScreen) {
+            document.mozCancelFullScreen();
+        } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
+        }
+    },
+
+    onchange: function(handler){
+        document.addEventListener("fullscreenchange", handler);
+        document.addEventListener("webkitfullscreenchange", handler);
+        document.addEventListener("mozfullscreenchange", handler);
+        document.addEventListener("MSFullscreenChange", handler);
+    },
+
+    isActive: function(){
+       return document.fullScreenElement != null 
+                    || document.webkitCurrentFullScreenElement != null
+                    || document.mozFullScreenElement != null
+                    || document.msFullscreenElement != null
+    }
+}
+
 function AlbumModel(albumDelegate){
 
     var delegate = albumDelegate
@@ -213,14 +254,17 @@ function AlbumMenu(model, conf){
 
     var $view = null;
     var $detailsButton = null;
+    var $fullscreenButton = null;
 
     function init(){
         $view = conf.view;
         $detailsButton = conf.detailsButton;
+        $fullscreenButton = conf.fullscreenButton
 
         watch(model, "selectedPictureIndex", function(){
             pinMenu();
             showHideDetailsButton();
+            showHideFullscreenButton();
         });
 
         $detailsButton.click(function(event){
@@ -228,7 +272,17 @@ function AlbumMenu(model, conf){
             showHideDetails();
         });
 
+        $fullscreenButton.click(function(event){
+            event.preventDefault();
+            openCloseFullscreen();
+        })
+
+        Fullscreen.onchange(function(event){
+            $fullscreenButton.toggleClass("selected", Fullscreen.isActive());
+        });
+        
         showHideDetailsButton();
+        showHideFullscreenButton();
     }
 
     function pinMenu(){
@@ -248,13 +302,24 @@ function AlbumMenu(model, conf){
     }
 
     function showHideDetails(){
-        console.log("showHideDetails")
-        if (model.detailsOn){
-            $detailsButton.removeClass("selected");
+        model.detailsOn = !model.detailsOn;
+        $detailsButton.toggleClass("selected", model.detailsOn);
+    }
+
+    function showHideFullscreenButton(){
+        if (model.selectedPictureIndex == null){
             model.detailsOn = false;
+            $fullscreenButton.hide();
         } else {
-            $detailsButton.addClass("selected");
-            model.detailsOn = true;
+            $fullscreenButton.show();
+        }
+    }
+
+    function openCloseFullscreen(){
+        if (Fullscreen.isActive()){
+            Fullscreen.close();
+        } else {
+            Fullscreen.open(document.getElementById("content"));
         }
     }
 
@@ -327,8 +392,9 @@ function AlbumPhotos(model, conf){
             heightProportion = conf.heightProportion
         }
 
-        watch(model, "pictures", function(){
-            self.displayPictures();
+        watch(model, "pictures", function(prop, action, newvalue, oldvalue){
+            var picturesChanged = Array.isArray(newvalue)
+            self.displayPictures(picturesChanged);
         });
 
         $(window).resize(function(){
@@ -336,22 +402,22 @@ function AlbumPhotos(model, conf){
         })
     }
 
-    this.picturesChanged = function(){
-        var imgs = $viewList.find("img")
-        if (imgs.length == 0 || model.pictures.length == 0){
-            return true;
-        }
-        var changed = false
-        for (var i=0; i<imgs.length; i++){
-            if (model.pictures[i] && imgs[i].src.indexOf(model.pictures[i].thumb) == -1){
-                changed = true
-            }
-        }
-        return changed;
-    }
+//    this.picturesChanged = function(){
+//        var imgs = $viewList.find("img")
+//        if (imgs.length == 0 || model.pictures.length == 0){
+//            return true;
+//        }
+//        var changed = false
+//        for (var i=0; i<imgs.length; i++){
+//            if (model.pictures[i] && imgs[i].src.indexOf(model.pictures[i].thumb) == -1){
+//                changed = true
+//            }
+//        }
+//        return changed;
+//    }
     
-    this.displayPictures = function(){
-        if (!self.picturesChanged()){
+    this.displayPictures = function(picturesChanged){
+        if (picturesChanged===false){
             return;
         }
         

@@ -91,6 +91,7 @@ function Highlight(model, conf){
         self.unhandleScroll();
         $view.fadeOut("slow");
         model.selectedPictureIndex = null;
+        Fullscreen.close()
     }
 
     function createHighlight(){

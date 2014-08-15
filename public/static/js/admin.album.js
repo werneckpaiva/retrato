@@ -144,9 +144,8 @@ function AlbumAdminPhotos(model, conf){
     }
 
     var _displayPictures = albumPhotos.displayPictures;
-    albumPhotos.displayPictures = function(){
-        _displayPictures();
-        var picturesChanged = albumPhotos.picturesChanged();
+    albumPhotos.displayPictures = function(picturesChanged){
+        _displayPictures(picturesChanged);
         $viewList.find('.photo-container').each(function(i, element){
             var isPrivate = (model.pictures[i].visibility == "private");
             $element = $(element)

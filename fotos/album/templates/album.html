@@ -51,7 +51,8 @@
         (new Headroom(document.getElementById("top-menu"))).init();
         var menu = new AlbumMenu(albumModel, {
             view: $("#top-menu"),
-            detailsButton: $(".menu-container .details")
+            detailsButton: $(".menu-container .details"),
+            fullscreenButton: $(".menu-container .fullscreen")
         })
 
         var deepLinking = new AlbumDeepLinking(albumModel);
@@ -84,6 +85,7 @@
                 <script id="breadcrumbTpl" type="text/html">{% verbatim %}<span>{{#url}}<a href="{{url}}">{{/url}}{{name}}{{#url}}</a>{{/url}}</span>{% endverbatim %}</script>
             </nav>
             <div class="menu-container">
+                <button class="fullscreen"><span>fullscreen</span></button>
                 <button class="details"><span>details</span></button>
             </div>
         </header>

@@ -53,7 +53,8 @@
         var menu = new AlbumAdminMenu(albumModel, {
             view: $("#top-menu"),
             detailsButton: $(".menu-container .details"),
-            publishButton: $(".menu-container .publish")
+            publishButton: $(".menu-container .publish"),
+            fullscreenButton: $(".menu-container .fullscreen")
         })
 
         var deepLinking = new AlbumDeepLinking(albumModel);
@@ -88,6 +89,7 @@
             </nav>
             <div class="menu-container">
                 <button class="publish"><span>publish</span></button>
+                <button class="fullscreen"><span>fullscreen</span></button>
                 <button class="details"><span>details</span></button>
             </div>
         </header>
