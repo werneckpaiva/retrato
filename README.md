@@ -1,7 +1,7 @@
-fotos
-=====
+Retrato
+=======
 
-Perfect balanced Photo Album with Album browsing 
+Perfect balanced Photo Album with Album browsing.
 
 Features
 --------
@@ -12,7 +12,7 @@ Features
 - Real-time responsive
 - Auto-rotate based on exif orientation
 - Resizing and rotation cache
-- NotModified header (HTTP 304) 
+- NotModified header (HTTP 304)
 
 
 Inspired by the project http://www.chromatic.io/
