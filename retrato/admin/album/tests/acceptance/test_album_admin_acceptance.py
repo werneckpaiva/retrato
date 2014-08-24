@@ -50,7 +50,6 @@ class TestAlbumAdminAcceptance(TestCase):
         self.assertTrue(os.path.islink(photo_link))
 
     def test_make_album_public_and_validate(self):
-        settings.USE_ADMIN = True
         virtual_folder = Album.get_virtual_base_folder()
         album_folder = os.path.join(virtual_folder, "album2")
 
@@ -73,7 +72,6 @@ class TestAlbumAdminAcceptance(TestCase):
         self.assertEquals(len(content['pictures']), 4)
 
     def test_make_album_private(self):
-        settings.USE_ADMIN = True
         virtual_folder = Album.get_virtual_base_folder()
         album_folder = os.path.join(virtual_folder, "album1")
 
@@ -89,7 +87,6 @@ class TestAlbumAdminAcceptance(TestCase):
         self.assertEqual(response2.status_code, 404)
 
     def test_make_parent_album_private(self):
-        settings.USE_ADMIN = True
         new_album = 'album3/first/second/'
         
         # create album3 with subalbuns

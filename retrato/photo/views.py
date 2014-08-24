@@ -41,7 +41,7 @@ class PhotoView(BaseDetailView):
         return self.output_file(filename)
 
     def get_photo_base(self):
-        if getattr(settings, 'USE_ADMIN', False):
+        if 'retrato.admin' in settings.INSTALLED_APPS:
             root_folder = getattr(settings, 'PHOTOS_ROOT_DIR', '/')
         else:
             BASE_CACHE_DIR = getattr(settings, 'BASE_CACHE_DIR', '/')

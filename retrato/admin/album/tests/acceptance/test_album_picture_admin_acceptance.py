@@ -8,7 +8,6 @@ from retrato.album.models import Album
 class TestAlbumPictureAdminAcceptance(TestCase):
 
     def test_public_album_all_pictures_are_public(self):
-        settings.USE_ADMIN = True
         virtual_folder = Album.get_virtual_base_folder()
         album_folder = os.path.join(virtual_folder, "album2")
 
@@ -23,7 +22,6 @@ class TestAlbumPictureAdminAcceptance(TestCase):
             self.assertEquals(picture['visibility'], Album.VISIBILITY_PUBLIC)
 
     def test_make_picture_private(self):
-        settings.USE_ADMIN = True
         virtual_folder = Album.get_virtual_base_folder()
         album_folder = os.path.join(virtual_folder, "album2")
 
@@ -43,7 +41,6 @@ class TestAlbumPictureAdminAcceptance(TestCase):
         self.assertEquals(content['visibility'], Album.VISIBILITY_PRIVATE)
  
     def test_make_picture_public(self):
-        settings.USE_ADMIN = True
         virtual_folder = Album.get_virtual_base_folder()
         album_folder = os.path.join(virtual_folder, "album2")
 

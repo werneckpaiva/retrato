@@ -12,10 +12,11 @@ urlpatterns = patterns('',
     url(r'^admin/$', RedirectView.as_view(url='/admin/album', permanent=True)),
     url(r'^album', include('retrato.album.urls')),
     url(r'^photo', include('retrato.photo.urls')),
-
-    url(r'^admin/album', include('retrato.admin.album.urls')),
-    url(r'^admin/photo', include('retrato.admin.phpto.urls')),
 )
+
+if 'retrato.admin' in settings.INSTALLED_APPS:
+    urlpatterns += patterns('', url(r'^admin/album', include('retrato.admin.album.urls')))
+    urlpatterns += patterns('', url(r'^admin/photo', include('retrato.admin.phpto.urls')))
 
 if 'django_jasmine' in settings.INSTALLED_APPS:
     urlpatterns += patterns('', url(r'^jasmine/', include('django_jasmine.urls')))
