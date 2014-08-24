@@ -1,5 +1,5 @@
 from django.conf.urls import patterns, url
-from retrato.photo.admin.views import PhotoAdminView
+from retrato.admin.phpto.views import PhotoAdminView
 
 
 urlpatterns = patterns('',

@@ -2,8 +2,8 @@ from django.test import TestCase
 from django.conf import settings
 import json
 import os
-from shutil import rmtree
 from retrato.album.models import Album
+from shutil import rmtree
 
 
 class TestAlbumAdminAcceptance(TestCase):

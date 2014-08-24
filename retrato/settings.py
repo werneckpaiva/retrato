@@ -51,6 +51,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'retrato.album',
     'retrato.photo',
+    'retrato.admin'
 )
 
 JASMINE_TEST_DIRECTORY = os.path.join(BASE_DIR, "retrato/album/tests/js")

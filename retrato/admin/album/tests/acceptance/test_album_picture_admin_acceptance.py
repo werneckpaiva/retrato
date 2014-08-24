@@ -2,9 +2,7 @@ from django.test import TestCase
 from django.conf import settings
 import json
 import os
-from shutil import rmtree
 from retrato.album.models import Album
-from retrato.photo.models.photo import Photo
 
 
 class TestAlbumPictureAdminAcceptance(TestCase):
