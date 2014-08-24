@@ -27,4 +27,4 @@ class PhotoAdminView(PhotoView, AlbumCacheManager):
 
             self.purge_album_cache(photo.album)
 
-        return HttpResponse(json.dumps(context), content_type="application/json")
+        return HttpResponse(json.dumps(context), content_type="application/photo")
