@@ -6,9 +6,9 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.views.generic.detail import BaseDetailView
-
-from fotos.album.models import Album, AlbumNotFoundError
 from django.http.response import Http404
+
+from retrato.album.models import Album, AlbumNotFoundError
 
 
 class AlbumView(BaseDetailView):
@@ -22,7 +22,6 @@ class AlbumView(BaseDetailView):
             raise Http404
 
     def get_context_data(self, **kwargs):
-        print "NO CACHE '%s'" % self.kwargs['album_path']
         album = self.object
         context = {
                    'path': '/%s' % self.kwargs['album_path'],

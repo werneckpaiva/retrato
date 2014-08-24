@@ -3,7 +3,7 @@ from django.conf import settings
 import json
 import os
 from shutil import rmtree
-from fotos.album.models import Album
+from retrato.album.models import Album
 
 
 class TestAlbumAdminAcceptance(TestCase):
@@ -89,4 +89,48 @@ class TestAlbumAdminAcceptance(TestCase):
         self.assertEqual(response2.status_code, 404)
 
     def test_make_parent_album_private(self):
-        assert False
+        settings.USE_ADMIN = True
+        new_album = 'album3/first/second/'
+        
+        # create album3 with subalbuns
+        new_real_folder = os.path.join(settings.PHOTOS_ROOT_DIR, new_album)
+        try:
+            os.makedirs(new_real_folder)
+        except:
+            pass
+
+        virtual_base_folder = Album.get_virtual_base_folder()
+        virtual_folder = os.path.join(virtual_base_folder, new_album)
+
+        response1 = self.client.post('/admin/album/api/%s' % new_album, {'visibility': 'public'})
+        self.assertEqual(response1.status_code, 200)
+        self.assertTrue(os.path.isdir(virtual_folder))
+
+        response2 = self.client.post('/admin/album/api/%s' % new_album, {'visibility': 'private'})
+        self.assertEqual(response2.status_code, 200)
+        self.assertFalse(os.path.isdir(virtual_folder))
+
+        response3a = self.client.get('/album/api/album3/first/second/')
+        self.assertEqual(response3a.status_code, 404)
+        response3b = self.client.get('/album/api/album3/first/')
+        self.assertEqual(response3b.status_code, 404)
+        response3c = self.client.get('/album/api/album3/')
+        self.assertEqual(response3c.status_code, 404)
+
+        os.rmdir(os.path.join(settings.PHOTOS_ROOT_DIR, 'album3/first/second'))
+        os.rmdir(os.path.join(settings.PHOTOS_ROOT_DIR, 'album3/first'))
+        os.rmdir(os.path.join(settings.PHOTOS_ROOT_DIR, 'album3'))
+
+    def tearDown(self):
+        try:
+            os.rmdir(os.path.join(settings.PHOTOS_ROOT_DIR, 'album3/first/second'))
+        except:
+            pass
+        try:
+            os.rmdir(os.path.join(settings.PHOTOS_ROOT_DIR, 'album3/first'))
+        except:
+            pass
+        try:
+            os.rmdir(os.path.join(settings.PHOTOS_ROOT_DIR, 'album3'))
+        except:
+            pass

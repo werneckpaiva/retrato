@@ -1,4 +1,4 @@
-from fotos.settings import *
+from retrato.settings import *
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -8,7 +8,7 @@ PHOTOS_ROOT_DIR = '/meus_arquivos/photos/'
 DATABASES = {
     'default': {
         'ENGINE':       'django.db.backends.mysql',
-        'NAME':         'fotos',
+        'NAME':         'retrato',
         'USER':         'root',
         'PASSWORD':     '',
         'HOST':         'localhost',

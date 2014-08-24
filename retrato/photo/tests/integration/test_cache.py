@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.conf import settings
-from fotos.photo.models import Photo
-from fotos.photo.models import PhotoCache
+from retrato.photo.models import Photo
+from retrato.photo.models import PhotoCache
 import os
 from PIL import Image
 

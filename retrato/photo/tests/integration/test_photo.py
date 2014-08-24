@@ -1,6 +1,6 @@
 from django.test import TestCase
 from django.conf import settings
-from fotos.photo.models import Photo
+from retrato.photo.models import Photo
 
 
 class TestPhotoModelIntegration(TestCase):

@@ -4,8 +4,7 @@ from os import listdir
 from os.path import isfile, join, isdir
 import re
 import time
-from fotos.photo.models import Photo
-from shutil import rmtree
+from retrato.photo.models import Photo
 
 
 class AlbumNotFoundError(Exception):
@@ -137,7 +136,7 @@ class Album(object):
             if not os.path.islink(virtual_file):
                 raise Exception('Can\'t make the album private')
             os.unlink(virtual_file)
-        path = virtual_folder
+        path = virtual_folder.rstrip('/')
         base_folder = Album.get_virtual_base_folder()
         while path != '/' and len(path) > len(base_folder):
             if os.listdir(path) == []:

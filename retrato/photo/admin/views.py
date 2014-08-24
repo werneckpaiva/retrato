@@ -1,9 +1,9 @@
 from django.conf import settings
-from fotos.photo.views import PhotoView
+from retrato.photo.views import PhotoView
 from django.http import HttpResponse
 import json
-from fotos.album.models import Album
-from fotos.album.admin.views import AlbumCacheManager
+from retrato.album.models import Album
+from retrato.album.admin.views import AlbumCacheManager
 
 
 class PhotoAdminView(PhotoView, AlbumCacheManager):

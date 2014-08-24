@@ -1,6 +1,6 @@
 from django.test import TestCase
 from django.conf import settings
-from fotos.album.models import Album
+from retrato.album.models import Album
 
 
 class TestAlbumModelIntegration(TestCase):

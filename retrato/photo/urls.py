@@ -1,5 +1,5 @@
 from django.conf.urls import patterns, url
-from fotos.photo.views import PhotoView
+from retrato.photo.views import PhotoView
 
 
 urlpatterns = patterns('',

@@ -3,8 +3,8 @@ from django.conf import settings
 import json
 import os
 from shutil import rmtree
-from fotos.album.models import Album
-from fotos.photo.models.photo import Photo
+from retrato.album.models import Album
+from retrato.photo.models.photo import Photo
 
 
 class TestAlbumPictureAdminAcceptance(TestCase):
@@ -70,6 +70,3 @@ class TestAlbumPictureAdminAcceptance(TestCase):
             if f['filename'] == 'photo_2.JPG':
                 photo = f
         self.assertEquals(photo['visibility'], Album.VISIBILITY_PUBLIC)
-
-    def test_make_album_private_after_last_picture_private(self):
-        assert False

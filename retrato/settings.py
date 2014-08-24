@@ -1,5 +1,5 @@
 """
-Django settings for fotos project.
+Django settings for retrato project.
 
 For more information on this file, see
 https://docs.djangoproject.com/en/1.6/topics/settings/
@@ -49,11 +49,11 @@ INSTALLED_APPS = (
     'django.contrib.contenttypes',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'fotos.album',
-    'fotos.photo',
+    'retrato.album',
+    'retrato.photo',
 )
 
-JASMINE_TEST_DIRECTORY = os.path.join(BASE_DIR, "fotos/album/tests/js")
+JASMINE_TEST_DIRECTORY = os.path.join(BASE_DIR, "retrato/album/tests/js")
 INSTALLED_APPS += ('django_jasmine', )
 
 MIDDLEWARE_CLASSES = (
@@ -64,9 +64,9 @@ MIDDLEWARE_CLASSES = (
 #     'django.contrib.messages.middleware.MessageMiddleware',
 )
 
-ROOT_URLCONF = 'fotos.urls'
+ROOT_URLCONF = 'retrato.urls'
 
-WSGI_APPLICATION = 'fotos.wsgi.application'
+WSGI_APPLICATION = 'retrato.wsgi.application'
 
 
 # Database

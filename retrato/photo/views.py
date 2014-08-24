@@ -1,12 +1,12 @@
 from django.conf import settings
 from django.http import HttpResponse
 from django.http.response import Http404, HttpResponseNotModified
-from fotos.photo.models import Photo
-from fotos.photo.models.photo_cache import PhotoCache
+from django.views.generic.detail import BaseDetailView
+from retrato.photo.models import Photo
+from retrato.photo.models.photo_cache import PhotoCache
 import os
 import time
 from rfc822 import parsedate
-from django.views.generic.detail import BaseDetailView
 
 
 class PhotoView(BaseDetailView):
