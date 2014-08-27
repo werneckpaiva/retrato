@@ -20,3 +20,9 @@ var/fotos-sample/cache/**/*.JPG
 
 
 db.sqlite3
+
+### Bower ###
+bower_components
+
+### Node ###
+node_modules

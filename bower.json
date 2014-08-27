@@ -1,0 +1,29 @@
+{
+  "name": "retrato",
+  "version": "0.0.1",
+  "homepage": "https://github.com/werneckpaiva/retrato",
+  "authors": [
+    "Ricardo Paiva <werneck.paiva@gmail.com>"
+  ],
+  "description": "Perfect balanced Photo Album",
+  "keywords": [
+    "photo",
+    "album"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "jquery": "~2.1.1",
+    "mustache.js": "~0.8.2",
+    "retrato-js": "~0.0.1"
+  },
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "devDependencies": {
+    "watch": "*"
+  }
+}
