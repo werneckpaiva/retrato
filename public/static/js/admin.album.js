@@ -50,7 +50,7 @@ function AlbumAdminDelegate(){
         var data = {
                 'visibility': visibility
         }
-        var url = "/admin" + picturePath; // TODO: Move to another URL
+        var url = picturePath;
         $.post(url, data, function(result) {
             resultHandler(result)
         }).fail(function(status, s){
