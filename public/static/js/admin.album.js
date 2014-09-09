@@ -41,9 +41,9 @@ function AlbumAdminDelegate(){
         var url = Settings.URL_DATA_PREFIX + albumPath;
         $.post(url, data, function(result) {
             resultHandler(result)
-        }).fail(function(status, s){
+        }, "json").fail(function(status, s){
             failHandler(status)
-        });
+        }, "json");
     }
 
     delegate.changePictureVisibility = function(picturePath, visibility, resultHandler, failHandler){
@@ -53,9 +53,9 @@ function AlbumAdminDelegate(){
         var url = picturePath;
         $.post(url, data, function(result) {
             resultHandler(result)
-        }).fail(function(status, s){
+        }, "json").fail(function(status, s){
             failHandler(status)
-        });
+        }, "json");
     }
     return delegate;
 }
