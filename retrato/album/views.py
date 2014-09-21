@@ -15,15 +15,10 @@ class AlbumView(BaseDetailView):
 
     def get_object(self):
         root_folder = self.get_album_base()
-        path = os.path.join(root_folder, self.kwargs['album_path'])
-        print "folder: %s" % path
-        print "root is dir" if os.path.isdir(root_folder) else "root is not dir"
-        print "path is dir" if os.path.isdir(path) else "path is not dir"
         try:
             album = Album(root_folder, self.kwargs['album_path'])
             return album
         except AlbumNotFoundError:
-            print "album not found"
             raise Http404
 
     def get_context_data(self, **kwargs):
