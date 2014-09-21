@@ -15,6 +15,8 @@ class AlbumView(BaseDetailView):
 
     def get_object(self):
         root_folder = self.get_album_base()
+        print "Root folder: %s" % root_folder
+        print "album path: %s" % self.kwargs['album_path']
         try:
             album = Album(root_folder, self.kwargs['album_path'])
             return album
