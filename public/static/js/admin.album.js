@@ -32,13 +32,14 @@ function AlbumAdminModel(albumDelegate){
 
 function AlbumAdminDelegate(){
 
-    var delegate = new AlbumDelegate();
+    var delegate = new AlbumAjaxDelegate();
 
     delegate.changeVisibility = function(albumPath, visibility, resultHandler, failHandler){
         var data = {
                 'visibility': visibility
         }
         var url = Settings.URL_DATA_PREFIX + albumPath;
+        url = StringUtil.sanitizeUrl(url);
         $.post(url, data, function(result) {
             resultHandler(result)
         }, "json").fail(function(status, s){

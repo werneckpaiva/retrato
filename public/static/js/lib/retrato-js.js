@@ -1,19 +1,19 @@
 var Settings = {
     URL_PREFIX: "/",
     URL_DATA_PREFIX: "/api/"
-}
+};
 
 var StringUtil = {
     sanitizeUrl: function(url){
         url = url.replace(/([^:])[\/]+/g, '$1/');
-        return url
+        return url;
     },
     humanizeName: function(name){
         name = name.replace(/_/g, " ");
         name = name.replace(/\.jpe?g/i, "");
-        return name
+        return name;
     }
-}
+};
 
 
 var Fullscreen = {
@@ -49,203 +49,12 @@ var Fullscreen = {
     },
 
     isActive: function(){
-       return document.fullScreenElement != null 
-                    || document.webkitCurrentFullScreenElement != null
-                    || document.mozFullScreenElement != null
-                    || document.msFullscreenElement != null
+       return document.fullScreenElement !== null || 
+           document.webkitCurrentFullScreenElement !== null || 
+           document.mozFullScreenElement !== null || 
+           document.msFullscreenElement !== null;
     }
-}
-
-function AlbumModel(albumDelegate){
-
-    var delegate = albumDelegate
-    var self = this
-
-    this.path = null;
-    this.albuns = null;
-    this.pictures = null;
-    this.visibility = null;
-
-    this.loading = false;
-
-    this.selectedPictureIndex = null;
-    this.highlightOn = false;
-    this.detailsOn = false;
-
-    this.loadAlbum = function(albumPath){
-        albumPath = albumPath.replace(Settings.URL_PREFIX, '')
-        console.log("loading: "+albumPath);
-        self.loading = true
-        delegate.get(albumPath, loadAlbumResultHandler, loadAlbumFailHandler);
-    }
-
-    function loadAlbumResultHandler(result){
-        for (var prop in result){
-            if (self.hasOwnProperty(prop)){
-                self[prop] = result[prop];
-            }
-        }
-        console.log(self)
-        self.loading = false
-        self.selectedPictureIndex = null;
-    }
-
-    function loadAlbumFailHandler(error){
-        self.loading = false
-        alert("Album does not exist")
-    }
-
-    return this;
-}
-
-function AlbumDelegate(){
-
-    this.get = function(albumPath, resultHandler, failHandler){
-        var url = Settings.URL_DATA_PREFIX + albumPath;
-        url = StringUtil.sanitizeUrl(url);
-        console.log("URL: "+url)
-        $.get(url, function(result) {
-            resultHandler(result)
-        }).fail(function(status){
-            failHandler(status)
-        });
-    }
-}
-
-function Loading(model, conf){
-
-    var $view = null
-
-    function init(){
-        $view = conf.view;
-        watch(model, "loading", function(){
-            $view.toggle(model.loading);
-        });
-        $view.hide();
-    }
-
-    init();
-}
-
-function AlbumNavigator(model, conf){
-
-    var template = null;
-    var $view = null;
-    var $viewList = null;
-    
-    var animate = true;
-
-    function init(){
-        $view = conf.view;
-        template = conf.template;
-        $viewList = (conf.listClass)? $view.find("."+conf.listClass) : $view;
-        animate = (conf.listClass)? conf.listClass : true;
-
-        watch(model, "albuns", function(){
-            displayAlbuns();
-        });
-        
-    }
-
-    function getAlbumUrl(albumName){
-        var url = Settings.URL_PREFIX + model.path + '/' + albumName;
-        url = StringUtil.sanitizeUrl(url);
-        return url;
-    }
-    
-    function displayAlbuns(){
-        if(!model.albuns || model.albuns.length == 0){
-            $view.removeClass("visible");
-            return;
-        }
-        $view.addClass("visible");
-        content = "";
-        for (var i=0; i<model.albuns.length; i++){
-            var albumName = model.albuns[i]
-            content += Mustache.render(template, {
-                url: getAlbumUrl(albumName), 
-                name: StringUtil.humanizeName(albumName)});
-        }
-        $viewList.html(content);
-        enableAsynchronous();
-    }
-
-    function enableAsynchronous(){
-        $view.find("a").click(function(event){
-            event.preventDefault();
-            $('html,body').animate({scrollTop:0}, 500);
-            model.loadAlbum($(this).attr("href"))
-        })
-    }
-
-    init();
-}
-
-function AlbumBreadcrumb(model, conf){
-
-    var self = this;
-
-    var $view = null;
-    var $viewList = null;
-    var templateHome = null;
-    var template = null;
-
-    function init(){
-        $view = conf.view;
-        $viewList = (conf.listClass)? $view.find("."+conf.listClass) : $view
-        templateHome = conf.templateHome
-        template = conf.template
-        
-        watch(model, "path", function(){
-            self.updatePath()
-        });
-
-        watch(model, "selectedPictureIndex", function(){
-            self.updatePath();
-        });
-    }
-
-    function getAlbumUrl(albumName){
-        var url = Settings.URL_PREFIX + model.path + '/' + albumName;
-        url = StringUtil.sanitizeUrl(url);
-        return url;
-    }
-
-    this.updatePath = function(){
-        var parts = model.path.split("/");
-        if (parts[parts.length - 1]==""){
-            parts.pop();
-        }
-        if (model.selectedPictureIndex != null){
-            var p = model.pictures[model.selectedPictureIndex];
-            parts.push(p.filename);
-        }
-        var partial = '/'
-        var content = Mustache.render(templateHome, {
-            url: StringUtil.sanitizeUrl(Settings.URL_PREFIX + '/')
-        });
-        for (var i=1; i<parts.length; i++){
-            partial += parts[i] + '/';
-            params = {}
-            if (i < parts.length - 1){
-                params.url = StringUtil.sanitizeUrl(Settings.URL_PREFIX + partial);
-            }
-            params.name = StringUtil.humanizeName(parts[i])
-            content += Mustache.render(template, params);
-        }
-        $viewList.html(content)
-        enableAsynchronous();
-    }
-
-    function enableAsynchronous(){
-        $viewList.find("a").click(function(){
-            model.loadAlbum($(this).attr("href"));
-            return false;
-        })
-    }
-
-    init()
-}
+};
 
 
 function AlbumMenu(model, conf){
@@ -259,7 +68,7 @@ function AlbumMenu(model, conf){
     function init(){
         $view = conf.view;
         $detailsButton = conf.detailsButton;
-        $fullscreenButton = conf.fullscreenButton
+        $fullscreenButton = conf.fullscreenButton;
 
         watch(model, "selectedPictureIndex", function(){
             pinMenu();
@@ -275,7 +84,7 @@ function AlbumMenu(model, conf){
         $fullscreenButton.click(function(event){
             event.preventDefault();
             openCloseFullscreen();
-        })
+        });
 
         Fullscreen.onchange(function(event){
             $fullscreenButton.toggleClass("selected", Fullscreen.isActive());
@@ -286,14 +95,14 @@ function AlbumMenu(model, conf){
     }
 
     function pinMenu(){
-        if (model.selectedPictureIndex != null){
-            $view.addClass("headroom--pinned").addClass("headroom--top")
-            $view.removeClass("headroom--not-top").removeClass("headroom--unpinned")
+        if (model.selectedPictureIndex !== null){
+            $view.addClass("headroom--pinned").addClass("headroom--top");
+            $view.removeClass("headroom--not-top").removeClass("headroom--unpinned");
         }
     }
 
     function showHideDetailsButton(){
-        if (model.selectedPictureIndex == null){
+        if (model.selectedPictureIndex === null){
             model.detailsOn = false;
             $detailsButton.hide();
         } else {
@@ -307,7 +116,7 @@ function AlbumMenu(model, conf){
     }
 
     function showHideFullscreenButton(){
-        if (model.selectedPictureIndex == null){
+        if (model.selectedPictureIndex === null){
             model.detailsOn = false;
             $fullscreenButton.hide();
         } else {
@@ -323,55 +132,9 @@ function AlbumMenu(model, conf){
         }
     }
 
-    init()
-}
-
-
-function AlbumDeepLinking(model){
-
-    var self = this;
-
-    function init(){
-        watch(model, "path", function(){
-            updateUrl()
-        });
-
-        $(window).bind('popstate', function(event){
-            changeAlbumFromUrl()
-        })
-
-        changeAlbumFromUrl()
-    }
-
-    function extractPathFromUrl(){
-        var albumPath = location.pathname
-        albumPath = albumPath.replace(Settings.URL_PREFIX, "")
-        if (!albumPath){
-            albumPath = "/"
-        }
-        return albumPath;
-    }
-
-    function updateUrl(){
-        var currentAlbumPath = location.pathname
-        var newPath = Settings.URL_PREFIX + model.path
-        if (currentAlbumPath == newPath){
-            return;
-        }
-        newPath = StringUtil.sanitizeUrl(newPath)
-        history.pushState(null, null, newPath)
-    }
-
-    function changeAlbumFromUrl(){
-        var albumPath = extractPathFromUrl();
-        if (albumPath == model.path){
-            return;
-        }
-        model.loadAlbum(albumPath);
-    }
-
     init();
 }
+
 
 function AlbumPhotos(model, conf){
 
@@ -380,164 +143,464 @@ function AlbumPhotos(model, conf){
     var $viewList = null;
     var template = null;
     var currentWidth = 0;
-    var heightProportion = 0.45;
+    var heightProportion = null;
+    var lazyLoad = false;
 
-    var margin = 2;
+    var margin = 0;
 
     function init(){
-        $view = conf.view;
-        $viewList = (conf.listClass)? $view.find("."+conf.listClass) : $view
-        template = conf.template
-        if (conf.heightProportion){
-            heightProportion = conf.heightProportion
-        }
+        setConfiguration();
 
         watch(model, "pictures", function(prop, action, newvalue, oldvalue){
-            var picturesChanged = Array.isArray(newvalue)
+            var picturesChanged = Array.isArray(newvalue);
             self.displayPictures(picturesChanged);
         });
 
         $(window).resize(function(){
             self.resizePictures();
-        })
+        });
     }
 
-//    this.picturesChanged = function(){
-//        var imgs = $viewList.find("img")
-//        if (imgs.length == 0 || model.pictures.length == 0){
-//            return true;
-//        }
-//        var changed = false
-//        for (var i=0; i<imgs.length; i++){
-//            if (model.pictures[i] && imgs[i].src.indexOf(model.pictures[i].thumb) == -1){
-//                changed = true
-//            }
-//        }
-//        return changed;
-//    }
+    function setConfiguration(){
+        // Required
+        $view = conf.view;
+        template = conf.template;
+
+        // Optional
+        $viewList = (conf.listClass)? $view.find("."+conf.listClass) : $view;
+        heightProportion = (conf.heightProportion)? conf.heightProportion : 0.45;
+        lazyLoad = (conf.lazyLoad)? conf.lazyLoad : false;
+        margin = (conf.margin)?  conf.margin : 0;
+    }
     
     this.displayPictures = function(picturesChanged){
         if (picturesChanged===false){
             return;
         }
-        
+
         $viewList.empty();
-        if(!model.pictures || model.pictures.length == 0){
+        if(!model.pictures || model.pictures.length === 0){
             $view.hide();
             return;
         }
         $view.show();
 
         var resize = new Resize(model.pictures, heightProportion);
-        currentWidth = $view.width()
-        console.log("currentWidth: "+currentWidth)
+        currentWidth = $view.width();
+        console.log("doResize")
         var newPictures = resize.doResize(currentWidth, $(window).height());
 
-        content = "";
+        var content = "";
         for (var i=0; i<newPictures.length; i++){
-            var p = newPictures[i]
+            var p = newPictures[i];
             var params = {
                     width: p.newWidth-margin,
                     height: p.newHeight-margin
-            }
-            if (!conf.lazyLoad){
-                params.src = p.thumb 
+            };
+            if (!lazyLoad){
+                params.src = model.pictures[i].thumb;
             }
             content += Mustache.render(template, params);
         }
         $viewList.html(content);
-        $viewList.find("img").click(function(){
-            model.selectedPictureIndex = $(this).data("index");
-        })
-        if (conf.lazyLoad){
-            lazyLoad();
+        $viewList.find("img")
+            .each(function(i, el){
+                $(el).data("index", i);
+            })
+            .click(function(){
+                model.selectedPictureIndex = $(this).data("index");
+            });
+        if (lazyLoad){
+            startLazyLoading();
         }
-    }
+    };
 
     this.resizePictures = function(){
-        var newWidth = $view.width()
+        var newWidth = $view.width();
         if (newWidth == currentWidth) return;
-        currentWidth = $view.width()
+        currentWidth = $view.width();
         var resize = new Resize(model.pictures, heightProportion);
         var newPictures = resize.doResize(currentWidth, $(window).height());
         $viewList.children().each(function(index, item){
-            var p = newPictures[index]
+            var p = newPictures[index];
             var width = (p.newWidth-margin);
             var height = (p.newHeight-margin);
-            $(this).css("width", width).css("height", height)
-            $(this).find("img").attr("width", width).attr("height", height)
-        })
-    }
-    
-    function lazyLoad(){
+            $(this).css("width", width).css("height", height);
+            $(this).find("img").attr("width", width).attr("height", height);
+        });
+    };
+
+    function startLazyLoading(){
 
         function loadNextPicture(){
             if (index >= model.pictures.length){
-                return
+                return;
             }
-            $viewList.find("img:eq("+index+")").data("index", index)
             if (image.src == model.pictures[index].thumb){
                 index++;
                 loadNextPicture();
             } else {
-                image.src = model.pictures[index].thumb
+                image.src = model.pictures[index].thumb;
             }
         }
 
         var index = 0;
-        var image = new Image()
+        var image = new Image();
         image.onload = function(){
             $viewList.find("img:eq("+index+")")
                 .attr("src", this.src)
-                .show()
-            index++
-            loadNextPicture()
-        }
-        
-        loadNextPicture()
+                .show();
+            index++;
+            loadNextPicture();
+        };
+
+        loadNextPicture();
     }
 
     init();
+};/*
+
+Superfast Blur - a fast Box Blur For Canvas
+
+Version:     0.5
+Author:        Mario Klingemann
+Contact:     mario@quasimondo.com
+Website:    http://www.quasimondo.com/BoxBlurForCanvas
+Twitter:    @quasimondo
+
+In case you find this class useful - especially in commercial projects -
+I am not totally unhappy for a small donation to my PayPal account
+mario@quasimondo.de
+
+Or support me on flattr:
+https://flattr.com/thing/140066/Superfast-Blur-a-pretty-fast-Box-Blur-Effect-for-CanvasJavascript
+
+Copyright (c) 2011 Mario Klingemann
+
+Permission is hereby granted, free of charge, to any person
+obtaining a copy of this software and associated documentation
+files (the "Software"), to deal in the Software without
+restriction, including without limitation the rights to use,
+copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following
+conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+*/
+var mul_table = [ 1,57,41,21,203,34,97,73,227,91,149,62,105,45,39,137,241,107,3,173,39,71,65,238,219,101,187,87,81,151,141,133,249,117,221,209,197,187,177,169,5,153,73,139,133,127,243,233,223,107,103,99,191,23,177,171,165,159,77,149,9,139,135,131,253,245,119,231,224,109,211,103,25,195,189,23,45,175,171,83,81,79,155,151,147,9,141,137,67,131,129,251,123,30,235,115,113,221,217,53,13,51,50,49,193,189,185,91,179,175,43,169,83,163,5,79,155,19,75,147,145,143,35,69,17,67,33,65,255,251,247,243,239,59,29,229,113,111,219,27,213,105,207,51,201,199,49,193,191,47,93,183,181,179,11,87,43,85,167,165,163,161,159,157,155,77,19,75,37,73,145,143,141,35,138,137,135,67,33,131,129,255,63,250,247,61,121,239,237,117,29,229,227,225,111,55,109,216,213,211,209,207,205,203,201,199,197,195,193,48,190,47,93,185,183,181,179,178,176,175,173,171,85,21,167,165,41,163,161,5,79,157,78,154,153,19,75,149,74,147,73,144,143,71,141,140,139,137,17,135,134,133,66,131,65,129,1];
+
+var shg_table = [0,9,10,10,14,12,14,14,16,15,16,15,16,15,15,17,18,17,12,18,16,17,17,19,19,18,19,18,18,19,19,19,20,19,20,20,20,20,20,20,15,20,19,20,20,20,21,21,21,20,20,20,21,18,21,21,21,21,20,21,17,21,21,21,22,22,21,22,22,21,22,21,19,22,22,19,20,22,22,21,21,21,22,22,22,18,22,22,21,22,22,23,22,20,23,22,22,23,23,21,19,21,21,21,23,23,23,22,23,23,21,23,22,23,18,22,23,20,22,23,23,23,21,22,20,22,21,22,24,24,24,24,24,22,21,24,23,23,24,21,24,23,24,22,24,24,22,24,24,22,23,24,24,24,20,23,22,23,24,24,24,24,24,24,24,23,21,23,22,23,24,24,24,22,24,24,24,23,22,24,24,25,23,25,25,23,24,25,25,24,22,25,25,25,24,23,24,25,25,25,25,25,25,25,25,25,25,25,25,23,25,23,24,25,25,25,25,25,25,25,25,25,24,22,25,25,23,25,25,20,24,25,24,25,25,22,24,25,24,25,24,25,25,24,25,25,25,25,22,25,25,25,24,25,24,25,18];
+
+function boxBlurImage( img, canvas, radius, blurAlphaChannel, iterations){
+
+    var w = canvas.width;
+    var h = canvas.height;
+
+    var context = canvas.getContext("2d");
+    context.clearRect( 0, 0, canvas.width, canvas.height);
+    context.drawImage( img, 0, 0, canvas.width, canvas.height);
+
+    if ( isNaN(radius) || radius < 1 ) return;
+
+    if ( blurAlphaChannel ) {
+        boxBlurCanvasRGBA( canvas, 0, 0, w, h, radius, iterations );
+    } else {
+        boxBlurCanvasRGB( canvas, 0, 0, w, h, radius, iterations );
+    }
+    var widthCenter = Math.round(canvas.width / 2);
+    var heightCenter = Math.round(canvas.height / 2);
+    var grd=context.createRadialGradient(widthCenter, 
+            heightCenter,
+            0, 
+            widthCenter, 
+            heightCenter,
+            widthCenter + 0);
+    grd.addColorStop(0,"rgba(0,0,0,0)");
+    grd.addColorStop(1,"rgba(0,0,0,0.6)");
+    // Fill with gradient
+    context.fillStyle=grd;
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    
 }
 
-function AlbumPageTitle(model, conf){
 
-    var template = 'Album {{title}}';
-    var templateEmpty = '';
-    var separator = ' | '
-
-    function init(){
-        if (conf && conf.template) {
-            template = conf.template;
+function boxBlurCanvasRGBA( canvas, top_x, top_y, width, height, radius, iterations ){
+    if ( isNaN(radius) || radius < 1 ) return;
+    
+    radius |= 0;
+    
+    if ( isNaN(iterations) ) iterations = 1;
+    iterations |= 0;
+    if ( iterations > 3 ) iterations = 3;
+    if ( iterations < 1 ) iterations = 1;
+    
+    var context = canvas.getContext("2d");
+    var imageData;
+    
+    try {
+      try {
+        imageData = context.getImageData( top_x, top_y, width, height );
+      } catch(e) {
+      
+        // NOTE: this part is supposedly only needed if you want to work with local files
+        // so it might be okay to remove the whole try/catch block and just use
+        // imageData = context.getImageData( top_x, top_y, width, height );
+        try {
+            netscape.security.PrivilegeManager.enablePrivilege("UniversalBrowserRead");
+            imageData = context.getImageData( top_x, top_y, width, height );
+        } catch(error) {
+            throw new Error("unable to access local image data: " + error);
         }
-        if (conf && conf.templateEmpty) {
-            templateEmpty = conf.templateEmpty;
-        } else {
-            templateEmpty = template;
-        }
-        watch(model, "path", function(){
-            self.updateTitle()
-        });
-        watch(model, "selectedPictureIndex", function(){
-            self.updateTitle();
-        });
+      }
+    } catch(e) {
+      throw new Error("unable to access image data: " + e);
     }
+            
+    var pixels = imageData.data;
+        
+    var rsum,gsum,bsum,asum,x,y,i,p,p1,p2,yp,yi,yw,idx,pa;        
+    var wm = width - 1;
+      var hm = height - 1;
+    var wh = width * height;
+    var rad1 = radius + 1;
+    
+    var mul_sum = mul_table[radius];
+    var shg_sum = shg_table[radius];
 
-    this.updateTitle = function(){
-        var path = model.path;
-        path = path.replace(/^\//, '');
-        path = path.replace(/\/$/, '');
-        path = path.replace(/[\/]+/g,  separator);
-        var newTitle = ''
-        if (path){
-            newTitle = Mustache.render(template, {title: path});
-        } else {
-            newTitle = Mustache.render(templateEmpty);
+    var r = [];
+    var g = [];
+    var b = [];
+    var a = [];
+    
+    var vmin = [];
+    var vmax = [];
+  
+    while ( iterations-- > 0 ){
+        yw = yi = 0;
+     
+        for ( y=0; y < height; y++ ){
+            rsum = pixels[yw]   * rad1;
+            gsum = pixels[yw+1] * rad1;
+            bsum = pixels[yw+2] * rad1;
+            asum = pixels[yw+3] * rad1;
+            
+            
+            for( i = 1; i <= radius; i++ ){
+                p = yw + (((i > wm ? wm : i )) << 2 );
+                rsum += pixels[p++];
+                gsum += pixels[p++];
+                bsum += pixels[p++];
+                asum += pixels[p];
+            }
+            
+            for ( x = 0; x < width; x++ ) {
+                r[yi] = rsum;
+                g[yi] = gsum;
+                b[yi] = bsum;
+                a[yi] = asum;
+
+                if(y===0) {
+                    vmin[x] = ( ( p = x + rad1) < wm ? p : wm ) << 2;
+                    vmax[x] = ( ( p = x - radius) > 0 ? p << 2 : 0 );
+                } 
+                
+                p1 = yw + vmin[x];
+                p2 = yw + vmax[x];
+                  
+                rsum += pixels[p1++] - pixels[p2++];
+                gsum += pixels[p1++] - pixels[p2++];
+                bsum += pixels[p1++] - pixels[p2++];
+                asum += pixels[p1]   - pixels[p2];
+                     
+                yi++;
+            }
+            yw += ( width << 2 );
         }
-        document.title = newTitle
+      
+        for ( x = 0; x < width; x++ ) {
+            yp = x;
+            rsum = r[yp] * rad1;
+            gsum = g[yp] * rad1;
+            bsum = b[yp] * rad1;
+            asum = a[yp] * rad1;
+            
+            for( i = 1; i <= radius; i++ ) {
+              yp += ( i > hm ? 0 : width );
+              rsum += r[yp];
+              gsum += g[yp];
+              bsum += b[yp];
+              asum += a[yp];
+            }
+            
+            yi = x << 2;
+            for ( y = 0; y < height; y++) {
+                
+                pixels[yi+3] = pa = (asum * mul_sum) >>> shg_sum;
+                if ( pa > 0 )
+                {
+                    pa = 255 / pa;
+                    pixels[yi]   = ((rsum * mul_sum) >>> shg_sum) * pa;
+                    pixels[yi+1] = ((gsum * mul_sum) >>> shg_sum) * pa;
+                    pixels[yi+2] = ((bsum * mul_sum) >>> shg_sum) * pa;
+                } else {
+                    pixels[yi] = pixels[yi+1] = pixels[yi+2] = 0;
+                }                
+                if( x === 0 ) {
+                    vmin[y] = ( ( p = y + rad1) < hm ? p : hm ) * width;
+                    vmax[y] = ( ( p = y - radius) > 0 ? p * width : 0 );
+                } 
+              
+                p1 = x + vmin[y];
+                p2 = x + vmax[y];
+
+                rsum += r[p1] - r[p2];
+                gsum += g[p1] - g[p2];
+                bsum += b[p1] - b[p2];
+                asum += a[p1] - a[p2];
+
+                yi += width << 2;
+            }
+        }
     }
     
-    init();
+    context.putImageData( imageData, top_x, top_y );
+    
+}
+
+function boxBlurCanvasRGB( canvas, top_x, top_y, width, height, radius, iterations ){
+    if ( isNaN(radius) || radius < 1 ) return;
+    
+    radius |= 0;
+    
+    if ( isNaN(iterations) ) iterations = 1;
+    iterations |= 0;
+    if ( iterations > 3 ) iterations = 3;
+    if ( iterations < 1 ) iterations = 1;
+    
+    var context = canvas.getContext("2d");
+    var imageData;
+    
+    try {
+      try {
+        imageData = context.getImageData( top_x, top_y, width, height );
+      } catch(e) {
+      
+        // NOTE: this part is supposedly only needed if you want to work with local files
+        // so it might be okay to remove the whole try/catch block and just use
+        // imageData = context.getImageData( top_x, top_y, width, height );
+        try {
+            netscape.security.PrivilegeManager.enablePrivilege("UniversalBrowserRead");
+            imageData = context.getImageData( top_x, top_y, width, height );
+        } catch(error) {
+            throw new Error("unable to access local image data: " + error);
+        }
+      }
+    } catch(error) {
+      throw new Error("unable to access image data: " + error);
+    }
+            
+    var pixels = imageData.data;
+        
+    var rsum,gsum,bsum,asum,x,y,i,p,p1,p2,yp,yi,yw,idx;
+    var wm = width - 1;
+      var hm = height - 1;
+    var wh = width * height;
+    var rad1 = radius + 1;
+   
+    var r = [];
+    var g = [];
+    var b = [];
+    
+    var mul_sum = mul_table[radius];
+    var shg_sum = shg_table[radius];
+    
+    var vmin = [];
+    var vmax = [];
+  
+    while ( iterations-- > 0 ){
+        yw = yi = 0;
+     
+        for ( y=0; y < height; y++ ){
+            rsum = pixels[yw]   * rad1;
+            gsum = pixels[yw+1] * rad1;
+            bsum = pixels[yw+2] * rad1;
+            
+            for( i = 1; i <= radius; i++ ){
+                p = yw + (((i > wm ? wm : i )) << 2 );
+                rsum += pixels[p++];
+                gsum += pixels[p++];
+                bsum += pixels[p++];
+            }
+            
+            for ( x = 0; x < width; x++ ){
+                r[yi] = rsum;
+                g[yi] = gsum;
+                b[yi] = bsum;
+                
+                if(y===0) {
+                    vmin[x] = ( ( p = x + rad1) < wm ? p : wm ) << 2;
+                    vmax[x] = ( ( p = x - radius) > 0 ? p << 2 : 0 );
+                } 
+                
+                p1 = yw + vmin[x];
+                p2 = yw + vmax[x];
+                  
+                rsum += pixels[p1++] - pixels[p2++];
+                gsum += pixels[p1++] - pixels[p2++];
+                bsum += pixels[p1++] - pixels[p2++];
+                 
+                yi++;
+            }
+            yw += ( width << 2 );
+        }
+      
+        for ( x = 0; x < width; x++ ){
+            yp = x;
+            rsum = r[yp] * rad1;
+            gsum = g[yp] * rad1;
+            bsum = b[yp] * rad1;
+                
+            for( i = 1; i <= radius; i++ ){
+              yp += ( i > hm ? 0 : width );
+              rsum += r[yp];
+              gsum += g[yp];
+              bsum += b[yp];
+            }
+            
+            yi = x << 2;
+            for ( y = 0; y < height; y++){
+                pixels[yi]   = (rsum * mul_sum) >>> shg_sum;
+                pixels[yi+1] = (gsum * mul_sum) >>> shg_sum;
+                pixels[yi+2] = (bsum * mul_sum) >>> shg_sum;
+           
+                if( x === 0 ) {
+                    vmin[y] = ( ( p = y + rad1) < hm ? p : hm ) * width;
+                    vmax[y] = ( ( p = y - radius) > 0 ? p * width : 0 );
+                } 
+                  
+                p1 = x + vmin[y];
+                p2 = x + vmax[y];
+
+                rsum += r[p1] - r[p2];
+                gsum += g[p1] - g[p2];
+                bsum += b[p1] - b[p2];
+                  
+                yi += width << 2;
+            }
+        }
+    }
+    context.putImageData( imageData, top_x, top_y );
 };function Highlight(model, conf){
     var self = this;
 
@@ -554,33 +617,37 @@ function AlbumPageTitle(model, conf){
     var isOpened = false;
 
     var padding = 15;
-    var headerHeight = 45;
-    
+    var headerHeight = 0;
+
+    var blurContainer = null;
+
     function init(){
         $view = conf.view;
-        $viewList = (conf.listClass)? $view.find("."+conf.listClass) : $view;
+        $viewList = (conf.listClass)? $view.find("."+conf.listClass) : createFramesContainer();
         template = conf.template;
-        $detailsView = conf.detailsView;
+        $detailsView = (conf.detailsView)? conf.detailsView : [];
+
+        createBlurContainer();
 
         watch(model, "selectedPictureIndex", function(){
-            onPictureSelected()
+            onPictureSelected();
             updateDetailValues();
         });
         watch(model, "detailsOn", function(){
             if (model.detailsOn){
-                showDetails()
+                showDetails();
             } else {
-                hideDetails()
+                hideDetails();
             }
         });
 
         $view.click(function(){
-            self.close()
-        })
+            self.close();
+        });
 
         $(window).resize(function(){
             self.updateDisplay();
-        })
+        });
 
         $('body').keyup(function (event) {
             if (event.keyCode == 37){
@@ -593,15 +660,28 @@ function AlbumPageTitle(model, conf){
         });
     }
 
+    function createFramesContainer(){
+        var $container = $("<div class='frame-container'></div>");
+        $view.append($container);
+        return $container;
+    }
+    
+    function createBlurContainer(){
+        blurContainer = $('<div class="blur-container"></div>');
+        $view.append(blurContainer);
+        return blurContainer;
+    }
+    
     function onPictureSelected(){
         if (isOpened) {
-            if (model.selectedPictureIndex == null){
+            if (model.selectedPictureIndex === null){
                 self.close();
             }
             return;
         }
         self.handleScroll();
         self.displayPicture();
+        blurContainer.empty();
     }
     
     function disableScroll(e){
@@ -611,32 +691,37 @@ function AlbumPageTitle(model, conf){
     }
     
     this.handleScroll = function(){
-        $('body').on('mousewheel', disableScroll)
-    }
+        $('body').on('mousewheel', disableScroll);
+    };
 
     this.unhandleScroll = function(){
-        $('body').off('mousewheel', disableScroll)
-    }
-    
-    this.hasPicturesToDisplay = function(){
-        return (model.selectedPictureIndex!=null
-                && model.selectedPictureIndex >= 0
-                && model.pictures
-                && model.pictures.length>=0);
+        $('body').off('mousewheel', disableScroll);
+    };
 
-    }
-    
+    this.hasPicturesToDisplay = function(){
+        return (model.selectedPictureIndex !== null && 
+                model.selectedPictureIndex >= 0 && 
+                model.pictures && 
+                model.pictures.length>=0);
+    };
+
     this.close = function(){
         isOpened = false;
         self.unhandleScroll();
         $view.fadeOut("slow");
         model.selectedPictureIndex = null;
-        Fullscreen.close()
-    }
+        Fullscreen.close();
+    };
 
     function createHighlight(){
         var $frame = $(Mustache.render(template, {}));
         return $frame;
+    }
+
+    function createCanvas(){
+        var $canvas = $('<canvas class="blur"/>');
+        blurContainer.append($canvas);
+        return $canvas;
     }
 
     this.displayPicture = function(){
@@ -645,36 +730,35 @@ function AlbumPageTitle(model, conf){
             return;
         }
         isOpened = true;
-        $viewList.empty()
+        $viewList.empty();
         createCurrentHighlight();
         createLeftHighlight();
         createRightHighlight();
         self.updateDisplay();
-    }
+    };
 
     // Move from left to right
     this.displayPrevPicture = function(){
         if (!self.hasPicturesToDisplay()) return;
-        $viewList.find(".large-photo").stop()
-        if (model.selectedPictureIndex == 0) return;
+        $viewList.find(".large-photo").stop();
+        if (model.selectedPictureIndex === 0) return;
 
         var newRightPicture = model.pictures[model.selectedPictureIndex];
         model.selectedPictureIndex--;
 
         var newCurrentFrame = prevFrame;
-        newCurrentFrame.removeClass("prev-frame").addClass("current-frame")
-        var newCurrentPicture = model.pictures[model.selectedPictureIndex]
+        newCurrentFrame.removeClass("prev-frame").addClass("current-frame");
+        var newCurrentPicture = model.pictures[model.selectedPictureIndex];
         var newCurrentDimension = calculateDimension(newCurrentPicture);
-        newCurrentFrame.find(".box-blur").hide();
         newCurrentFrame.find(".large-photo").animate({
             left: newCurrentDimension.x
         }, 500, "swing", function(){
             showBlur(newCurrentFrame, newCurrentPicture);
-            showHighResolution(newCurrentFrame, newCurrentPicture)
+            showHighResolution(newCurrentFrame, newCurrentPicture);
         });
 
-        var newRightFrame = currentFrame
-        newRightFrame.removeClass("current-frame").addClass("next-frame")
+        var newRightFrame = currentFrame;
+        newRightFrame.removeClass("current-frame").addClass("next-frame");
         var newRightDimension = calculateDimensionRight(newRightPicture);
         newRightFrame.find(".large-photo").animate({
             left: newRightDimension.x
@@ -687,37 +771,36 @@ function AlbumPageTitle(model, conf){
 
         // Set Image to the new Left
         if (model.selectedPictureIndex > 0){
-            createLeftHighlight()
+            createLeftHighlight();
             var newLeftPicture = model.pictures[model.selectedPictureIndex - 1];
             var dimension = calculateDimensionLeft(newLeftPicture);
-            setPosition(prevFrame, dimension)
-            showLowResolution(prevFrame, newLeftPicture)
+            setPosition(prevFrame, dimension);
+            showLowResolution(prevFrame, newLeftPicture);
         }
-    }
+    };
 
     // Move from right to left
     this.displayNextPicture = function(){
         if (!self.hasPicturesToDisplay()) return;
-        $viewList.find(".large-photo").stop()
+        $viewList.find(".large-photo").stop();
         if (model.selectedPictureIndex >= (model.pictures.length - 1)) return;
 
         var newLeftPicture = model.pictures[model.selectedPictureIndex];
         model.selectedPictureIndex++;
 
         var newCurrentFrame = nextFrame;
-        newCurrentFrame.removeClass("next-frame").addClass("current-frame")
-        var newCurrentPicture = model.pictures[model.selectedPictureIndex]
+        newCurrentFrame.removeClass("next-frame").addClass("current-frame");
+        var newCurrentPicture = model.pictures[model.selectedPictureIndex];
         var newCurrentDimension = calculateDimension(newCurrentPicture);
-        newCurrentFrame.find(".box-blur").hide();
         newCurrentFrame.find(".large-photo").animate({
             left: newCurrentDimension.x
         }, 500, "swing", function(){
-            showBlur(newCurrentFrame, newCurrentPicture)
-            showHighResolution(newCurrentFrame, newCurrentPicture)
+            showBlur(newCurrentFrame, newCurrentPicture);
+            showHighResolution(newCurrentFrame, newCurrentPicture);
         });
 
         var newLeftFrame = currentFrame;
-        newLeftFrame.removeClass("current-frame").addClass("prev-frame")
+        newLeftFrame.removeClass("current-frame").addClass("prev-frame");
         var newLeftDimension = calculateDimensionLeft(newLeftPicture);
         newLeftFrame.find(".large-photo").animate({
             left: newLeftDimension.x
@@ -730,13 +813,13 @@ function AlbumPageTitle(model, conf){
 
         // Set Image to the new Right
         if (model.selectedPictureIndex < (model.pictures.length - 1)){
-            createRightHighlight()
+            createRightHighlight();
             var newRightPicture = model.pictures[model.selectedPictureIndex + 1];
             var dimension = calculateDimensionRight(newRightPicture);
-            setPosition(nextFrame, dimension)
-            showLowResolution(nextFrame, newRightPicture)
+            setPosition(nextFrame, dimension);
+            showLowResolution(nextFrame, newRightPicture);
         }
-    }
+    };
 
     function createCurrentHighlight(){
         currentFrame = createHighlight();
@@ -762,29 +845,28 @@ function AlbumPageTitle(model, conf){
         if (!self.hasPicturesToDisplay()) return;
         if (!isOpened) return;
         $view.fadeIn("slow");
+        var picture, dimension;
         if (currentFrame) {
-            var picture = model.pictures[model.selectedPictureIndex]
-            var dimension = calculateDimension(picture);
-            setPosition(currentFrame, dimension)
-            showLowResolution(currentFrame, picture)
-            showHighResolution(currentFrame, picture)
-            if (!currentFrame.find('.box-blur').is(':visible')){
-                showBlur(currentFrame, picture)
-            }
+            picture = model.pictures[model.selectedPictureIndex];
+            dimension = calculateDimension(picture);
+            setPosition(currentFrame, dimension);
+            showLowResolution(currentFrame, picture);
+            showHighResolution(currentFrame, picture);
+            showBlur(currentFrame, picture);
         }
         if (prevFrame && model.selectedPictureIndex > 0) {
-            var picture = model.pictures[model.selectedPictureIndex - 1]
-            var dimension = calculateDimensionLeft(picture);
+            picture = model.pictures[model.selectedPictureIndex - 1];
+            dimension = calculateDimensionLeft(picture);
             setPosition(prevFrame, dimension);
-            showLowResolution(prevFrame, picture)
+            showLowResolution(prevFrame, picture);
         }
         if (nextFrame && model.selectedPictureIndex < model.pictures.length - 1) {
-            var picture = model.pictures[model.selectedPictureIndex + 1]
-            var dimension = calculateDimensionRight(picture);
+            picture = model.pictures[model.selectedPictureIndex + 1];
+            dimension = calculateDimensionRight(picture);
             setPosition(nextFrame, dimension);
-            showLowResolution(nextFrame, picture)
+            showLowResolution(nextFrame, picture);
         }
-    }
+    };
 
     function calculateDimension(picture){
         var $window = $view;
@@ -798,7 +880,7 @@ function AlbumPageTitle(model, conf){
         var newWidth = windowWidth - (padding * 2);
         var newHeight = Math.round(newWidth / picture.ratio);
         var x = 0;
-        var y = Math.round((windowHeight - newHeight) / 2)
+        var y = Math.round((windowHeight - newHeight) / 2);
         if (y < headerHeight){
             newHeight = windowHeight - (headerHeight + (padding * 2));
             newWidth = Math.round(newHeight * picture.ratio);
@@ -807,40 +889,40 @@ function AlbumPageTitle(model, conf){
         }
         x = (windowWidth - newWidth) / 2;
         y = ((windowHeight - headerHeight - newHeight) / 2) + headerHeight;
-        return {newWidth: newWidth, newHeight: newHeight, x:x, y:y}
+        return {newWidth: newWidth, newHeight: newHeight, x:x, y:y};
     }
 
     function calculateDimensionLeft(picture){
         var dimension = calculateDimension(picture);
         dimension.x = -1 * dimension.newWidth - 50;
-        return dimension
+        return dimension;
     }
 
     function calculateDimensionRight(picture){
         var dimension = calculateDimension(picture);
         dimension.x = $view.width() + 50;
-        return dimension
+        return dimension;
     }
 
     function showHighResolution(frame, picture){
         var $highRes = frame.find(".high-res");
-        $highRes.hide()
+        $highRes.hide();
 
-        image = new Image()
+        image = new Image();
         image.onload = function(){
             $highRes.attr("src", this.src);
             $highRes.fadeIn();
-        }
+        };
         image.src = picture.highlight;
     }
 
     function showLowResolution(frame, picture){
         var $lowRes = frame.find(".low-res");
-        $lowRes.attr("src", picture.thumb)
+        $lowRes.attr("src", picture.thumb);
     }
 
     function setPosition(frame, dimension){
-        var largePhoto = frame.find(".large-photo")
+        var largePhoto = frame.find(".large-photo");
         largePhoto.css("left", dimension.x+"px").css("top", dimension.y+"px");
         largePhoto.css("width", dimension.newWidth+"px").css("height", dimension.newHeight+"px");
     }
@@ -855,17 +937,20 @@ function AlbumPageTitle(model, conf){
     }
 
     function showBlur(frame, picture){
+        clearTimeout(self.blurTimeout);
         self.blurTimeout = setTimeout(function(){
-            var blur = frame.find('.box-blur').hide()
-            blur.fadeIn(2000)
-            boxBlurImage(frame.find('.low-res').get(0), blur.get(0), 20, false, 2);
-            blur.show()
+            blurContainer.children().fadeOut(2000, function(){
+                $(this).remove();
+            });
+            var $blur = createCanvas();
+            boxBlurImage(frame.find('.low-res').get(0), $blur.get(0), 20, false, 2);
+            $blur.fadeIn(2000);
         }, 500);
     }
 
     function showDetails(){
         $detailsView.animate({right: 0}, 500);
-        var p = model.pictures[model.selectedPictureIndex]
+        var p = model.pictures[model.selectedPictureIndex];
         var dimension = calculateDimension(p);
         animateToPosition(currentFrame, dimension);
     }
@@ -880,7 +965,7 @@ function AlbumPageTitle(model, conf){
     }
 
     function updateDetailValues(){
-        var picture = model.pictures[model.selectedPictureIndex]
+        var picture = model.pictures[model.selectedPictureIndex];
         if (!picture) return;
         $detailsView.find(".file-name").html(picture.filename);
         $detailsView.find(".file-date").html(picture.date);
@@ -890,135 +975,219 @@ function AlbumPageTitle(model, conf){
 
     init();
 }
-;function Resize(pictures, heightProportion){
+;function AlbumModel(albumDelegate){
+
+    var delegate = albumDelegate;
+    var self = this;
+
+    this.path = null;
+    this.albuns = null;
+    this.pictures = null;
+    this.visibility = null;
+
+    this.loading = false;
+
+    this.selectedPictureIndex = null;
+    this.highlightOn = false;
+    this.detailsOn = false;
+
+    this.loadAlbum = function(albumPath){
+        self.loading = true;
+        delegate.get(albumPath, loadAlbumResultHandler, loadAlbumFailHandler);
+    };
+
+    function loadAlbumResultHandler(result){
+        for (var prop in result){
+            if (self.hasOwnProperty(prop)){
+                self[prop] = result[prop];
+            }
+        }
+        self.loading = false;
+        self.selectedPictureIndex = null;
+    }
+
+    function loadAlbumFailHandler(error){
+        self.loading = false;
+        alert("Album does not exist");
+    }
+
+    return this;
+}
+
+function AlbumAjaxDelegate(){
+
+    this.get = function(albumPath, resultHandler, failHandler){
+        var url = albumPath.replace(Settings.URL_PREFIX, '');
+        url = Settings.URL_DATA_PREFIX + url;
+        url = StringUtil.sanitizeUrl(url);
+        $.get(url, function(result) {
+            resultHandler(result);
+        }).fail(function(status){
+            failHandler(status);
+        });
+    };
+}
+
+function AlbumHtmlDelegate(imgs){
+    this.get = function(albumPath, resultHandler, failHandler){
+        if (imgs.length === 0){
+            return failHandler();
+        }
+        var result = {
+                path: albumPath,
+                pictures: []
+        };
+        imgs.each(function(i, element){
+            $el = $(element);
+            var ratio = parseFloat($el.attr("width")) / parseFloat($el.attr("height"));
+            ratio = Math.round(ratio * 1000) / 1000;
+            var picture = {
+                    width: $el.attr("width"),
+                    height: $el.attr("height"),
+                    thumb: $el.attr("src"),
+                    url: $el.data("photo"),
+                    highlight: $el.data("photo"),
+                    ratio: ratio
+            };
+            result.pictures.push(picture);
+        });
+        resultHandler(result);
+    };
+};function Resize(pictures, heightProportion){
     this.pictures = pictures;
     this.HEIGHT_PROPORTION = 0.45;
     if (heightProportion){
-        this.HEIGHT_PROPORTION = heightProportion
+        this.HEIGHT_PROPORTION = heightProportion;
     }
 }
 
 Resize.prototype.doResize = function(viewWidth, viewHeight){
-    var idealHeight = parseInt(viewHeight * this.HEIGHT_PROPORTION)
+    viewWidth = Math.floor(viewWidth);
+//    viewWidth--;
+    var idealHeight = parseInt(viewHeight * this.HEIGHT_PROPORTION);
 
-    var sumWidths = this.sumWidth(idealHeight)
-    var rows = Math.ceil(sumWidths / viewWidth)
+    var sumWidths = this.sumWidth(idealHeight);
+    var rows = Math.ceil(sumWidths / viewWidth);
 
 //    if (rows <= 1){
 //        // fallback to standard size
 //        console.log("1 row")
 //        this.resizeToSameHeight(idealHeight)
 //    } else {
-      return this.resizeUsingLinearPartitions(rows, viewWidth)
+      return this.resizeUsingLinearPartitions(rows, viewWidth);
 //    }
-}
+};
 
 Resize.prototype.sumWidth = function(height){
     var sumWidths = 0;
-    var p
-    for (var i in this.pictures){
-        p = this.pictures[i]
-        sumWidths += p.ratio * height
-    }
-    return sumWidths;
-}
-
-Resize.prototype.resizeToSameHeight = function(height){
-    var p
-    for (var i in this.pictures){
-        p = this.pictures[i]
-        p.newWidth = parseInt(height * p.ratio)
-        p.newHeight = height
-    }
-    return this.pictures
-}
-
-Resize.prototype.resizeUsingLinearPartitions = function(rows, viewWidth){
-    var weights = []
     var p;
     for (var i in this.pictures){
-        p = this.pictures[i]
-        weights.push(parseInt(p.ratio * 100))
+        p = this.pictures[i];
+        sumWidths += p.ratio * height;
     }
-    var partitions = linearPartition(weights, rows)
+    return sumWidths;
+};
+
+Resize.prototype.resizeToSameHeight = function(height){
+    var p;
+    for (var i in this.pictures){
+        p = this.pictures[i];
+        p.newWidth = parseInt(height * p.ratio);
+        p.newHeight = height;
+    }
+    return this.pictures;
+};
+
+Resize.prototype.resizeUsingLinearPartitions = function(rows, viewWidth){
+    var weights = [];
+    var p, i, j;
+    for (i in this.pictures){
+        p = this.pictures[i];
+        weights.push(parseInt(p.ratio * 100));
+    }
+    var partitions = linearPartition(weights, rows);
     var index = 0;
-    var newDimensions = []
-    for(var i in partitions){
-        partition = partitions[i]
-        var rowList = []
+    var newDimensions = [];
+    for(i in partitions){
+        partition = partitions[i];
+        var rowList = [];
         for(j in partition){
-            rowList.push(this.pictures[index])
-            index++
+            rowList.push(this.pictures[index]);
+            index++;
         }
         var summedRatios = 0;
         for (j in rowList){
-            p = rowList[j]
-            summedRatios += p.ratio
+            p = rowList[j];
+            summedRatios += p.ratio;
         }
+        var rowHeight = (viewWidth / summedRatios);
+        var rowWidth = 0;
         for (j in rowList){
-            p = rowList[j]
-            var dimension = {}
-            dimension.newWidth = parseInt((viewWidth / summedRatios) * p.ratio)
-            dimension.newHeight = parseInt(viewWidth / summedRatios)
-            newDimensions.push(dimension)
+            p = rowList[j];
+            var dimension = {};
+            dimension.newWidth = parseInt(rowHeight * p.ratio);
+            rowWidth += dimension.newWidth;
+            dimension.newHeight = parseInt(rowHeight);
+            newDimensions.push(dimension);
         }
     }
     return newDimensions;
-}
+};
 
 function linearPartition(seq, k){
     if (k <= 0){
-        return []
+        return [];
     }
 
     var n = seq.length - 1;
-    var partitions = []
+    var partitions = [];
     if (k > n){
-        for (i in seq){
-            partitions.push([seq[i]])
+        for (var i in seq){
+            partitions.push([seq[i]]);
         }
         return partitions;
     }
-    var solution = linearPartitionTable(seq, k)
+    var solution = linearPartitionTable(seq, k);
     k = k - 2;
-    var ans = []
+    var ans = [];
     while (k >= 0){
-        var partial = seq.slice(solution[n-1][k]+1, n+1)
-        ans = [partial].concat(ans)
-        n = solution[n-1][k]
+        var partial = seq.slice(solution[n-1][k]+1, n+1);
+        ans = [partial].concat(ans);
+        n = solution[n-1][k];
         k = k - 1;
     }
-    ans = [seq.slice(0, n+1)].concat(ans)
-    return ans
+    ans = [seq.slice(0, n+1)].concat(ans);
+    return ans;
 }
 
 function linearPartitionTable(seq, k){
-    var n = seq.length
-    var table = []
-    var row = []
-    for (var i=0; i<k; i++) row.push(0)
-    for (var i=0; i<n; i++) table.push( row.slice() )
+    var n = seq.length;
+    var table = [];
+    var row = [];
+    var i, j, x;
+    for (i=0; i<k; i++) row.push(0);
+    for (i=0; i<n; i++) table.push( row.slice() );
 
-    var solution = []
-    row = []
-    for (var i=0; i<(k-1); i++) row.push(0)
-    for (var i=0; i<(n-1); i++) solution.push( row.slice() )
+    var solution = [];
+    row = [];
+    for (i=0; i<(k-1); i++) row.push(0);
+    for (i=0; i<(n-1); i++) solution.push( row.slice() );
 
-    for (var i=0; i<n; i++){
-        var value = seq[i]
+    for (i=0; i<n; i++){
+        var value = seq[i];
         if (i>0){
-            value += table[i-1][0]
+            value += table[i-1][0];
         }
-        table[i][0] = value
+        table[i][0] = value;
     }
-    for (var j=0; j<k; j++){
-        table[0][j] = seq[0]
+    for (j=0; j<k; j++){
+        table[0][j] = seq[0];
     }
-    for (var i=1; i<n; i++){
-        for (var j=1; j<k; j++){
-            var min = null
-            var minx = null
-            for (var x = 0; x < i; x++) {
+    for (i=1; i<n; i++){
+        for (j=1; j<k; j++){
+            var min = null;
+            var minx = null;
+            for (x = 0; x < i; x++) {
                 var cost = Math.max(table[x][j - 1], table[i][0] - table[x][0]);
                 if (min === null || cost < min) {
                     min = cost;
@@ -1029,5 +1198,5 @@ function linearPartitionTable(seq, k){
             solution[i - 1][j - 1] = minx;
         }
     }
-    return solution
+    return solution;
 }

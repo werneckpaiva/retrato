@@ -11,12 +11,12 @@
 
 
 <script type="text/javascript" src="{% static 'js/lib/jquery.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/fast-blur.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/lib/mustache.js.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/lib/watch.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/lib/headroom.js' %}"></script>
 
 <script type="text/javascript" src="{% static 'js/lib/retrato-js.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/album.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/admin.album.js' %}"></script>
 <script type="text/javascript">
 
@@ -62,7 +62,8 @@
             view: $("#photos"), 
             template: $("#photoTpl").html(),
             lazyLoad: true,
-            heightProportion: 0.35
+            heightProportion: 0.35,
+            margin: 2
         });
 
          var highlight = new Highlight(albumModel, {
@@ -97,7 +98,6 @@
                 <script id="highlightTpl" type="text/html">
                 {% verbatim %}
                     <div class="photo-frame">
-                        <canvas class="box-blur"/>
                         <div class="large-photo">
                             <img class="low-res" />
                             <img class="high-res"/>

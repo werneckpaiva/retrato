@@ -4,17 +4,17 @@
 <head>
 <title>Retrato</title>
 <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0" />
 
-<link rel="stylesheet" href="{% static 'css/album.css' %}">
+<link rel="stylesheet" href="{% static 'css/album.css' %}" />
 
 <script type="text/javascript" src="{% static 'js/lib/jquery.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/fast-blur.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/lib/mustache.js.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/lib/watch.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/lib/headroom.js' %}"></script>
-
 <script type="text/javascript" src="{% static 'js/lib/retrato-js.js' %}"></script>
+
+<script type="text/javascript" src="{% static 'js/album.js' %}"></script>
 <script type="text/javascript">
 
     $(function(){
@@ -22,7 +22,7 @@
         Settings.URL_PREFIX = "/album/";
         Settings.URL_DATA_PREFIX = "/album/api/";
 
-        var albumDelegate = new AlbumDelegate();
+        var albumDelegate = new AlbumAjaxDelegate();
         var albumModel = new AlbumModel(albumDelegate);
 
         var loading = new Loading(albumModel, {
@@ -58,7 +58,8 @@
          var albumPhotos = new AlbumPhotos(albumModel, {
             view: $("#photos"), 
             template: $("#photoTpl").html(),
-            lazyLoad: true
+            lazyLoad: true,
+            margin: 2
         });
 
          var highlight = new Highlight(albumModel, {
@@ -92,7 +93,6 @@
                 <script id="highlightTpl" type="text/html">
                 {% verbatim %}
                     <div class="photo-frame">
-                        <canvas class="box-blur"/>
                         <div class="large-photo">
                             <img class="low-res" />
                             <img class="high-res"/>
@@ -122,7 +122,7 @@
                 <script id="photoTpl" type="text/html">
             {% verbatim %}
                 <div class="photo-container" style="width: {{width}}px; height: {{height}}px;">
-                    <img class="photo" width="{{width}}" height="{{height}}" src="{{photoUrl}}" style="display: inline;">
+                    <img class="photo" width="{{width}}" height="{{height}}" src="{{src}}" style="display: inline;">
                 </div>
             {% endverbatim %}
             </script>
