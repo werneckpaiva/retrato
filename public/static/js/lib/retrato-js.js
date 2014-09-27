@@ -49,10 +49,7 @@ var Fullscreen = {
     },
 
     isActive: function(){
-       return document.fullScreenElement !== null || 
-           document.webkitCurrentFullScreenElement !== null || 
-           document.mozFullScreenElement !== null || 
-           document.msFullscreenElement !== null;
+        return document.fullscreenEnabled || document.mozFullscreenEnabled || document.webkitFullscreenEnabled || document.msFullscreenEnabled;
     }
 };
 
@@ -87,6 +84,7 @@ function AlbumMenu(model, conf){
         });
 
         Fullscreen.onchange(function(event){
+            console.log('fullscreen change')
             $fullscreenButton.toggleClass("selected", Fullscreen.isActive());
         });
         
@@ -187,7 +185,6 @@ function AlbumPhotos(model, conf){
 
         var resize = new Resize(model.pictures, heightProportion);
         currentWidth = $view.width();
-        console.log("doResize")
         var newPictures = resize.doResize(currentWidth, $(window).height());
 
         var content = "";
@@ -622,10 +619,7 @@ function boxBlurCanvasRGB( canvas, top_x, top_y, width, height, radius, iteratio
     var blurContainer = null;
 
     function init(){
-        $view = conf.view;
-        $viewList = (conf.listClass)? $view.find("."+conf.listClass) : createFramesContainer();
-        template = conf.template;
-        $detailsView = (conf.detailsView)? conf.detailsView : [];
+        setConfiguration();
 
         createBlurContainer();
 
@@ -658,6 +652,17 @@ function boxBlurCanvasRGB( canvas, top_x, top_y, width, height, radius, iteratio
                 self.close();
             }
         });
+    }
+
+    function setConfiguration(){
+        // Required
+        $view = conf.view;
+        template = conf.template;
+
+        // Optional
+        $viewList = (conf.listClass)? $view.find("."+conf.listClass) : createFramesContainer();
+        $detailsView = (conf.detailsView)? conf.detailsView : [];
+        headerHeight = (conf.headerHeight)? parseInt(conf.headerHeight) : 0;
     }
 
     function createFramesContainer(){
