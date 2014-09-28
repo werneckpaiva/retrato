@@ -49,7 +49,10 @@ var Fullscreen = {
     },
 
     isActive: function(){
-        return document.fullscreenEnabled || document.mozFullscreenEnabled || document.webkitFullscreenEnabled || document.msFullscreenEnabled;
+        return document.fullscreenElement || 
+        document.mozFullScreenElement || 
+        document.webkitFullscreenElement || 
+        document.msFullscreenElement;
     }
 };
 
