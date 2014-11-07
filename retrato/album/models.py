@@ -1,3 +1,4 @@
+import json
 from django.conf import settings
 import os
 from os import listdir
@@ -15,6 +16,8 @@ class Album(object):
 
     VISIBILITY_PUBLIC = "public"
     VISIBILITY_PRIVATE = "private"
+
+    CONFIG_FILE = ".retrato"
 
     _path = '/'
     _realpath = None
@@ -164,3 +167,13 @@ class Album(object):
             os.symlink(photo_file, virtual_file)
         elif visibility == Album.VISIBILITY_PRIVATE and link_exists:
             os.unlink(virtual_file)
+
+    def config_file(self):
+        config_file = join(self._realpath, self.CONFIG_FILE)
+        if (not os.path.isfile(config_file)
+            or not os.access(config_file, os.R_OK)):
+            return None
+        with open(config_file, 'r') as f:
+            content = f.read()
+        config = json.loads(content)
+        return config

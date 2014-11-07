@@ -12,13 +12,11 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
-TEMPLATE_LOADERS = ('django.template.loaders.filesystem.Loader',
-                    'django.template.loaders.app_directories.Loader')
-
-STATICFILES_DIRS = [os.path.join(BASE_DIR, "public/static")]
-
+# Custom config
 PHOTOS_ROOT_DIR = os.path.join(BASE_DIR, "var/sample/albuns")
 BASE_CACHE_DIR = os.path.join(BASE_DIR, "var/cache")
+REQUIRE_AUTHENTICATION = True
+
 
 CACHES = {
     'default': {
@@ -26,6 +24,20 @@ CACHES = {
     }
 }
 
+
+TEMPLATE_LOADERS = ('django.template.loaders.filesystem.Loader',
+                    'django.template.loaders.app_directories.Loader')
+
+TEMPLATE_CONTEXT_PROCESSORS = (
+    "django.contrib.auth.context_processors.auth",
+    "django.contrib.messages.context_processors.messages",
+)
+
+TEMPLATE_DIRS = (
+    os.path.join(BASE_DIR, 'template'),
+)
+
+STATICFILES_DIRS = [os.path.join(BASE_DIR, "public/static")]
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
@@ -41,27 +53,23 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = (
-#     'django.contrib.admin',
+    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.sessions',
-
     'django.contrib.contenttypes',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     'retrato.album',
     'retrato.photo',
-    'retrato.admin'
 )
-
-JASMINE_TEST_DIRECTORY = os.path.join(BASE_DIR, "retrato/album/tests/js")
-INSTALLED_APPS += ('django_jasmine', )
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
 #     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-#     'django.contrib.messages.middleware.MessageMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
 )
 
 ROOT_URLCONF = 'retrato.urls'

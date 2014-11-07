@@ -7,12 +7,13 @@ from django.core.urlresolvers import reverse
 
 from retrato.album.views import AlbumView
 from retrato.album.models import Album
+from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import login_required
 
 
 class AlbumCacheManager():
 
     def purge_album_cache(self, album_path):
-        from django.core.urlresolvers import reverse
         from django.http import HttpRequest
         from django.utils.cache import get_cache_key
         from django.core.cache import cache

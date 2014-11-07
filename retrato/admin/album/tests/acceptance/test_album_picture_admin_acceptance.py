@@ -3,9 +3,26 @@ from django.conf import settings
 import json
 import os
 from retrato.album.models import Album
+from django.contrib.auth.models import User
 
 
 class TestAlbumPictureAdminAcceptance(TestCase):
+
+    def setUp(self):
+        self.client.login(username='admin-test', password='1234')
+
+    def tearDown(self):
+        self.client.logout()
+
+    @classmethod
+    def setUpClass(cls):
+        settings.INSTALLED_APPS += ('retrato.admin',)
+        cls.admin_user = User.objects.create_superuser('admin-test', 'admin@example.com', '1234')
+
+    @classmethod
+    def tearDownClass(cls):
+        settings.INSTALLED_APPS = tuple(x for x in settings.INSTALLED_APPS if x != 'retrato.admin')
+        cls.admin_user.delete()
 
     def test_public_album_all_pictures_are_public(self):
         virtual_folder = Album.get_virtual_base_folder()

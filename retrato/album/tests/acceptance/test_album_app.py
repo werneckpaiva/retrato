@@ -2,7 +2,7 @@ from django.test import TestCase
 import json
 
 
-class TestAlbumAppAcceptance(TestCase):
+class TestAlbumAppAcceptanceWithoutAuth(TestCase):
 
     def test_home(self):
         response = self.client.get('/')

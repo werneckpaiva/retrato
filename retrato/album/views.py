@@ -33,7 +33,8 @@ class AlbumView(BaseDetailView):
     def render_to_response(self, context):
         return HttpResponse(json.dumps(context), content_type="application/json")
 
-    def get_album_base(self):
+    @classmethod
+    def get_album_base(cls):
         if 'retrato.admin' in settings.INSTALLED_APPS:
             BASE_CACHE_DIR = getattr(settings, 'BASE_CACHE_DIR', '/')
             root_folder = os.path.join(BASE_CACHE_DIR, "album")
