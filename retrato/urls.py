@@ -14,6 +14,7 @@ urlpatterns = patterns('',
     url(r'^accounts/logout/$', 'django.contrib.auth.views.logout'),
     url(r'^album', include('retrato.album.urls')),
     url(r'^photo', include('retrato.photo.urls')),
+    url(r'^accounts/login/$', 'django.contrib.auth.views.login'),
 )
 
 if 'retrato.admin' in settings.INSTALLED_APPS:

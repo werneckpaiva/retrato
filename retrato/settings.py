@@ -15,7 +15,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 # Custom config
 PHOTOS_ROOT_DIR = os.path.join(BASE_DIR, "var/sample/albuns")
 BASE_CACHE_DIR = os.path.join(BASE_DIR, "var/cache")
-REQUIRE_AUTHENTICATION = True
+REQUIRE_AUTHENTICATION = False
 
 
 CACHES = {

@@ -9,6 +9,8 @@ from django.views.generic.detail import BaseDetailView
 from django.http.response import Http404
 
 from retrato.album.models import Album, AlbumNotFoundError
+from retrato.album.auth import check_album_token_valid_or_user_authenticated
+from django.shortcuts import render
 
 
 class AlbumView(BaseDetailView):
@@ -31,6 +33,9 @@ class AlbumView(BaseDetailView):
         return context
 
     def render_to_response(self, context):
+        response = check_album_token_valid_or_user_authenticated(self.request, album=self.object)
+        if response is not None:
+            return response
         return HttpResponse(json.dumps(context), content_type="application/json")
 
     @classmethod
@@ -50,9 +55,9 @@ class AlbumView(BaseDetailView):
             p.close_image()
             url = self._get_photo_url(p)
             data.append({'name': p.name,
-                     'filename':p.filename,
-                     'width':p.width,
-                     'height':p.height,
+                     'filename': p.filename,
+                     'width': p.width,
+                     'height': p.height,
                      'ratio': round(float(p.width) / float(p.height), 3),
                      'date': time.strftime('%Y-%m-%d %H:%M:%S', p.date_taken),
                      'url': url,
@@ -67,3 +72,11 @@ class AlbumView(BaseDetailView):
 
     def _load_albuns(self, album):
         return album.get_albuns()
+
+
+def album_home_view(request):
+    check_album_token_valid_or_user_authenticated(request)
+    response = check_album_token_valid_or_user_authenticated(request)
+    if response is not None:
+        return response
+    return render(request, 'album.html')
