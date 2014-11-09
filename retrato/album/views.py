@@ -6,10 +6,11 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.views.generic.detail import BaseDetailView
-from django.http.response import Http404
+from django.http.response import Http404, HttpResponseForbidden
 
 from retrato.album.models import Album, AlbumNotFoundError
-from retrato.album.auth import check_album_token_valid_or_user_authenticated
+from retrato.album.auth import check_album_token_valid_or_user_authenticated,\
+    UnauthorizedUserException, redirect_to_login
 from django.shortcuts import render
 
 
@@ -33,9 +34,10 @@ class AlbumView(BaseDetailView):
         return context
 
     def render_to_response(self, context):
-        response = check_album_token_valid_or_user_authenticated(self.request, album=self.object)
-        if response is not None:
-            return response
+        try:
+            check_album_token_valid_or_user_authenticated(self.request, album=self.object)
+        except UnauthorizedUserException:
+            return HttpResponse(status=401)
         return HttpResponse(json.dumps(context), content_type="application/json")
 
     @classmethod
@@ -75,8 +77,8 @@ class AlbumView(BaseDetailView):
 
 
 def album_home_view(request):
-    check_album_token_valid_or_user_authenticated(request)
-    response = check_album_token_valid_or_user_authenticated(request)
-    if response is not None:
-        return response
+    try:
+        check_album_token_valid_or_user_authenticated(request)
+    except UnauthorizedUserException:
+        return redirect_to_login(request)
     return render(request, 'album.html')

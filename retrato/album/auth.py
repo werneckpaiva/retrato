@@ -6,7 +6,11 @@ from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.utils.encoding import force_str
 from django.conf import settings
 from django.shortcuts import resolve_url
-from django.contrib.auth.views import redirect_to_login
+from django.contrib.auth.views import redirect_to_login as base_redirect_to_login
+
+
+class UnauthorizedUserException(Exception):
+    pass
 
 
 def is_album_token_valid(request, album=None):
@@ -25,12 +29,16 @@ def is_album_token_valid(request, album=None):
 
 def check_album_token_valid_or_user_authenticated(request, album=None):
     if not settings.REQUIRE_AUTHENTICATION:
-        return None
+        return True
     if is_album_token_valid(request, album) or request.user.is_authenticated():
-        return None
+        return True
+    raise UnauthorizedUserException()
+
+
+def redirect_to_login(request):
     resolved_login_url = force_str(resolve_url(settings.LOGIN_URL))
     path = request.get_full_path()
-    return redirect_to_login(path, resolved_login_url, REDIRECT_FIELD_NAME)
+    return base_redirect_to_login(path, resolved_login_url, REDIRECT_FIELD_NAME)
 
 
 def login_or_token_required(function=None):

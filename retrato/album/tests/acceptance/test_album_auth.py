@@ -25,10 +25,22 @@ class TestAlbumAuth(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertTrue(response.url.endswith('/accounts/login/?next=/album/'))
 
+    def test_api_user_not_authenticated_rejected(self):
+        client = Client()
+        response = client.get('/album/api/')
+        self.assertEqual(response.status_code, 401)
+
     def test_user_authenticated_accepted(self):
         client = Client()
         client.login(username='user1', password='1234')
         response = client.get('/album/album1')
+        self.assertEqual(response.status_code, 200)
+        client.logout()
+
+    def test_api_user_authenticated_accepted(self):
+        client = Client()
+        client.login(username='user1', password='1234')
+        response = client.get('/album/api/album1')
         self.assertEqual(response.status_code, 200)
         client.logout()
 
@@ -42,6 +54,10 @@ class TestAlbumAuth(TestCase):
         client = Client()
         response = client.get('/album/album2?token=1234')
         self.assertEqual(response.status_code, 200)
+
+        response = client.get('/album/api/album2?token=1234')
+        self.assertEqual(response.status_code, 200)
+
         os.remove(retrato_file)
 
     def test_user_with_invalid_token(self):
@@ -54,4 +70,9 @@ class TestAlbumAuth(TestCase):
         client = Client()
         response = client.get('/album/album2?token=5678')
         self.assertEqual(response.status_code, 302)
+
+        client = Client()
+        response = client.get('/album/api/album2?token=5678')
+        self.assertEqual(response.status_code, 401)
+
         os.remove(retrato_file)
