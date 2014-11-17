@@ -14,6 +14,11 @@ class TestAlbumAdminAcceptance(TestCase):
 
     def tearDown(self):
         self.client.logout()
+        for folder in ['album1', 'album2', 'album3/first/second']:
+            try:
+                os.unlink(os.path.join(settings.PHOTOS_ROOT_DIR, folder, '.retrato'))
+            except:
+                pass
         try:
             os.rmdir(os.path.join(settings.PHOTOS_ROOT_DIR, 'album3/first/second'))
         except:
@@ -26,6 +31,7 @@ class TestAlbumAdminAcceptance(TestCase):
             os.rmdir(os.path.join(settings.PHOTOS_ROOT_DIR, 'album3'))
         except:
             pass
+
 
     @classmethod
     def setUpClass(cls):
@@ -79,7 +85,7 @@ class TestAlbumAdminAcceptance(TestCase):
         photo_link = os.path.join(album_folder, items[0])
         self.assertTrue(os.path.islink(photo_link))
 
-    def test_make_album_public_and_validate(self):
+    def test_make_album_public_should_return_data_on_api_call(self):
         virtual_folder = Album.get_virtual_base_folder()
         album_folder = os.path.join(virtual_folder, "album2")
 
@@ -100,6 +106,18 @@ class TestAlbumAdminAcceptance(TestCase):
         self.assertEquals(content['path'], '/album2/')
         self.assertEquals(len(content['albuns']), 0)
         self.assertEquals(len(content['pictures']), 4)
+
+    def test_make_album_public_should_create_token(self):
+        virtual_folder = Album.get_virtual_base_folder()
+        album_folder = os.path.join(virtual_folder, "album1")
+
+        if os.path.isdir(album_folder):
+            os.rmdir(album_folder)
+
+        response = self.client.post('/admin/album/api/album1/', {'visibility': 'public'})
+        self.assertEqual(response.status_code, 200)
+        config_file = os.path.join(settings.PHOTOS_ROOT_DIR, "album1", Album.CONFIG_FILE)
+        self.assertTrue(os.path.isfile(config_file))
 
     def test_make_album_private(self):
         virtual_folder = Album.get_virtual_base_folder()
@@ -143,7 +161,3 @@ class TestAlbumAdminAcceptance(TestCase):
         self.assertEqual(response3b.status_code, 404)
         response3c = self.client.get('/album/api/album3/')
         self.assertEqual(response3c.status_code, 404)
-
-        os.rmdir(os.path.join(settings.PHOTOS_ROOT_DIR, 'album3/first/second'))
-        os.rmdir(os.path.join(settings.PHOTOS_ROOT_DIR, 'album3/first'))
-        os.rmdir(os.path.join(settings.PHOTOS_ROOT_DIR, 'album3'))

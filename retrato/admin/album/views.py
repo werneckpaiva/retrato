@@ -64,10 +64,10 @@ class AlbumAdminView(AlbumView, AlbumCacheManager):
                 context['visibility'] = album.get_visibility()
             except Exception:
                 pass
-        self.purge_albunm_cache_recursively(album.path)
+        self.purge_album_cache_recursively(album.path)
         return HttpResponse(json.dumps(context), content_type="application/json")
 
-    def purge_albunm_cache_recursively(self, album_path):
+    def purge_album_cache_recursively(self, album_path):
         parts = album_path.split("/")
         partial_path = ''
         parts.insert(0, '')

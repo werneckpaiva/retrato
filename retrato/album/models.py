@@ -6,6 +6,8 @@ from os.path import isfile, join, isdir
 import re
 import time
 from retrato.photo.models import Photo
+import uuid
+import hashlib
 
 
 class AlbumNotFoundError(Exception):
@@ -131,6 +133,7 @@ class Album(object):
         virtual_folder = self.get_virtual_album()
         if not os.path.isdir(virtual_folder):
             os.makedirs(virtual_folder)
+        self.create_config_file()
 
     def make_it_private(self):
         virtual_folder = self.get_virtual_album()
@@ -142,6 +145,9 @@ class Album(object):
         path = virtual_folder.rstrip('/')
         base_folder = Album.get_virtual_base_folder()
         while path != '/' and len(path) > len(base_folder):
+            config_filename = os.path.join(path, self.CONFIG_FILE)
+            if os.path.isfile(config_filename):
+                os.unlink(config_filename)
             if os.listdir(path) == []:
                 os.rmdir(path)
             else:
@@ -169,11 +175,24 @@ class Album(object):
             os.unlink(virtual_file)
 
     def config_file(self):
-        config_file = join(self._realpath, self.CONFIG_FILE)
-        if (not os.path.isfile(config_file)
-            or not os.access(config_file, os.R_OK)):
+        config_filename = join(self._realpath, self.CONFIG_FILE)
+        if (not os.path.isfile(config_filename)
+            or not os.access(config_filename, os.R_OK)):
             return None
-        with open(config_file, 'r') as f:
+        with open(config_filename, 'r') as f:
             content = f.read()
         config = json.loads(content)
         return config
+
+    def create_config_file(self):
+        config = self.config_file()
+        if config is None:
+            config = {}
+        if 'token' not in config:
+            config['token'] = self._generate_token()
+        config_filename = join(self._realpath, self.CONFIG_FILE)
+        with open(config_filename, 'w') as f:
+            json.dump(config, f, indent=4)
+
+    def _generate_token(self):
+        return hashlib.sha224(str(uuid.uuid4())).hexdigest()
