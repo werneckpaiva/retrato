@@ -22,7 +22,7 @@
         Settings.URL_PREFIX = "/album/";
         Settings.URL_DATA_PREFIX = "/album/api/";
 
-        var albumDelegate = new AlbumAjaxDelegate();
+        var albumDelegate = new AlbumAjaxDelegateWithAuth();
         var albumModel = new AlbumModel(albumDelegate);
 
         var loading = new Loading(albumModel, {

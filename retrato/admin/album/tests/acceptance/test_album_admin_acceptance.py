@@ -16,7 +16,7 @@ class TestAlbumAdminAcceptance(TestCase):
         self.client.logout()
         for folder in ['album1', 'album2', 'album3/first/second']:
             try:
-                os.unlink(os.path.join(settings.PHOTOS_ROOT_DIR, folder, '.retrato'))
+                os.unlink(os.path.join(settings.BASE_CACHE_DIR, 'album', folder, '.retrato'))
             except:
                 pass
         try:
@@ -31,7 +31,6 @@ class TestAlbumAdminAcceptance(TestCase):
             os.rmdir(os.path.join(settings.PHOTOS_ROOT_DIR, 'album3'))
         except:
             pass
-
 
     @classmethod
     def setUpClass(cls):
@@ -82,7 +81,7 @@ class TestAlbumAdminAcceptance(TestCase):
         self.assertTrue(os.path.isdir(album_folder))
         items = os.listdir(album_folder)
         self.assertTrue(len(items) > 0)
-        photo_link = os.path.join(album_folder, items[0])
+        photo_link = os.path.join(album_folder, items[1])  # 0 is the .retrato config file
         self.assertTrue(os.path.islink(photo_link))
 
     def test_make_album_public_should_return_data_on_api_call(self):
@@ -116,7 +115,7 @@ class TestAlbumAdminAcceptance(TestCase):
 
         response = self.client.post('/admin/album/api/album1/', {'visibility': 'public'})
         self.assertEqual(response.status_code, 200)
-        config_file = os.path.join(settings.PHOTOS_ROOT_DIR, "album1", Album.CONFIG_FILE)
+        config_file = os.path.join(virtual_folder, "album1", Album.CONFIG_FILE)
         self.assertTrue(os.path.isfile(config_file))
 
     def test_make_album_private(self):

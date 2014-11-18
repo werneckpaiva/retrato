@@ -139,15 +139,12 @@ class Album(object):
         virtual_folder = self.get_virtual_album()
         for picture in os.listdir(virtual_folder):
             virtual_file = os.path.join(virtual_folder, picture)
-            if not os.path.islink(virtual_file):
+            if not os.path.islink(virtual_file) and picture != self.CONFIG_FILE:
                 raise Exception('Can\'t make the album private')
             os.unlink(virtual_file)
         path = virtual_folder.rstrip('/')
         base_folder = Album.get_virtual_base_folder()
         while path != '/' and len(path) > len(base_folder):
-            config_filename = os.path.join(path, self.CONFIG_FILE)
-            if os.path.isfile(config_filename):
-                os.unlink(config_filename)
             if os.listdir(path) == []:
                 os.rmdir(path)
             else:
@@ -175,7 +172,8 @@ class Album(object):
             os.unlink(virtual_file)
 
     def config_file(self):
-        config_filename = join(self._realpath, self.CONFIG_FILE)
+        virtual_folder = self.get_virtual_album()
+        config_filename = join(virtual_folder, self.CONFIG_FILE)
         if (not os.path.isfile(config_filename)
             or not os.access(config_filename, os.R_OK)):
             return None
@@ -190,7 +188,8 @@ class Album(object):
             config = {}
         if 'token' not in config:
             config['token'] = self._generate_token()
-        config_filename = join(self._realpath, self.CONFIG_FILE)
+        virtual_folder = self.get_virtual_album()
+        config_filename = join(virtual_folder, self.CONFIG_FILE)
         with open(config_filename, 'w') as f:
             json.dump(config, f, indent=4)
 

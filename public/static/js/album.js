@@ -165,6 +165,7 @@ function AlbumDeepLinking(model){
             return;
         }
         newPath = StringUtil.sanitizeUrl(newPath);
+        newPath = newPath + location.search
         history.pushState(null, null, newPath);
     }
 
@@ -217,4 +218,15 @@ function AlbumPageTitle(model, conf){
     };
     
     init();
+}
+
+function AlbumAjaxDelegateWithAuth(){
+
+    var delegate = new AlbumAjaxDelegate();
+
+    this.get = function(albumPath, resultHandler, failHandler){
+        var pathWithToken=albumPath+location.search;
+        delegate.get(pathWithToken, resultHandler, failHandler);
+    }
+
 }
