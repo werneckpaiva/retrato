@@ -7,8 +7,6 @@ from django.core.urlresolvers import reverse
 
 from retrato.album.views import AlbumView
 from retrato.album.models import Album
-from django.utils.decorators import method_decorator
-from django.contrib.auth.decorators import login_required
 
 
 class AlbumCacheManager():
@@ -33,6 +31,7 @@ class AlbumAdminView(AlbumView, AlbumCacheManager):
         album = self.object
         context = super(AlbumAdminView, self).get_context_data(**kwargs)
         context['visibility'] = album.get_visibility()
+        context['token'] = album.get_token()
         self._get_pictures_visibility(context)
         return context
 
@@ -62,6 +61,7 @@ class AlbumAdminView(AlbumView, AlbumCacheManager):
             try:
                 album.set_visibility(visibility)
                 context['visibility'] = album.get_visibility()
+                context['token'] = album.get_token()
             except Exception:
                 pass
         self.purge_album_cache_recursively(album.path)

@@ -172,9 +172,38 @@ function AlbumAdminPhotos(model, conf){
     var _resizePictures = albumPhotos.resizePictures;
     albumPhotos.resizePictures = function(){
         _resizePictures();
-        
     }
     
     init();
     return albumPhotos;
 }
+
+function AlbumAdminBreadcrumb(model, conf){
+    
+    var albumBreadcrumb = new AlbumBreadcrumb(model, conf);
+
+    var _super_getCurrentContext = albumBreadcrumb.getCurrentContext;
+
+    function init(){
+        watch(model, "token", function(){
+            albumBreadcrumb.updatePath();
+        });
+    }
+
+    albumBreadcrumb.getCurrentContext = function(){
+        var context = _super_getCurrentContext.call(albumBreadcrumb);
+        if (context.parts.length > 0 && model.token !== null){
+            var part = context.parts.pop();
+            console.log(model);
+            part.url = "/album" + model.path + "?token=" + model.token;
+            part.external = true;
+            context.parts.push(part);
+        }
+        return context;
+    }
+
+    init();
+
+    return albumBreadcrumb;
+}
+

@@ -20,7 +20,7 @@ def is_album_token_valid(request, album=None):
         album_path = request.path.replace("/album", "", 1)
         album_base = AlbumView.get_album_base()
         album = Album(album_base, album_path)
-    config = album.config_file()
+    config = album.config()
     if not config:
         return False
 

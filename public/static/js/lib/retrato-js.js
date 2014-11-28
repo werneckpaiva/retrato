@@ -87,7 +87,6 @@ function AlbumMenu(model, conf){
         });
 
         Fullscreen.onchange(function(event){
-            console.log('fullscreen change')
             $fullscreenButton.toggleClass("selected", Fullscreen.isActive());
         });
         
@@ -992,6 +991,7 @@ function boxBlurCanvasRGB( canvas, top_x, top_y, width, height, radius, iteratio
     this.albuns = null;
     this.pictures = null;
     this.visibility = null;
+    this.token = null;
 
     this.loading = false;
 
@@ -999,9 +999,17 @@ function boxBlurCanvasRGB( canvas, top_x, top_y, width, height, radius, iteratio
     this.highlightOn = false;
     this.detailsOn = false;
 
-    this.loadAlbum = function(albumPath){
+    this.loadAlbum = function(albumPath, resultHandler, errorHandler){
         self.loading = true;
-        delegate.get(albumPath, loadAlbumResultHandler, loadAlbumFailHandler);
+        delegate.get(albumPath, 
+                function(result){
+                    loadAlbumResultHandler(result);
+                    if (resultHandler !== undefined) resultHandler(result);
+                }, 
+                function(error){
+                    loadAlbumFailHandler(error);
+                    if (errorHandler !== undefined) errorHandler(error);
+                });
     };
 
     function loadAlbumResultHandler(result){

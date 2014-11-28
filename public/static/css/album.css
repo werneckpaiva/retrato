@@ -258,6 +258,11 @@ body{
     cursor: pointer;
 }
 
+#photos .photo-static{
+    display:inline;
+    position: static;
+}
+
 /* Highlight */
 
 

@@ -53,8 +53,6 @@
             fullscreenButton: $(".menu-container .fullscreen")
         })
 
-        var deepLinking = new AlbumDeepLinking(albumModel);
-
          var albumPhotos = new AlbumPhotos(albumModel, {
             view: $("#photos"), 
             template: $("#photoTpl").html(),
@@ -69,6 +67,18 @@
             detailsView: $("#highlight .details"),
             headerHeight: 45
         })
+
+        var deepLinking = null;
+
+        var modelStatic = new AlbumModel(new AlbumHtmlDelegate($("#photos img")));
+        var albumPhotosStatic = new AlbumPhotos(modelStatic, {
+            view: $("#photos"), 
+            template: $("#photoTpl").html(),
+            margin: 2
+        });
+        modelStatic.loadAlbum('/', function(){
+            deepLinking = new AlbumDeepLinking(albumModel)
+        });
     })
 
 </script>
@@ -82,7 +92,7 @@
         <header id="top-menu" class="slide">
             <nav id="breadcrumb">
                 <script id="breadcrumbHomeTpl" type="text/html">{% verbatim %}<span><a href="{{url}}">{% endverbatim %}<img src="{% static 'media/home.svg' %}" width="30" height="30" />{% verbatim %}</a></span>{% endverbatim %}</script>
-                <script id="breadcrumbTpl" type="text/html">{% verbatim %}<span>{{#url}}<a href="{{url}}">{{/url}}{{name}}{{#url}}</a>{{/url}}</span>{% endverbatim %}</script>
+                <script id="breadcrumbTpl" type="text/html">{% verbatim %}<span>{{#url}}<a href="{{url}}" {{#external}}target="_blank"{{/external}}>{{/url}}{{name}}{{#url}}</a>{{/url}}</span>{% endverbatim %}</script>
             </nav>
             <div class="menu-container">
                 <button class="fullscreen"><span>fullscreen</span></button>
@@ -126,7 +136,10 @@
                     <img class="photo" width="{{width}}" height="{{height}}" src="{{src}}" style="display: inline;">
                 </div>
             {% endverbatim %}
-            </script>
+                </script>
+                {% for picture in pictures %}
+                    <img class="photo photo-static" width="{{picture.thumb_width}}" height="{{picture.thumb_height}}" data-photo="{{picture.url}}" src="{{picture.thumb}}">
+                {% endfor %}
             </section>
         </div>
     </div>

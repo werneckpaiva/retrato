@@ -11,7 +11,7 @@ from django.http.response import Http404, HttpResponseForbidden
 from retrato.album.models import Album, AlbumNotFoundError
 from retrato.album.auth import check_album_token_valid_or_user_authenticated,\
     UnauthorizedUserException, redirect_to_login
-from django.shortcuts import render
+from django.shortcuts import render, render_to_response
 
 
 class AlbumView(BaseDetailView):
@@ -56,14 +56,17 @@ class AlbumView(BaseDetailView):
             p.load_image_data()
             p.close_image()
             url = self._get_photo_url(p)
+            ratio = round(float(p.width) / float(p.height), 3)
             data.append({'name': p.name,
                      'filename': p.filename,
                      'width': p.width,
                      'height': p.height,
-                     'ratio': round(float(p.width) / float(p.height), 3),
+                     'ratio': ratio,
                      'date': time.strftime('%Y-%m-%d %H:%M:%S', p.date_taken),
                      'url': url,
                      'thumb': ("%s?size=640" % url),
+                     'thumb_width': (640 if p.width >= p.height else (640 * ratio)),
+                     'thumb_height': (640 if p.height > p.width else (640 / ratio)),
                      'highlight': ("%s?size=1440" % url)})
         return data
 
@@ -76,9 +79,12 @@ class AlbumView(BaseDetailView):
         return album.get_albuns()
 
 
-def album_home_view(request):
-    try:
-        check_album_token_valid_or_user_authenticated(request)
-    except UnauthorizedUserException:
-        return redirect_to_login(request)
-    return render(request, 'album.html')
+class AlbumHomeView(AlbumView):
+
+    def render_to_response(self, context):
+        try:
+            check_album_token_valid_or_user_authenticated(self.request, album=self.object)
+        except UnauthorizedUserException:
+#             return redirect_to_login(self.request)
+            return HttpResponse(status=401)
+        return render_to_response('album.html', context)

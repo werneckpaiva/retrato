@@ -115,8 +115,15 @@ class TestAlbumAdminAcceptance(TestCase):
 
         response = self.client.post('/admin/album/api/album1/', {'visibility': 'public'})
         self.assertEqual(response.status_code, 200)
+
         config_file = os.path.join(virtual_folder, "album1", Album.CONFIG_FILE)
         self.assertTrue(os.path.isfile(config_file))
+        with open(config_file, 'r') as f:
+            content_file = f.read()
+        config = json.loads(content_file)
+
+        content = json.loads(response.content)
+        self.assertEquals(content['token'], config['token'])
 
     def test_make_album_private(self):
         virtual_folder = Album.get_virtual_base_folder()

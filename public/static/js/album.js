@@ -97,7 +97,7 @@ function AlbumBreadcrumb(model, conf){
         return url;
     }
 
-    this.updatePath = function(){
+    this.getCurrentContext = function(){
         var parts = model.path.split("/");
         if (parts[parts.length - 1]===""){
             parts.pop();
@@ -107,9 +107,9 @@ function AlbumBreadcrumb(model, conf){
             parts.push(p.filename);
         }
         var partial = '/';
-        var content = Mustache.render(templateHome, {
-            url: StringUtil.sanitizeUrl(Settings.URL_PREFIX + '/')
-        });
+        var context = {};
+        context.url = StringUtil.sanitizeUrl(Settings.URL_PREFIX + '/');
+        context.parts = []
         for (var i=1; i<parts.length; i++){
             partial += parts[i] + '/';
             params = {};
@@ -117,14 +117,29 @@ function AlbumBreadcrumb(model, conf){
                 params.url = StringUtil.sanitizeUrl(Settings.URL_PREFIX + partial);
             }
             params.name = StringUtil.humanizeName(parts[i]);
+            context.parts.push(params)
+        }
+        return context;
+    }
+    
+    this.render = function(context){
+        var content = Mustache.render(templateHome, {
+            url: context.url
+        });
+        for (var i=0; i<context.parts.length; i++){
+            var params = context.parts[i];
             content += Mustache.render(template, params);
         }
         $viewList.html(content);
+    }
+    this.updatePath = function(){
+        var context = this.getCurrentContext();
+        this.render(context);
         enableAsynchronous();
     };
 
     function enableAsynchronous(){
-        $viewList.find("a").click(function(){
+        $viewList.find("a[target!='_blank']").click(function(){
             model.loadAlbum($(this).attr("href"));
             return false;
         });

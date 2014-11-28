@@ -43,7 +43,7 @@
             templateEmpty: 'Albuns Admin'
         });
         
-        var breadcrumb = new AlbumBreadcrumb(albumModel, {
+        var breadcrumb = new AlbumAdminBreadcrumb(albumModel, {
             view: $("#breadcrumb"), 
             templateHome: $("#breadcrumbHomeTpl").html(), 
             template: $("#breadcrumbTpl").html()
@@ -86,7 +86,7 @@
         <header id="top-menu" class="slide">
             <nav id="breadcrumb">
                 <script id="breadcrumbHomeTpl" type="text/html">{% verbatim %}<span><a href="{{url}}">{% endverbatim %}<img src="{% static 'media/admin.svg' %}" width="30" height="30" />{% verbatim %}</a></span>{% endverbatim %}</script>
-                <script id="breadcrumbTpl" type="text/html">{% verbatim %}<span>{{#url}}<a href="{{url}}">{{/url}}{{name}}{{#url}}</a>{{/url}}</span>{% endverbatim %}</script>
+                <script id="breadcrumbTpl" type="text/html">{% verbatim %}<span>{{#url}}<a href="{{url}}" {{#external}}target="_blank"{{/external}}>{{/url}}{{name}}{{#url}}</a>{{/url}}</span>{% endverbatim %}</script>
             </nav>
             <div class="menu-container">
                 <button class="publish"><span>publish</span></button>

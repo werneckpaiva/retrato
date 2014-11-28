@@ -22,8 +22,8 @@ class TestAlbumAuth(TestCase):
     def test_user_not_authenticated_rejected(self):
         client = Client()
         response = client.get('/album/')
-        self.assertEqual(response.status_code, 302)
-        self.assertTrue(response.url.endswith('/accounts/login/?next=/album/'))
+        self.assertEqual(response.status_code, 401)
+#         self.assertTrue(response.url.endswith('/accounts/login/?next=/album/'))
 
     def test_api_user_not_authenticated_rejected(self):
         client = Client()
@@ -69,10 +69,14 @@ class TestAlbumAuth(TestCase):
 
         client = Client()
         response = client.get('/album/album2?token=5678')
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 401)
 
         client = Client()
         response = client.get('/album/api/album2?token=5678')
         self.assertEqual(response.status_code, 401)
 
         os.remove(retrato_file)
+
+    def test_user_with_valid_token_for_subfolder_invalid_for_root_folder(self):
+        # TODO
+        pass

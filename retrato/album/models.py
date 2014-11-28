@@ -133,7 +133,7 @@ class Album(object):
         virtual_folder = self.get_virtual_album()
         if not os.path.isdir(virtual_folder):
             os.makedirs(virtual_folder)
-        self.create_config_file()
+        self.create_config()
 
     def make_it_private(self):
         virtual_folder = self.get_virtual_album()
@@ -171,7 +171,7 @@ class Album(object):
         elif visibility == Album.VISIBILITY_PRIVATE and link_exists:
             os.unlink(virtual_file)
 
-    def config_file(self):
+    def config(self):
         virtual_folder = self.get_virtual_album()
         config_filename = join(virtual_folder, self.CONFIG_FILE)
         if (not os.path.isfile(config_filename)
@@ -182,8 +182,8 @@ class Album(object):
         config = json.loads(content)
         return config
 
-    def create_config_file(self):
-        config = self.config_file()
+    def create_config(self):
+        config = self.config()
         if config is None:
             config = {}
         if 'token' not in config:
@@ -195,3 +195,7 @@ class Album(object):
 
     def _generate_token(self):
         return hashlib.sha224(str(uuid.uuid4())).hexdigest()
+
+    def get_token(self):
+        config = self.config()
+        return config['token'] if config is not None and 'token' in config else None
