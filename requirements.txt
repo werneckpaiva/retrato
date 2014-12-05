@@ -1,3 +1,4 @@
 Django==1.6.5
 Pillow==2.3.0
 django.js==0.8.1
+MySQL-python==1.2.5==1.2.5==1.2.5==1.2.5==1.2.5
