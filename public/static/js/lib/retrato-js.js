@@ -1046,9 +1046,6 @@ function AlbumAjaxDelegate(){
 
 function AlbumHtmlDelegate(imgs){
     this.get = function(albumPath, resultHandler, failHandler){
-        if (imgs.length === 0){
-            return failHandler();
-        }
         var result = {
                 path: albumPath,
                 pictures: []
