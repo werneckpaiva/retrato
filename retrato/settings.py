@@ -24,7 +24,6 @@ CACHES = {
     }
 }
 
-
 TEMPLATE_LOADERS = ('django.template.loaders.filesystem.Loader',
                     'django.template.loaders.app_directories.Loader')
 
@@ -37,7 +36,8 @@ TEMPLATE_DIRS = (
     os.path.join(BASE_DIR, 'template'),
 )
 
-STATICFILES_DIRS = [os.path.join(BASE_DIR, "public/static")]
+# STATICFILES_DIRS = [os.path.join(BASE_DIR, "public/static")]
+STATIC_ROOT = os.path.join(BASE_DIR, "public/static")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
