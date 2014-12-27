@@ -245,3 +245,103 @@ function AlbumAjaxDelegateWithAuth(){
     }
 
 }
+
+
+function AlbumMenu(model, conf){
+
+    var self = this;
+
+    var $view = null;
+    var $detailsButton = null;
+    var $fullscreenButton = null;
+
+    function init(){
+        $view = conf.view;
+        $detailsButton = conf.detailsButton;
+        $fullscreenButton = conf.fullscreenButton;
+
+        watch(model, "selectedPictureIndex", function(){
+            showHideMenu();
+            showHideDetailsButton();
+            showHideFullscreenButton();
+        });
+
+        $detailsButton.click(function(event){
+            event.preventDefault();
+            showHideDetails();
+        });
+
+        $fullscreenButton.click(function(event){
+            event.preventDefault();
+            openCloseFullscreen();
+        });
+
+        Fullscreen.onchange(function(event){
+            $fullscreenButton.toggleClass("selected", Fullscreen.isActive());
+        });
+        
+        showHideDetailsButton();
+        showHideFullscreenButton();
+        controlMenuBasedOnMouseMovement();
+    }
+
+    function showHideMenu(){
+        var show = (model.selectedPictureIndex !== null);
+        toggleMenu(show);
+    }
+
+    function toggleMenu(show){
+        $view.toggleClass("headroom--pinned", !show)
+            .toggleClass("headroom--top", !show)
+            .toggleClass("headroom--not-top", show)
+            .toggleClass("headroom--unpinned", show);
+    }
+    
+    function showHideDetailsButton(){
+        if (model.selectedPictureIndex === null){
+            model.detailsOn = false;
+            $detailsButton.hide();
+        } else {
+            $detailsButton.show();
+        }
+    }
+
+    function showHideDetails(){
+        model.detailsOn = !model.detailsOn;
+        $detailsButton.toggleClass("selected", model.detailsOn);
+    }
+
+    function showHideFullscreenButton(){
+        if (model.selectedPictureIndex === null){
+            model.detailsOn = false;
+            $fullscreenButton.hide();
+        } else {
+            $fullscreenButton.show();
+        }
+    }
+
+    function openCloseFullscreen(){
+        if (Fullscreen.isActive()){
+            Fullscreen.close();
+        } else {
+            Fullscreen.open(document.getElementById("content"));
+        }
+    }
+
+    function controlMenuBasedOnMouseMovement(){
+        var timer = null;
+        function mouseStoppedCallback(){
+            timer = setTimeout(function(){
+                if (model.selectedPictureIndex !== null) toggleMenu(true);
+            }, 1500);
+        }
+        $(document).mousemove(function( event ) {
+            clearTimeout(timer);
+            if (model.selectedPictureIndex !== null) toggleMenu(false);
+            mouseStoppedCallback();
+        });
+        mouseStoppedCallback();
+    }
+    
+    init();
+}

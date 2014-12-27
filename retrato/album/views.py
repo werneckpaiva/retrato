@@ -6,12 +6,12 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.views.generic.detail import BaseDetailView
-from django.http.response import Http404, HttpResponseForbidden
+from django.http.response import Http404
 
 from retrato.album.models import Album, AlbumNotFoundError
 from retrato.album.auth import check_album_token_valid_or_user_authenticated,\
-    UnauthorizedUserException, redirect_to_login
-from django.shortcuts import render, render_to_response
+    UnauthorizedUserException
+from django.shortcuts import render_to_response
 
 
 class AlbumView(BaseDetailView):
