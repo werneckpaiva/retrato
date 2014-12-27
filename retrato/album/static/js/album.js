@@ -98,7 +98,10 @@ function AlbumBreadcrumb(model, conf){
     }
 
     this.getCurrentContext = function(){
-        var parts = model.path.split("/");
+        var parts = [];
+        if (model.path) {
+            parts = model.path.split("/");
+        }
         if (parts[parts.length - 1]===""){
             parts.pop();
         }

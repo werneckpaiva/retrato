@@ -7,7 +7,7 @@ function AlbumAdminModel(albumDelegate){
                     model.loading = false
                     model.visibility = result.visibility;
                     model.loadAlbum(model.path)
-                }, 
+                },
                 function(error){
                     model.loading = false
                 });
