@@ -16,13 +16,22 @@ from django.shortcuts import render_to_response
 
 class AlbumView(BaseDetailView):
 
+    def get(self, request, *args, **kwargs):
+        try:
+            self.object = self.get_object()
+            context = self.get_context_data(object=self.object)
+            return self.render_to_response(context)
+        except UnauthorizedUserException:
+            return HttpResponse(status=401)
+
     def get_object(self):
         root_folder = self.get_album_base()
         try:
             album = Album(root_folder, self.kwargs['album_path'])
-            return album
         except AlbumNotFoundError:
             raise Http404
+        check_album_token_valid_or_user_authenticated(self.request, album=album)
+        return album
 
     def get_context_data(self, **kwargs):
         album = self.object
@@ -34,10 +43,6 @@ class AlbumView(BaseDetailView):
         return context
 
     def render_to_response(self, context):
-        try:
-            check_album_token_valid_or_user_authenticated(self.request, album=self.object)
-        except UnauthorizedUserException:
-            return HttpResponse(status=401)
         return HttpResponse(json.dumps(context), content_type="application/json")
 
     @classmethod
