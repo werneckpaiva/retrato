@@ -1,6 +1,7 @@
 import json
 import os
 import time
+import logging
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -14,11 +15,33 @@ from retrato.album.auth import check_album_token_valid_or_user_authenticated,\
 from django.shortcuts import render_to_response
 
 
+logger = logging.getLogger(__name__)
+
+
+def cache_album_context(context_func):
+    def inner(self, **kwargs):
+        from django.core.cache import cache
+
+        key = self.kwargs['album_path']
+        context = cache.get(key)
+        if context:
+            logger.debug("Cache hit - key: '%s'" % key)
+            return context
+
+        logger.debug("Cache miss - key: '%s'" % key)
+        context = context_func(self, **kwargs)
+        cache.set(key, context)
+        return context
+
+    return inner
+
+
 class AlbumView(BaseDetailView):
 
     def get(self, request, *args, **kwargs):
         try:
             self.object = self.get_object()
+            check_album_token_valid_or_user_authenticated(request, album=self.object)
             context = self.get_context_data(object=self.object)
             return self.render_to_response(context)
         except UnauthorizedUserException:
@@ -28,12 +51,11 @@ class AlbumView(BaseDetailView):
         root_folder = self.get_album_base()
         try:
             album = Album(root_folder, self.kwargs['album_path'])
+            return album
         except AlbumNotFoundError:
             raise Http404
-        check_album_token_valid_or_user_authenticated(self.request, album=album)
-        return album
 
-    def get_context_data(self, **kwargs):
+    def get_album_context(self):
         album = self.object
         context = {
                    'path': '/%s' % self.kwargs['album_path'],
@@ -41,6 +63,11 @@ class AlbumView(BaseDetailView):
                    'pictures': self._load_pictures(album),
                    'albuns': self._load_albuns(album)
         }
+        return context
+
+    @cache_album_context
+    def get_context_data(self, **kwargs):
+        context = self.get_album_context()
         return context
 
     def render_to_response(self, context):
@@ -88,9 +115,4 @@ class AlbumView(BaseDetailView):
 class AlbumHomeView(AlbumView):
 
     def render_to_response(self, context):
-        try:
-            check_album_token_valid_or_user_authenticated(self.request, album=self.object)
-        except UnauthorizedUserException:
-#             return redirect_to_login(self.request)
-            return HttpResponse(status=401)
         return render_to_response('album.html', context)

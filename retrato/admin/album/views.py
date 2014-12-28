@@ -9,27 +9,24 @@ from retrato.album.views import AlbumView
 from retrato.album.models import Album
 
 
+logger = logging.getLogger(__name__)
+
+
 class AlbumCacheManager():
 
     def purge_album_cache(self, album_path):
-        from django.http import HttpRequest
-        from django.utils.cache import get_cache_key
         from django.core.cache import cache
-
-        request = HttpRequest()
-        request.path = reverse('album_data', kwargs={'album_path': album_path})
-        key = get_cache_key(request)
-        if key:
-            if cache.get(key):
-                print "Purge cache '%s'" % request.path
-                cache.set(key, None, 0)
+        key = album_path
+        if cache.get(album_path):
+            logger.debug("Purge cache '%s'" % key)
+            cache.set(key, None, 0)
 
 
 class AlbumAdminView(AlbumView, AlbumCacheManager):
 
     def get_context_data(self, **kwargs):
         album = self.object
-        context = super(AlbumAdminView, self).get_context_data(**kwargs)
+        context = super(AlbumAdminView, self).get_album_context()
         context['visibility'] = album.get_visibility()
         context['token'] = album.get_token()
         self._get_pictures_visibility(context)

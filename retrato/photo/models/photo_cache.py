@@ -66,10 +66,10 @@ class PhotoCache(object):
 
     def get_file(self):
         if not self.is_in_cache():
-            logger.info("Cache miss (%s)" % self.get_filename())
+            logger.debug("Cache miss (%s)" % self.get_filename())
             self.create_cache()
         else:
-            logger.info("Cache hit (%s)" % self.get_filename())
+            logger.debug("Cache hit (%s)" % self.get_filename())
         return self.filename
 
     def set_max_dimension(self, size):
