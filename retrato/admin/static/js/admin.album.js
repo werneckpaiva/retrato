@@ -1,5 +1,6 @@
 function AlbumAdminModel(albumDelegate){
-    var model = AlbumModel(albumDelegate);
+
+    var model = new AlbumModel(albumDelegate);
 
     model.changeVisibility = function(visibility){
         albumDelegate.changeVisibility(model.path, visibility, 
