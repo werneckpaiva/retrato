@@ -84,7 +84,6 @@ function AlbumAdminMenu(model, conf){
         });
 
         watch(model, "pictures", function(){
-            console.log("pictures changed")
             showPublishButtonStatus();
         }, 2);
 
@@ -195,7 +194,6 @@ function AlbumAdminBreadcrumb(model, conf){
         var context = _super_getCurrentContext.call(albumBreadcrumb);
         if (context.parts.length > 0 && model.token !== null){
             var part = context.parts.pop();
-            console.log(model);
             part.url = "/album" + model.path + "?token=" + model.token;
             part.external = true;
             context.parts.push(part);

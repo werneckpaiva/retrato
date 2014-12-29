@@ -177,8 +177,8 @@ function AlbumDeepLinking(model){
     }
 
     function updateUrl(){
-        var currentAlbumPath = location.pathname;
-        var newPath = Settings.URL_PREFIX + model.path;
+        var currentAlbumPath = StringUtil.sanitizeUrl(location.pathname);
+        var newPath = StringUtil.sanitizeUrl(Settings.URL_PREFIX + model.path);
         if (currentAlbumPath == newPath){
             return;
         }
