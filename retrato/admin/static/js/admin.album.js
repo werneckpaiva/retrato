@@ -28,6 +28,19 @@ function AlbumAdminModel(albumDelegate){
         model.loading = true
     }
 
+    model.setAlbumCover = function(pictureIndex){
+        albumDelegate.setAlbumCover(model.pictures[pictureIndex].url, 
+                function(result){
+                    model.loading = false
+                    model.cover = model.pictures[pictureIndex]
+                    callWatchers(model, "cover");
+                }, 
+                function(error){
+                    model.loading = false
+                });
+        model.loading = true
+    }
+    
     return model;
 }
 
@@ -59,6 +72,19 @@ function AlbumAdminDelegate(){
             failHandler(status)
         }, "json");
     }
+
+    delegate.setAlbumCover = function(picturePath, resultHandler, failHandler){
+        var data = {
+                'cover': true
+        }
+        var url = picturePath;
+        $.post(url, data, function(result) {
+            resultHandler(result)
+        }, "json").fail(function(status, s){
+            failHandler(status)
+        }, "json");
+    }
+
     return delegate;
 }
 
@@ -142,31 +168,58 @@ function AlbumAdminPhotos(model, conf){
     function init(){
         $view = conf.view;
         $viewList = (conf.listClass)? $view.find("."+conf.listClass) : $view
+
+        watch(model, "cover", function(prop, action, newvalue, oldvalue){
+            var picturesChanged = Array.isArray(newvalue);
+            albumPhotos.displayPictures(picturesChanged);
+        });
     }
 
     var _displayPictures = albumPhotos.displayPictures;
     albumPhotos.displayPictures = function(picturesChanged){
         _displayPictures(picturesChanged);
         $viewList.find('.photo-container').each(function(i, element){
-            var isPrivate = (model.pictures[i].visibility == "private");
-            $element = $(element)
-            $element.toggleClass("private", isPrivate)
-            if (picturesChanged){
-                var photoShare = $element.find(".photo-share")
-                var publishBtn = photoShare.find(".publish");
-                publishBtn.data("index", i)
-                publishBtn.click(function(event){
-                    event.preventDefault();
-                    var dataIndex = $(this).data("index");
-                    var pictureVisibility = model.pictures[dataIndex].visibility
-                    if (pictureVisibility == "public"){
-                        model.changePictureVisibility(dataIndex, "private")
-                    } else if (pictureVisibility == "private") {
-                        model.changePictureVisibility(dataIndex, "public")
-                    }
-                })
-            }
+            $element = $(element);
+            setPicturePrivatePublicControl($element, i, picturesChanged);
+            setPictureCoverControl($element, i, picturesChanged);
         })
+    }
+
+    function setPicturePrivatePublicControl($element, i, picturesChanged){
+        var isPrivate = (model.pictures[i].visibility == "private");
+        $element.toggleClass("private", isPrivate)
+        if (picturesChanged){
+            var publishBtn = $element.find(".photo-menu .publish")
+            publishBtn.data("index", i)
+            publishBtn.click(function(event){
+                event.preventDefault();
+                var dataIndex = $(this).data("index");
+                var pictureVisibility = model.pictures[dataIndex].visibility
+                if (pictureVisibility == "public"){
+                    model.changePictureVisibility(dataIndex, "private")
+                } else if (pictureVisibility == "private") {
+                    model.changePictureVisibility(dataIndex, "public")
+                }
+            })
+        }
+    }
+
+    function setPictureCoverControl($element, i, picturesChanged){
+        var isCover = false;
+        if (model.cover){
+            isCover = model.cover.filename == model.pictures[i].filename;
+            if (isCover) console.log(model.pictures[i].filename);
+        }
+        $element.toggleClass("cover", isCover)
+        if (picturesChanged){
+            var coverBtn = $element.find(".photo-menu .set-cover")
+            coverBtn.data("index", i)
+            coverBtn.click(function(event){
+                event.preventDefault();
+                var dataIndex = $(this).data("index");
+                model.setAlbumCover(dataIndex);
+            })
+        }
     }
 
     var _resizePictures = albumPhotos.resizePictures;

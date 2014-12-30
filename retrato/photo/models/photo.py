@@ -3,7 +3,6 @@ import re
 from PIL import Image
 from PIL.ExifTags import TAGS
 import time
-from django.http import HttpResponse
 
 
 class Photo(object):
@@ -22,7 +21,7 @@ class Photo(object):
     url = None
 
     def __init__(self, base_folder, album, filename):
-        self.base_folder = base_folder;
+        self.base_folder = base_folder
         self.album = album
         self.filename = filename
         self._real_file()

@@ -127,7 +127,10 @@
                 <script id="photoTpl" type="text/html">
             {% verbatim %}
                 <div class="photo-container" style="width: {{width}}px; height: {{height}}px;">
-                    <div class="photo-share"><button class="publish"><span>publish</span></button></div>
+                    <div class="photo-menu">
+                        <button class="publish" title="Change photo visibility"><span>publish</span></button>
+                        <button class="set-cover" title="Set as album cover"><span>cover</span></button>
+                    </div>
                     <img class="photo" width="{{width}}" height="{{height}}" src="{{photoUrl}}" style="display: inline;">
                 </div>
             {% endverbatim %}

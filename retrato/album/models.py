@@ -10,7 +10,11 @@ import uuid
 import hashlib
 
 
-class AlbumNotFoundError(Exception):
+class AlbumError(Exception):
+    pass
+
+
+class AlbumNotFoundError(AlbumError):
     pass
 
 
@@ -159,14 +163,14 @@ class Album(object):
         else:
             return Album.VISIBILITY_PRIVATE
 
-    def set_photo_visibility(self, picture, visibility):
+    def set_photo_visibility(self, photo_filename, visibility):
         virtual_folder = self.get_virtual_album()
-        virtual_file = os.path.join(virtual_folder, picture)
+        virtual_file = os.path.join(virtual_folder, photo_filename)
         link_exists = os.path.islink(virtual_file)
 
         if visibility == Album.VISIBILITY_PUBLIC and not link_exists:
             self.make_it_public()
-            photo_file = os.path.join(self._realpath, picture)
+            photo_file = os.path.join(self._realpath, photo_filename)
             os.symlink(photo_file, virtual_file)
         elif visibility == Album.VISIBILITY_PRIVATE and link_exists:
             os.unlink(virtual_file)
@@ -176,7 +180,7 @@ class Album(object):
         config_filename = join(virtual_folder, self.CONFIG_FILE)
         if (not os.path.isfile(config_filename)
             or not os.access(config_filename, os.R_OK)):
-            return None
+            return {}
         with open(config_filename, 'r') as f:
             content = f.read()
         config = json.loads(content)
@@ -188,6 +192,9 @@ class Album(object):
             config = {}
         if 'token' not in config:
             config['token'] = self._generate_token()
+        self._save_config(config)
+
+    def _save_config(self, config):
         virtual_folder = self.get_virtual_album()
         config_filename = join(virtual_folder, self.CONFIG_FILE)
         with open(config_filename, 'w') as f:
@@ -199,3 +206,23 @@ class Album(object):
     def get_token(self):
         config = self.config()
         return config['token'] if config is not None and 'token' in config else None
+
+    def get_cover(self):
+        config = self.config()
+        # get from config
+        if 'cover' in config:
+            return Photo(self._root_folder, self._path, config['cover'])
+        # get default
+        picture_names = self.get_all_pictures_name()
+        if picture_names is None or len(picture_names) == 0:
+            return None
+        cover = Photo(self._root_folder, self._path, picture_names[0])
+        return cover
+
+    def set_cover(self, photo_filename):
+        picture_names = self.get_all_pictures_name()
+        if photo_filename not in picture_names:
+            raise AlbumError("File '%s' does not exist in album %s" % (photo_filename, self._path))
+        config = self.config()
+        config['cover'] = photo_filename
+        self._save_config(config)

@@ -16,8 +16,11 @@ if 'retrato.admin' in settings.INSTALLED_APPS:
     admin.autodiscover()
     urlpatterns += patterns('',
         url(r'^admin-user/', include(admin.site.urls)),
-        url(r'^accounts/login/$', 'django.contrib.auth.views.login'),
-        url(r'^accounts/logout/$', 'django.contrib.auth.views.logout'),
         url(r'^admin/$', RedirectView.as_view(url='/admin/album', permanent=True)),
         url(r'^admin/album', include('retrato.admin.album.urls')),
         url(r'^admin/photo', include('retrato.admin.photo.urls')))
+
+if settings.REQUIRE_AUTHENTICATION:
+    urlpatterns += patterns('',
+        url(r'^login/$', 'django.contrib.auth.views.login', {'template_name': 'login.html'}),
+        url(r'^logout/$', 'django.contrib.auth.views.logout'))

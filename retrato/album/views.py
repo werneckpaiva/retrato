@@ -60,6 +60,7 @@ class AlbumView(BaseDetailView):
         context = {
                    'path': '/%s' % self.kwargs['album_path'],
                    'title': self.kwargs['album_path'].replace('/', ' | '),
+                   'cover': self._load_album_cover(album),
                    'pictures': self._load_pictures(album),
                    'albuns': self._load_albuns(album)
         }
@@ -84,23 +85,28 @@ class AlbumView(BaseDetailView):
 
     def _load_pictures(self, album):
         pictures = album.get_pictures()
-        data = []
+        data_list = []
         for p in pictures:
-            p.load_image_data()
-            p.close_image()
-            url = self._get_photo_url(p)
-            ratio = round(float(p.width) / float(p.height), 3)
-            data.append({'name': p.name,
-                     'filename': p.filename,
-                     'width': p.width,
-                     'height': p.height,
+            data = self._picture_to_json(p)
+            data_list.append(data)
+        return data_list
+
+    def _picture_to_json(self, picture):
+        picture.load_image_data()
+        picture.close_image()
+        url = self._get_photo_url(picture)
+        ratio = round(float(picture.width) / float(picture.height), 3)
+        data = {'name': picture.name,
+                     'filename': picture.filename,
+                     'width': picture.width,
+                     'height': picture.height,
                      'ratio': ratio,
-                     'date': time.strftime('%Y-%m-%d %H:%M:%S', p.date_taken),
+                     'date': time.strftime('%Y-%m-%d %H:%M:%S', picture.date_taken),
                      'url': url,
                      'thumb': ("%s?size=640" % url),
-                     'thumb_width': (640 if p.width >= p.height else (640 * ratio)),
-                     'thumb_height': (640 if p.height > p.width else (640 / ratio)),
-                     'highlight': ("%s?size=1440" % url)})
+                     'thumb_width': (640 if picture.width >= picture.height else (640 * ratio)),
+                     'thumb_height': (640 if picture.height > picture.width else (640 / ratio)),
+                     'highlight': ("%s?size=1440" % url)}
         return data
 
     def _get_photo_url(self, photo):
@@ -110,6 +116,13 @@ class AlbumView(BaseDetailView):
 
     def _load_albuns(self, album):
         return album.get_albuns()
+
+    def _load_album_cover(self, album):
+        cover = album.get_cover()
+        data = {}
+        if cover is not None:
+            data = self._picture_to_json(cover)
+        return data
 
 
 class AlbumHomeView(AlbumView):
