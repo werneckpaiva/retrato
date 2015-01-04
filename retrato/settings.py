@@ -34,6 +34,7 @@ TEMPLATE_LOADERS = ('django.template.loaders.filesystem.Loader',
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     "django.contrib.auth.context_processors.auth",
+    'django.core.context_processors.static',
     "django.contrib.messages.context_processors.messages",
 )
 
@@ -67,6 +68,7 @@ INSTALLED_APPS = (
 
     'retrato.album',
     'retrato.photo',
+    'retrato.auth',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -75,6 +77,11 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+)
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'retrato.auth.backends.FacebookAuthenticationBackend'
 )
 
 ROOT_URLCONF = 'retrato.urls'
@@ -111,3 +118,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
 STATIC_URL = '/static/'
+
+FACEBOOK_ID = '12345678901234'
+FACEBOOK_APP_SECRET = '1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a'

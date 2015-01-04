@@ -10,9 +10,11 @@ from django.views.generic.detail import BaseDetailView
 from django.http.response import Http404
 
 from retrato.album.models import Album, AlbumNotFoundError
-from retrato.album.auth import check_album_token_valid_or_user_authenticated,\
+from retrato.auth.models import check_album_token_valid_or_user_authenticated,\
     UnauthorizedUserException
 from django.shortcuts import render_to_response
+from django.shortcuts import redirect
+from django.http.request import QueryDict
 
 
 logger = logging.getLogger(__name__)
@@ -126,6 +128,18 @@ class AlbumView(BaseDetailView):
 
 
 class AlbumHomeView(AlbumView):
+
+    def get(self, request, *args, **kwargs):
+        try:
+            self.object = self.get_object()
+            check_album_token_valid_or_user_authenticated(request, album=self.object)
+            context = self.get_context_data(object=self.object)
+            return self.render_to_response(context)
+        except UnauthorizedUserException:
+            url = reverse('auth_login')
+            q = QueryDict('next=%s' % self.request.path)
+            url += "?" + q.urlencode(safe='/')
+            return redirect(url)
 
     def render_to_response(self, context):
         return render_to_response('album.html', context)

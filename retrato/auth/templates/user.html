@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+{% load staticfiles %}
+<title>Retrato - Login</title>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0" />
+<link rel="stylesheet" href="{% static 'css/login.css' %}" />
+<script type="text/javascript" src="{% static 'js/lib/jquery.js' %}"></script>
+<style type="text/css">
+    #facebookLoginBtn{
+        display: none;
+    }
+</style>
+</head>
+
+<body>
+hello {{ user.first_name }}
+</body>
+</html>

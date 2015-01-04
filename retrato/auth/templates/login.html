@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+{% load staticfiles %}
+<title>Retrato - Login</title>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0" />
+<link rel="stylesheet" href="{% static 'css/login.css' %}" />
+<script type="text/javascript" src="{% static 'js/lib/jquery.js' %}"></script>
+<style type="text/css">
+    #facebookLoginBtn{
+        display: none;
+    }
+</style>
+</head>
+
+<body>
+<script>
+
+  {% if REDIRECT_TO %}
+  var REDIRECT_TO = '{{ REDIRECT_TO }}';
+  {% endif %}
+
+  function facebookCheckLoginState() {
+    FB.getLoginStatus(function(response) {
+        if (response.status === FB.status.CONNECTED){
+            authenticateUser(response.authResponse);
+        } else {
+            $("#facebookLoginBtn").show();
+        }
+    });
+  }
+
+  function loginFailed(){
+      alert("Login falhou");
+  }
+  
+  function authenticateUser(auth){
+    data = {
+        userID: auth.userID,
+        accessToken: auth.accessToken,
+        expires: auth.expiresIn
+    }
+    var posting = $.post('/login', data)
+    posting.done(function(result){
+       if (!result.success){
+           return loginFailed();
+       }
+       if (REDIRECT_TO != undefined){
+           location.href=REDIRECT_TO
+       }
+    })
+    posting.fail(function(){
+        loginFailed();
+    })
+  }
+
+  window.fbAsyncInit = function() {
+      FB.init({
+        appId      : '{{ FACEBOOK_ID }}',
+        xfbml      : true,
+        version    : 'v2.2'
+      });
+      
+      FB.status = {
+         CONNECTED: 'connected',
+         NOT_AUTHORIZED: 'not_authorized',
+         UNKNOWN: 'unknown'
+      }
+      facebookCheckLoginState();
+  };
+
+  (function(d, s, id){
+      var js, fjs = d.getElementsByTagName(s)[0];
+      if (d.getElementById(id)) {return;}
+      js = d.createElement(s); js.id = id;
+      js.src = "//connect.facebook.net/en_US/sdk.js";
+      fjs.parentNode.insertBefore(js, fjs);
+  }(document, 'script', 'facebook-jssdk'));
+
+</script>
+<fb:login-button id="facebookLoginBtn" scope="public_profile,email" onlogin="facebookCheckLoginState();">
+</fb:login-button>
+<div id="status">
+</div>
+</body>
+</html>
