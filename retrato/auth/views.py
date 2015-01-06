@@ -22,10 +22,13 @@ class LoginView(View):
         user = authenticate(facebookUserID=facebookUserID, facebookAccessToken=facebookAccessToken)
         if user is not None and user.is_active:
             login(request, user)
-            context = {'success': True,
-                       'first_name': user.first_name,
-                       'last_name': user.last_name}
+            if user.is_authenticated():
+                context = {'success': True,
+                           'first_name': user.first_name,
+                           'last_name': user.last_name}
+            else:
+                context = {'success': False, 'status': 'NOT_AUTHORIZED_PERIOD_EXPIRED'}
         else:
-            context = {'success': False}
+            context = {'success': False, 'status': 'LOGIN_FAILED'}
         response = HttpResponse(json.dumps(context), content_type="application/json")
         return response
