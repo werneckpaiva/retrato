@@ -1,0 +1,43 @@
+html, body, .viewport {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding:0;
+}
+
+body{
+    font-family: "HelveticaNeue", "Helvetica Neue", Helvetica, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#facebookLoginBtn{
+    display: none;
+}
+#loading{
+    color:#fff;
+    display: none;
+}
+
+#login-panel{
+    width: 200px;
+    height: 180px;
+    padding: 20px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    -webkit-box-shadow: 5px 5px 46px 5px rgba(0,0,0,0.5);
+    -moz-box-shadow: 5px 5px 46px 5px rgba(0,0,0,0.5);
+    box-shadow: 5px 5px 46px 5px rgba(0,0,0,0.5);
+    
+    background: url(/static/media/login-panel-bg.jpg) center center;
+}
+
+#status{
+    color:#fff;
+    display: none;
+    text-align: center;
+}

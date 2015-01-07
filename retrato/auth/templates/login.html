@@ -7,14 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0" />
 <link rel="stylesheet" href="{% static 'css/login.css' %}" />
 <script type="text/javascript" src="{% static 'js/lib/jquery.js' %}"></script>
-<style type="text/css">
-    #facebookLoginBtn{
-        display: none;
-    }
-</style>
-</head>
 
-<body>
 <script>
 
   {% if REDIRECT_TO %}
@@ -22,19 +15,30 @@
   {% endif %}
 
   function facebookCheckLoginState() {
+    $("#loading").show();
+    $("#facebookLoginBtn").hide();
     FB.getLoginStatus(function(response) {
         if (response.status === FB.status.CONNECTED){
             authenticateUser(response.authResponse);
         } else {
+            $("#loading").hide();
             $("#facebookLoginBtn").show();
         }
     });
   }
 
   function loginFailed(){
+      $("#loading").hide();
       alert("Login falhou");
   }
-  
+
+  function loginFailed_notAuthorizedPeriodExpired(){
+      $("#status")
+        .show()
+        .html("Período de utilização expirou. Aguarde até que o administrador autorize seu acesso.");
+      $("#loading").hide();
+  }
+
   function authenticateUser(auth){
     data = {
         userID: auth.userID,
@@ -44,13 +48,17 @@
     var posting = $.post('/login', data)
     posting.done(function(result){
        if (!result.success){
-           return loginFailed();
+           if (result.status='NOT_AUTHORIZED_PERIOD_EXPIRED'){
+               return loginFailed_notAuthorizedPeriodExpired();
+           } else {
+              return loginFailed();
+           }
        }
        if (REDIRECT_TO != undefined){
            location.href=REDIRECT_TO
        }
     })
-    posting.fail(function(){
+    posting.fail(function(result){
         loginFailed();
     })
   }
@@ -79,9 +87,18 @@
   }(document, 'script', 'facebook-jssdk'));
 
 </script>
-<fb:login-button id="facebookLoginBtn" scope="public_profile,email" onlogin="facebookCheckLoginState();">
-</fb:login-button>
-<div id="status">
+
+</head>
+
+<body>
+<div id="login-panel">
+    <div id="facebookLoginBtn" class="fb-login-button"
+        onlogin="facebookCheckLoginState();" 
+        data-size="large" 
+        data-show-faces="false" 
+        data-auto-logout-link="false"></div>
+    <div id="loading">loading...</div>
+    <div id="status"></div>
 </div>
 </body>
 </html>

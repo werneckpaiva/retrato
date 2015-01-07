@@ -6,6 +6,16 @@ import json
 from django.contrib.auth import authenticate, login
 
 
+class LoginException(Exception):
+    code = None
+    message = None
+
+    def __init__(self, code, message):
+        super(LoginException, self).__init__(message)
+        self.code = code
+        self.message = message
+
+
 class LoginView(View):
 
     def get(self, request, *args, **kwargs):
@@ -20,15 +30,20 @@ class LoginView(View):
         facebookUserID = request.POST.get('userID')
 #         expires = request.POST.get('expires')
         user = authenticate(facebookUserID=facebookUserID, facebookAccessToken=facebookAccessToken)
-        if user is not None and user.is_active:
-            login(request, user)
-            if user.is_authenticated():
-                context = {'success': True,
-                           'first_name': user.first_name,
-                           'last_name': user.last_name}
+        try:
+            if user is not None and user.is_active:
+                login(request, user)
+                if user.is_authenticated():
+                    context = {'success': True,
+                               'first_name': user.first_name,
+                               'last_name': user.last_name}
+                else:
+                    raise LoginException('NOT_AUTHORIZED_PERIOD_EXPIRED', 'Allowed period expired.')
             else:
-                context = {'success': False, 'status': 'NOT_AUTHORIZED_PERIOD_EXPIRED'}
-        else:
-            context = {'success': False, 'status': 'LOGIN_FAILED'}
+                raise LoginException('LOGIN_FAILED', 'Login failed')
+        except LoginException as e:
+            context = {'success': False,
+                       'status': e.code,
+                       'message': e.message}
         response = HttpResponse(json.dumps(context), content_type="application/json")
         return response
