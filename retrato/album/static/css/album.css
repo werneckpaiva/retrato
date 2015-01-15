@@ -149,6 +149,11 @@ body{
     background-size: 28px 28px;
 }
 
+.menu-container button.admin {
+    background: url("/static/media/admin.svg") no-repeat center;
+    background-size: 25px 25px;
+}
+
 /* Loading */
 
 #loading{

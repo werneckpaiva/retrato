@@ -54,7 +54,8 @@
         var menu = new AlbumMenu(albumModel, {
             view: $("#top-menu"),
             detailsButton: $(".menu-container .details"),
-            fullscreenButton: $(".menu-container .fullscreen")
+            fullscreenButton: $(".menu-container .fullscreen"),
+            {% if is_admin %}adminButton: $(".menu-container .admin"),{% endif %}
         })
 
          var albumPhotos = new AlbumPhotos(albumModel, {
@@ -98,6 +99,7 @@
                 <script id="breadcrumbTpl" type="text/html">{% verbatim %}<span>{{#url}}<a href="{{url}}" {{#external}}target="_blank"{{/external}}>{{/url}}{{name}}{{#url}}</a>{{/url}}</span>{% endverbatim %}</script>
             </nav>
             <div class="menu-container">
+                {% if is_admin %}<button class="admin"><span>admin</span></button>{% endif %}
                 <button class="fullscreen"><span>fullscreen</span></button>
                 <button class="details"><span>details</span></button>
             </div>

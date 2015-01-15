@@ -257,16 +257,19 @@ function AlbumMenu(model, conf){
     var $view = null;
     var $detailsButton = null;
     var $fullscreenButton = null;
+    var $adminButton = null;
 
     function init(){
         $view = conf.view;
         $detailsButton = conf.detailsButton;
         $fullscreenButton = conf.fullscreenButton;
+        $adminButton = conf.adminButton || null;
 
         watch(model, "selectedPictureIndex", function(){
             showHideMenu();
             showHideDetailsButton();
             showHideFullscreenButton();
+            showHideAdminButton();
         });
 
         $detailsButton.click(function(event){
@@ -282,9 +285,17 @@ function AlbumMenu(model, conf){
         Fullscreen.onchange(function(event){
             $fullscreenButton.toggleClass("selected", Fullscreen.isActive());
         });
+
+        if ($adminButton !== null){
+            $adminButton.click(function(){
+                console.log("...")
+                openAdmin();
+            })
+        }
         
         showHideDetailsButton();
         showHideFullscreenButton();
+        showHideAdminButton();
         controlMenuBasedOnMouseMovement();
     }
 
@@ -312,6 +323,12 @@ function AlbumMenu(model, conf){
     function showHideDetails(){
         model.detailsOn = !model.detailsOn;
         $detailsButton.toggleClass("selected", model.detailsOn);
+    }
+
+    function showHideAdminButton(){
+        if (!$adminButton) return;
+        var show = (model.selectedPictureIndex === null);
+        $adminButton.toggle(show);
     }
 
     function showHideFullscreenButton(){
@@ -345,6 +362,10 @@ function AlbumMenu(model, conf){
         });
         mouseStoppedCallback();
     }
-    
+
+    function openAdmin(){
+        location.href="/admin/album" + model.path
+    }
+
     init();
 }
