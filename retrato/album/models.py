@@ -1,13 +1,17 @@
 import json
-from django.conf import settings
+import re
+import time
+import uuid
+import hashlib
+import logging
 import os
 from os import listdir
 from os.path import isfile, join, isdir
-import re
-import time
+from django.conf import settings
 from retrato.photo.models import Photo
-import uuid
-import hashlib
+
+
+logger = logging.getLogger(__name__)
 
 
 class AlbumError(Exception):
@@ -54,6 +58,7 @@ class Album(object):
         extension_re = re.compile('\.jpg$', re.IGNORECASE)
         pictures_name = []
         for f in listdir(self._realpath):
+            logger.debug("List file: %s" % f)
             if f[0] == '.':
                 continue
             realfile = os.path.join(self._realpath, f)
