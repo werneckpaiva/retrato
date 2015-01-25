@@ -114,6 +114,7 @@ body{
     padding: 0;
 
     opacity: 0.6;
+    cursor: pointer;
 }
 
 .menu-container button:hover{

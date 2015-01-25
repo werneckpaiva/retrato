@@ -79,6 +79,9 @@ function AlbumPhotos(model, conf){
         $(window).resize(function(){
             self.resizePictures();
         });
+        $(window).scroll(function(){
+            self.revealImages();
+        })
     }
 
     function setConfiguration(){
@@ -92,7 +95,7 @@ function AlbumPhotos(model, conf){
         lazyLoad = (conf.lazyLoad)? conf.lazyLoad : false;
         margin = (conf.margin)?  conf.margin : 0;
     }
-    
+
     this.displayPictures = function(picturesChanged){
         if (picturesChanged===false){
             return;
@@ -131,6 +134,8 @@ function AlbumPhotos(model, conf){
             });
         if (lazyLoad){
             startLazyLoading();
+        } else {
+            self.revealImages();
         }
     };
 
@@ -147,6 +152,7 @@ function AlbumPhotos(model, conf){
             $(this).css("width", width).css("height", height);
             $(this).find("img").attr("width", width).attr("height", height);
         });
+        self.revealImages();
     };
 
     function startLazyLoading(){
@@ -155,6 +161,7 @@ function AlbumPhotos(model, conf){
             if (index >= model.pictures.length){
                 return;
             }
+            self.revealImages();
             if (image.src == model.pictures[index].thumb){
                 index++;
                 loadNextPicture();
@@ -162,13 +169,14 @@ function AlbumPhotos(model, conf){
                 image.src = model.pictures[index].thumb;
             }
         }
-
+        $viewList.find("img").hide();
         var index = 0;
         var image = new Image();
         image.onload = function(){
             $viewList.find("img:eq("+index+")")
-                .attr("src", this.src)
-                .show();
+                  .data("img-src", this.src)
+//                .attr("src", this.src)
+//                .show();
             index++;
             loadNextPicture();
         };
@@ -176,6 +184,18 @@ function AlbumPhotos(model, conf){
         loadNextPicture();
     }
 
+    this.revealImages = function(){
+        var scrollTop = $(window).scrollTop();
+        var bottom = scrollTop + $viewList.parent().position().top + $viewList.parent().height() - 30;
+        $viewList.find("img[src='']").each(function(index, item){
+            $item = $(item);
+            if ($item.attr('src')) return;
+            if ($item.parent().position().top <= bottom){
+                $item.hide().attr("src", $item.data("img-src")).fadeIn(1000);
+            }
+        });
+    }
+    
     init();
 };/*
 
