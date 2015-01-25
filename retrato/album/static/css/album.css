@@ -255,6 +255,10 @@ body{
     overflow: hidden;
 }
 
+#photos .photo-container .photo{
+    display: none;
+}
+
 #photos .photo{
     background-position: center;
     background-size: 100% 100%;
