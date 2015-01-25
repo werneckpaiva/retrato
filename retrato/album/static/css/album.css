@@ -255,7 +255,7 @@ body{
     overflow: hidden;
 }
 
-#photos .photo-container .photo{
+#photos .photo{
     display: none;
 }
 
