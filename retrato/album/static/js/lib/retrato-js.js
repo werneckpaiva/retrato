@@ -94,6 +94,7 @@ function AlbumPhotos(model, conf){
         heightProportion = (conf.heightProportion)? conf.heightProportion : 0.45;
         lazyLoad = (conf.lazyLoad)? conf.lazyLoad : false;
         margin = (conf.margin)?  conf.margin : 0;
+        
     }
 
     this.displayPictures = function(picturesChanged){
