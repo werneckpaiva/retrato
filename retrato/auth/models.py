@@ -6,22 +6,27 @@ from django.contrib.auth.models import User
 import facebook
 from datetime import timedelta
 
+
 class UnauthorizedUserException(Exception):
     pass
 
 
 def is_album_token_valid(request, album=None):
     from retrato.album.views import AlbumView
-    token = request.GET.get("token", None)
+    token = str(request.GET.get("token", None))
     if album is None:
         album_path = request.path.replace("/album", "", 1)
         album_base = AlbumView.get_album_base()
         album = Album(album_base, album_path)
-    config = album.config()
-    if not config:
-        return False
-
-    return str(config.get("token")) == str(token)
+    while album is not None:
+        config = album.config()
+        if not config:
+            return False
+        token_match = (str(config.get("token")) == token)
+        if token_match:
+            return True
+        album = album.get_parent()
+    return False
 
 
 def check_album_token_valid_or_user_authenticated(request, album=None):

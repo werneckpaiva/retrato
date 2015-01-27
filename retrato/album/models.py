@@ -231,3 +231,12 @@ class Album(object):
         config = self.config()
         config['cover'] = photo_filename
         self._save_config(config)
+
+    def get_parent(self):
+        path = Album.sanitize_path(self.path)
+        parts = path.split('/')
+        parts = parts[:-1]
+        parent_path = '/'.join(parts)
+        if parent_path == '' or parent_path == '/':
+            return None
+        return Album(self.root_folder, parent_path)

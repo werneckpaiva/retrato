@@ -35,3 +35,9 @@ class TestAlbumModelIntegration(TestCase):
         path = "../../../etc/"
         sanitized_path = Album.sanitize_path(path)
         self.assertEquals(sanitized_path, 'etc/')
+
+    def test_get_parent_album(self):
+        self.assertTrue(False)
+
+    def test_get_parent_album_from_root(self):
+        self.assertTrue(False)
