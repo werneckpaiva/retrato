@@ -69,15 +69,16 @@ class Album(object):
     def get_pictures(self):
         pictures_name = self.get_all_pictures_name()
         pictures = [Photo(self._root_folder, self._path, f) for f in pictures_name]
-        for p in pictures:
-            p.load_date_taken()
-            p.close_image()
 #         pictures = self._sort_by_date(pictures)
         pictures = self._sort_by_date(pictures)
         return pictures
 
     def _sort_by_date(self, pictures):
-        pictures = sorted(pictures, key=lambda p: time.mktime(p.date_taken))
+        def date_taken_key(p):
+            p.load_date_taken()
+            p.close_image()
+            return time.mktime(p.date_taken)
+        pictures = sorted(pictures, key=date_taken_key)
         return pictures
 
     def _sort_by_name(self, pictures):
