@@ -31,7 +31,6 @@ class Photo(object):
         self.real_filename = os.path.join(folder, self.filename)
 
     def open_image(self):
-        print "opening image"
         # is image already opened?
         if self.image:
             return
