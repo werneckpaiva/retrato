@@ -120,4 +120,6 @@ class Photo(object):
         return angle
 
     def __str__(self):
+        if self.name is None:
+            return ''
         return self.name

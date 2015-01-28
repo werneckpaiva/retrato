@@ -58,7 +58,6 @@ class Album(object):
         extension_re = re.compile('\.jpg$', re.IGNORECASE)
         pictures_name = []
         for f in listdir(self._realpath):
-            logger.debug("List file: %s" % f)
             if f[0] == '.':
                 continue
             realfile = os.path.join(self._realpath, f)
