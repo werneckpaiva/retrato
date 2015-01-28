@@ -72,7 +72,7 @@ class Album(object):
         for p in pictures:
             p.load_date_taken()
             p.close_image()
-        pictures = self._sort_by_date(pictures)
+#         pictures = self._sort_by_date(pictures)
         return pictures
 
     def _sort_by_date(self, pictures):
