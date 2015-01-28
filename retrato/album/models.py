@@ -73,10 +73,15 @@ class Album(object):
             p.load_date_taken()
             p.close_image()
 #         pictures = self._sort_by_date(pictures)
+        pictures = self._sort_by_date(pictures)
         return pictures
 
     def _sort_by_date(self, pictures):
         pictures = sorted(pictures, key=lambda p: time.mktime(p.date_taken))
+        return pictures
+
+    def _sort_by_name(self, pictures):
+        pictures = sorted(pictures, key=str.lower)
         return pictures
 
     def get_albuns(self):
