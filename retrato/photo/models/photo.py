@@ -31,6 +31,7 @@ class Photo(object):
         self.real_filename = os.path.join(folder, self.filename)
 
     def open_image(self):
+        print "opening image"
         # is image already opened?
         if self.image:
             return
@@ -121,5 +122,5 @@ class Photo(object):
 
     def __str__(self):
         if self.name is None:
-            return ''
+            self.load_name()
         return self.name

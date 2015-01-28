@@ -70,7 +70,7 @@ class Album(object):
         pictures_name = self.get_all_pictures_name()
         pictures = [Photo(self._root_folder, self._path, f) for f in pictures_name]
 #         pictures = self._sort_by_date(pictures)
-        pictures = self._sort_by_date(pictures)
+        pictures = self._sort_by_name(pictures)
         return pictures
 
     def _sort_by_date(self, pictures):
@@ -82,7 +82,7 @@ class Album(object):
         return pictures
 
     def _sort_by_name(self, pictures):
-        pictures = sorted(pictures, key=str.lower)
+        pictures = sorted(pictures, key=lambda p: str(p).lower())
         return pictures
 
     def get_albuns(self):
