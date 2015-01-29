@@ -19,7 +19,10 @@ class Command(BaseCommand):
     def create_cache_for_album(self, album):
         print "Album: %s" % album.path
         for picture in album.get_pictures():
-            self.create_cache(picture)
+            try:
+                self.create_cache(picture)
+            except Exception:
+                print "Errror generating cache for %s" % str(picture)
 
         for sub_album_path in album.get_albuns():
             path = os.path.join(album.path, sub_album_path)
