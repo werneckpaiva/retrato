@@ -810,7 +810,7 @@ function boxBlurCanvasRGB( canvas, top_x, top_y, width, height, radius, iteratio
             });
             var $blur = createCanvas();
             boxBlurImage(frame.find('.low-res').get(0), $blur.get(0), 20, false, 2);
-            $blur.fadeIn(2000);
+            $blur.fadeIn(1000);
         }, 500);
     }
 

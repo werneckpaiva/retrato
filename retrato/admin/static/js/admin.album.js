@@ -40,6 +40,18 @@ function AlbumAdminModel(albumDelegate){
                 });
         model.loading = true
     }
+
+    model.revokeToken = function(){
+        albumDelegate.revokeToken(model.path,
+                function(result){
+                    model.loading = false
+                    model.token = result.token
+                },
+                function(error){
+                    model.loading = false
+                });
+        model.loading = true
+    }
     
     return model;
 }
@@ -85,6 +97,19 @@ function AlbumAdminDelegate(){
         }, "json");
     }
 
+    delegate.revokeToken = function(albumPath, resultHandler, failHandler){
+        var data = {
+                'action': 'revokeToken'
+        }
+        var url = Settings.URL_DATA_PREFIX + albumPath;
+        url = StringUtil.sanitizeUrl(url);
+        $.post(url, data, function(result) {
+            resultHandler(result)
+        }, "json").fail(function(status, s){
+            failHandler(status)
+        }, "json");
+    }
+
     return delegate;
 }
 
@@ -95,12 +120,16 @@ function AlbumAdminMenu(model, conf){
 
     function init(){
         $publishButton = conf.publishButton;
+        $revokeTokenButton = conf.revokeTokenButton;
 
         $publishButton.click(function(event){
-            event.preventDefault();
             togglePublish();
         });
 
+        $revokeTokenButton.click(function(event){
+            revokeToken();
+        })
+        
         watch(model, "visibility", function(){
             showPublishButtonStatus();
         });
@@ -152,6 +181,12 @@ function AlbumAdminMenu(model, conf){
         }
     }
 
+    function revokeToken(){
+        if (confirm("Tem certeza que deseja criar um novo token para este album?")){
+            model.revokeToken();
+        }
+    }
+    
     init();
     return albumMenu;
 }

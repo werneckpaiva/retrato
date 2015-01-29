@@ -52,7 +52,6 @@ class AlbumAdminView(AlbumView, AlbumCacheManager):
         context = {
             'album': '/%s' % self.kwargs['album_path']
         }
-
         visibility = request.POST.get('visibility', None)
         if visibility:
             try:
@@ -61,7 +60,12 @@ class AlbumAdminView(AlbumView, AlbumCacheManager):
                 context['token'] = album.get_token()
             except Exception:
                 pass
-        self.purge_album_cache_recursively(album.path)
+            self.purge_album_cache_recursively(album.path)
+
+        action = request.POST.get('action', None)
+        if action == "revokeToken":
+            self.revoke_token(album)
+            context['token'] = album.get_token()
         return HttpResponse(json.dumps(context), content_type="application/json")
 
     def purge_album_cache_recursively(self, album_path):
@@ -72,3 +76,8 @@ class AlbumAdminView(AlbumView, AlbumCacheManager):
             partial_path = Album.sanitize_path(partial_path + '/%s' % path)
             partial_path = partial_path.strip("/")
             self.purge_album_cache(partial_path)
+
+    def revoke_token(self, album):
+        config = album.config()
+        config['token'] = album.generate_token()
+        album.save_config(config)

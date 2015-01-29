@@ -12,6 +12,15 @@
     background-size: 25px 25px;
 }
 
+.menu-container button.revoke-token{
+    background: url("/static/media/key.svg") no-repeat center;
+    background-size: 25px 25px;
+}
+
+.menu-container button{
+    cursor: pointer;
+}
+
 .photo-menu{
     position: absolute;
     width: 100%;
@@ -57,6 +66,8 @@
 
     opacity: 0.6;
     pointer-events: auto;
+
+    cursor: pointer;
 
     -webkit-filter: drop-shadow( 1px 1px 1px #000 );
     filter: drop-shadow( 1px 1px 1px #000 );

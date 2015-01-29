@@ -53,7 +53,8 @@
             view: $("#top-menu"),
             detailsButton: $(".menu-container .details"),
             publishButton: $(".menu-container .publish"),
-            fullscreenButton: $(".menu-container .fullscreen")
+            fullscreenButton: $(".menu-container .fullscreen"),
+            revokeTokenButton: $(".menu-container .revoke-token")
         })
 
         var deepLinking = new AlbumDeepLinking(albumModel);
@@ -88,6 +89,7 @@
                 <script id="breadcrumbTpl" type="text/html">{% verbatim %}<span>{{#url}}<a href="{{url}}" {{#external}}target="_blank"{{/external}}>{{/url}}{{name}}{{#url}}</a>{{/url}}</span>{% endverbatim %}</script>
             </nav>
             <div class="menu-container">
+                <button class="revoke-token"><span>revoke token</span></button>
                 <button class="publish"><span>publish</span></button>
                 <button class="fullscreen"><span>fullscreen</span></button>
                 <button class="details"><span>details</span></button>

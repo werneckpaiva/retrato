@@ -201,16 +201,16 @@ class Album(object):
         if config is None:
             config = {}
         if 'token' not in config:
-            config['token'] = self._generate_token()
-        self._save_config(config)
+            config['token'] = self.generate_token()
+        self.save_config(config)
 
-    def _save_config(self, config):
+    def save_config(self, config):
         virtual_folder = self.get_virtual_album()
         config_filename = join(virtual_folder, self.CONFIG_FILE)
         with open(config_filename, 'w') as f:
             json.dump(config, f, indent=4)
 
-    def _generate_token(self):
+    def generate_token(self):
         return hashlib.sha224(str(uuid.uuid4())).hexdigest()
 
     def get_token(self):
@@ -235,7 +235,7 @@ class Album(object):
             raise AlbumError("File '%s' does not exist in album %s" % (photo_filename, self._path))
         config = self.config()
         config['cover'] = photo_filename
-        self._save_config(config)
+        self.save_config(config)
 
     def get_parent(self):
         path = Album.sanitize_path(self.path)
