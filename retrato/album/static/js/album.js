@@ -38,7 +38,7 @@ function AlbumNavigator(model, conf){
         url = StringUtil.sanitizeUrl(url);
         return url;
     }
-    
+
     function displayAlbuns(){
         if(!model.albuns || model.albuns.length === 0){
             $view.removeClass("visible");
@@ -267,9 +267,7 @@ function AlbumMenu(model, conf){
 
         watch(model, "selectedPictureIndex", function(){
             showHideMenu();
-            showHideDetailsButton();
-            showHideFullscreenButton();
-            showHideAdminButton();
+            showHideButtons();
         });
 
         $detailsButton.click(function(event){
@@ -292,10 +290,7 @@ function AlbumMenu(model, conf){
                 openAdmin();
             })
         }
-        
-        showHideDetailsButton();
-        showHideFullscreenButton();
-        showHideAdminButton();
+        showHideButtons();
         controlMenuBasedOnMouseMovement();
     }
 
@@ -310,34 +305,18 @@ function AlbumMenu(model, conf){
             .toggleClass("headroom--not-top", show)
             .toggleClass("headroom--unpinned", show);
     }
-    
-    function showHideDetailsButton(){
-        if (model.selectedPictureIndex === null){
-            model.detailsOn = false;
-            $detailsButton.hide();
-        } else {
-            $detailsButton.show();
-        }
+
+    function showHideButtons(){
+        var pictureSelected = (model.selectedPictureIndex !== null);
+        if ($fullscreenButton) $fullscreenButton.toggle(pictureSelected);
+        if ($detailsButton) $detailsButton.toggle(pictureSelected);
+        if ($adminButton) $adminButton.toggle(pictureSelected);
+        if (!pictureSelected) model.detailsOn = false;
     }
 
     function showHideDetails(){
         model.detailsOn = !model.detailsOn;
         $detailsButton.toggleClass("selected", model.detailsOn);
-    }
-
-    function showHideAdminButton(){
-        if (!$adminButton) return;
-        var show = (model.selectedPictureIndex === null);
-        $adminButton.toggle(show);
-    }
-
-    function showHideFullscreenButton(){
-        if (model.selectedPictureIndex === null){
-            model.detailsOn = false;
-            $fullscreenButton.hide();
-        } else {
-            $fullscreenButton.show();
-        }
     }
 
     function openCloseFullscreen(){

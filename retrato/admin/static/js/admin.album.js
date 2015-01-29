@@ -136,13 +136,15 @@ function AlbumAdminMenu(model, conf){
 
         watch(model, "selectedPictureIndex", function(){
             showPublishButtonStatus();
+            showHideButtons();
         });
 
         watch(model, "pictures", function(){
             showPublishButtonStatus();
         }, 2);
 
-        showPublishButtonStatus()
+        showPublishButtonStatus();
+        showHideButtons();
     }
 
     function togglePublish(){
@@ -185,6 +187,11 @@ function AlbumAdminMenu(model, conf){
         if (confirm("Tem certeza que deseja criar um novo token para este album?")){
             model.revokeToken();
         }
+    }
+
+    function showHideButtons(){
+        var pictureSelected = (model.selectedPictureIndex === null);
+        if ($revokeTokenButton) $revokeTokenButton.toggle(pictureSelected);
     }
     
     init();
