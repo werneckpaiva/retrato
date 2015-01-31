@@ -132,6 +132,7 @@ function AlbumAdminMenu(model, conf){
         
         watch(model, "visibility", function(){
             showPublishButtonStatus();
+            showHideButtons();
         });
 
         watch(model, "selectedPictureIndex", function(){
@@ -190,8 +191,10 @@ function AlbumAdminMenu(model, conf){
     }
 
     function showHideButtons(){
-        var pictureSelected = (model.selectedPictureIndex === null);
-        if ($revokeTokenButton) $revokeTokenButton.toggle(pictureSelected);
+        var pictureSelected = (model.selectedPictureIndex !== null);
+        if ($revokeTokenButton) {
+            $revokeTokenButton.toggle(!pictureSelected && (model.visibility=="public"));
+        }
     }
     
     init();
