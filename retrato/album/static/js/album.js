@@ -315,7 +315,7 @@ function AlbumMenu(model, conf){
         if ($fullscreenButton) $fullscreenButton.toggle(pictureSelected);
         if ($detailsButton) $detailsButton.toggle(pictureSelected);
         if ($downloadButton) $downloadButton.toggle(pictureSelected);
-        if ($adminButton) $adminButton.toggle(pictureSelected);
+        if ($adminButton) $adminButton.toggle(!pictureSelected);
         if (!pictureSelected) model.detailsOn = false;
     }
 
