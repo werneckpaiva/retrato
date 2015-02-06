@@ -54,6 +54,7 @@
         var menu = new AlbumMenu(albumModel, {
             view: $("#top-menu"),
             detailsButton: $(".menu-container .details"),
+            downloadButton: $(".menu-container .download"),
             fullscreenButton: $(".menu-container .fullscreen"),
             {% if is_admin %}adminButton: $(".menu-container .admin"),{% endif %}
         })
@@ -100,6 +101,7 @@
             </nav>
             <div class="menu-container">
                 {% if is_admin %}<button class="admin"><span>admin</span></button>{% endif %}
+                <button class="download"><span>download</span></button>
                 <button class="fullscreen"><span>fullscreen</span></button>
                 <button class="details"><span>details</span></button>
             </div>

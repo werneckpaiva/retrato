@@ -20,6 +20,9 @@ class PhotoCache(object):
 
     def __init__(self, photo):
         self.photo = photo
+        self._operations = {}
+        self.should_rotate = False
+        self.should_resize_to = None
 
     def checksum(self, filename, blocksize=65536):
         checksum = hashlib.md5()

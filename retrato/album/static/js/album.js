@@ -257,12 +257,14 @@ function AlbumMenu(model, conf){
     var $view = null;
     var $detailsButton = null;
     var $fullscreenButton = null;
+    var downloadButton = null;
     var $adminButton = null;
 
     function init(){
         $view = conf.view;
         $detailsButton = conf.detailsButton;
         $fullscreenButton = conf.fullscreenButton;
+        $downloadButton = conf.downloadButton;
         $adminButton = conf.adminButton || null;
 
         watch(model, "selectedPictureIndex", function(){
@@ -284,12 +286,14 @@ function AlbumMenu(model, conf){
             $fullscreenButton.toggleClass("selected", Fullscreen.isActive());
         });
 
-        if ($adminButton !== null){
-            $adminButton.click(function(){
-                console.log("...")
+        if ($downloadButton) $downloadButton.click(function(event){
+            event.preventDefault();
+            downloadPhoto();
+        });
+
+        if ($adminButton) $adminButton.click(function(){
                 openAdmin();
-            })
-        }
+        })
         showHideButtons();
         controlMenuBasedOnMouseMovement();
     }
@@ -310,6 +314,7 @@ function AlbumMenu(model, conf){
         var pictureSelected = (model.selectedPictureIndex !== null);
         if ($fullscreenButton) $fullscreenButton.toggle(pictureSelected);
         if ($detailsButton) $detailsButton.toggle(pictureSelected);
+        if ($downloadButton) $downloadButton.toggle(pictureSelected);
         if ($adminButton) $adminButton.toggle(pictureSelected);
         if (!pictureSelected) model.detailsOn = false;
     }
@@ -340,6 +345,11 @@ function AlbumMenu(model, conf){
             mouseStoppedCallback();
         });
         mouseStoppedCallback();
+    }
+
+    function downloadPhoto(){
+        if (model.selectedPictureIndex == null) return;
+        window.open(model.pictures[model.selectedPictureIndex].url, "_blank");
     }
 
     function openAdmin(){
