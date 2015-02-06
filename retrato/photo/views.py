@@ -38,7 +38,7 @@ class PhotoView(BaseDetailView):
 
         filename = cache.get_file()
 
-        return self.output_file(filename)
+        return self.output_file(filename, photo.filename)
 
     def get_photo_base(self):
         if 'retrato.admin' not in settings.INSTALLED_APPS:
@@ -61,10 +61,12 @@ class PhotoView(BaseDetailView):
             if modified_since >= file_time:
                 return HttpResponseNotModified()
 
-    def output_file(self, filename):
+    def output_file(self, filename, original_filename):
         with open(filename, "rb") as f:
             response = HttpResponse(f.read(), content_type="image/jpeg")
             response['Content-Length'] = f.tell()
             response['Last-Modified'] = time.strftime("%a, %d %b %Y %H:%M:%S GMT", time.gmtime(os.path.getmtime(filename)))
             response['Cache-Control'] = 'public, max-age=9999999'
+            if self.request.GET.get('download', None) is not None:
+                response['Content-disposition'] = 'attachment; filename=%s' % (original_filename)
             return response

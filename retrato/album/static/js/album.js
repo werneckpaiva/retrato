@@ -349,7 +349,7 @@ function AlbumMenu(model, conf){
 
     function downloadPhoto(){
         if (model.selectedPictureIndex == null) return;
-        window.open(model.pictures[model.selectedPictureIndex].url, "_blank");
+        location.href=model.pictures[model.selectedPictureIndex].url+"?download";
     }
 
     function openAdmin(){
