@@ -85,3 +85,6 @@ class PhotoCache(object):
     def original_file_time(self):
         file_time = time.gmtime(os.path.getmtime(self.photo.real_filename))
         return file_time
+
+    def get_original_file(self):
+        return self.photo.real_filename

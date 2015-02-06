@@ -34,9 +34,13 @@ class PhotoView(BaseDetailView):
         if response304:
             return response304
         cache.rotate_based_on_orientation()
-        self.set_photo_size(cache)
 
-        filename = cache.get_file()
+        size = self.request.GET.get('size', None)
+        if size:
+            cache.set_max_dimension(int(size))
+            filename = cache.get_file()
+        else:
+            filename = cache.get_original_file()
 
         return self.output_file(filename, photo.filename)
 
@@ -47,11 +51,6 @@ class PhotoView(BaseDetailView):
             BASE_CACHE_DIR = getattr(settings, 'BASE_CACHE_DIR', '/')
             root_folder = os.path.join(BASE_CACHE_DIR, "album")
         return root_folder
-
-    def set_photo_size(self, cache):
-        size = self.request.GET.get('size', None)
-        if size:
-            cache.set_max_dimension(int(size))
 
     def check_modified_since(self, cache):
         modified_since_str = self.request.META.get("HTTP_IF_MODIFIED_SINCE", None)
