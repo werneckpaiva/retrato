@@ -135,6 +135,8 @@ class AlbumHomeView(AlbumView):
             check_album_token_valid_or_user_authenticated(request, album=self.object)
             context = self.get_context_data(object=self.object)
             context['is_admin'] = (request.user and request.user.is_staff)
+            if hasattr(settings, 'GOOGLE_ANALYTICS'):
+                context['GOOGLE_ANALYTICS'] = settings.GOOGLE_ANALYTICS
             return self.render_to_response(context)
         except UnauthorizedUserException:
             url = reverse('auth_login')
