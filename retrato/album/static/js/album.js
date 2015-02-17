@@ -333,18 +333,12 @@ function AlbumMenu(model, conf){
     }
 
     function controlMenuBasedOnMouseMovement(){
-        var timer = null;
-        function mouseStoppedCallback(){
-            timer = setTimeout(function(){
-                if (model.selectedPictureIndex !== null) toggleMenu(true);
-            }, 1500);
-        }
-        $(document).mousemove(function( event ) {
-            clearTimeout(timer);
-            if (model.selectedPictureIndex !== null) toggleMenu(false);
-            mouseStoppedCallback();
+        MouseTimer.on("mousewait", 2000, function(){
+            if (model.selectedPictureIndex !== null) toggleMenu(true);
         });
-        mouseStoppedCallback();
+        $(document).mousemove(function() {
+            if (model.selectedPictureIndex !== null) toggleMenu(false);
+        });
     }
 
     function downloadPhoto(){

@@ -441,3 +441,25 @@ body{
     list-style: none;
     margin-bottom: 10px;
 }
+
+#highlight .btn-prev, #highlight .btn-next {
+    position: absolute;
+    z-index: 15;
+    height: 100px;
+    background: #000;
+    border: none;
+    color: #fff;
+    font-weight: bold;
+    font-size: 15pt;
+    opacity: 0.7;
+}
+
+#highlight .btn-prev {
+    top: 0;
+    left: 0;
+}
+
+#highlight .btn-next {
+    top: 0;
+    right: 0;
+}

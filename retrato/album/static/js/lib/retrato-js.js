@@ -81,7 +81,7 @@ function AlbumPhotos(model, conf){
         });
         $(window).scroll(function(){
             self.revealImages();
-        })
+        });
     }
 
     function setConfiguration(){
@@ -94,7 +94,6 @@ function AlbumPhotos(model, conf){
         heightProportion = (conf.heightProportion)? conf.heightProportion : 0.45;
         lazyLoad = (conf.lazyLoad)? conf.lazyLoad : false;
         margin = (conf.margin)?  conf.margin : 0;
-        
     }
 
     this.displayPictures = function(picturesChanged){
@@ -175,7 +174,7 @@ function AlbumPhotos(model, conf){
         var image = new Image();
         image.onload = function(){
             $viewList.find("img:eq("+index+")")
-                  .data("img-src", this.src)
+                  .data("img-src", this.src);
 //                .attr("src", this.src)
 //                .show();
             index++;
@@ -187,7 +186,8 @@ function AlbumPhotos(model, conf){
 
     this.revealImages = function(){
         var scrollTop = $(window).scrollTop();
-        var bottom = scrollTop + $viewList.parent().position().top + $viewList.parent().height() - 30;
+        var positionTop = ($viewList.parent().position())? $viewList.parent().position().top : 0;
+        var bottom = scrollTop + positionTop + $viewList.parent().height() - 30;
         $viewList.find("img[src='']").each(function(index, item){
             $item = $(item);
             if ($item.attr('src')) return;
@@ -195,8 +195,8 @@ function AlbumPhotos(model, conf){
                 $item.hide().attr("src", $item.data("img-src")).fadeIn(1000);
             }
         });
-    }
-    
+    };
+
     init();
 };/*
 
@@ -555,14 +555,19 @@ function boxBlurCanvasRGB( canvas, top_x, top_y, width, height, radius, iteratio
     var isOpened = false;
 
     var padding = 10;
-    var headerHeight = 0;
 
-    var blurContainer = null;
+    var $blurContainer = null;
+
+    var MOUSE_WAIT_TIMEOUT = 2000;
+    
+    var $btnPrev = null;
+    var $btnNect = null;
 
     function init(){
         setConfiguration();
 
-        createBlurContainer();
+        create$blurContainer();
+        createNavArrows();
 
         watch(model, "selectedPictureIndex", function(){
             onPictureSelected();
@@ -576,7 +581,7 @@ function boxBlurCanvasRGB( canvas, top_x, top_y, width, height, radius, iteratio
             }
         });
 
-        $view.click(function(){
+        $blurContainer.click(function(){
             self.close();
         });
 
@@ -593,6 +598,7 @@ function boxBlurCanvasRGB( canvas, top_x, top_y, width, height, radius, iteratio
                 self.close();
             }
         });
+
     }
 
     function setConfiguration(){
@@ -603,7 +609,6 @@ function boxBlurCanvasRGB( canvas, top_x, top_y, width, height, radius, iteratio
         // Optional
         $viewList = (conf.listClass)? $view.find("."+conf.listClass) : createFramesContainer();
         $detailsView = (conf.detailsView)? conf.detailsView : [];
-        headerHeight = (conf.headerHeight)? parseInt(conf.headerHeight) : 0;
     }
 
     function createFramesContainer(){
@@ -611,13 +616,26 @@ function boxBlurCanvasRGB( canvas, top_x, top_y, width, height, radius, iteratio
         $view.append($container);
         return $container;
     }
-    
-    function createBlurContainer(){
-        blurContainer = $('<div class="blur-container"></div>');
-        $view.append(blurContainer);
-        return blurContainer;
+
+    function create$blurContainer(){
+        $blurContainer = $('<div class="blur-container"></div>');
+        $view.append($blurContainer);
+        return $blurContainer;
     }
-    
+
+    function createNavArrows(){
+        $btnPrev = $("<button class='btn-prev'><span>&lt;</span></button>");
+        $btnNext = $("<button class='btn-next'><span>&gt;</span></button>");
+        $btnPrev.click(function(){
+            self.displayPrevPicture();
+        });
+        $btnNext.click(function(){
+            self.displayNextPicture();
+        });
+        $view.append($btnPrev);
+        $view.append($btnNext);
+    }
+
     function onPictureSelected(){
         if (isOpened) {
             if (model.selectedPictureIndex === null){
@@ -626,8 +644,12 @@ function boxBlurCanvasRGB( canvas, top_x, top_y, width, height, radius, iteratio
             return;
         }
         self.handleScroll();
+
+        MouseTimer.on("mousewait", MOUSE_WAIT_TIMEOUT, hideArrows);
+        $(document).on("mousemove", showArrows);
+
         self.displayPicture();
-        blurContainer.empty();
+        $blurContainer.empty();
     }
     
     function disableScroll(e){
@@ -644,6 +666,23 @@ function boxBlurCanvasRGB( canvas, top_x, top_y, width, height, radius, iteratio
         $('body').off('mousewheel', disableScroll);
     };
 
+    function showArrows(){
+        $btnPrev.fadeIn();
+        $btnNext.fadeIn();
+    }
+
+    function hideArrows(){
+        $btnPrev.fadeOut();
+        $btnNext.fadeOut();
+    }
+
+    function repositionArrows(){
+        var height = $view.height();
+        var top = height / 2;
+        $btnPrev.css("top", top - $btnPrev.height() / 2);
+        $btnNext.css("top", top - $btnNext.height() / 2);
+    }
+
     this.hasPicturesToDisplay = function(){
         return (model.selectedPictureIndex !== null && 
                 model.selectedPictureIndex >= 0 && 
@@ -654,6 +693,8 @@ function boxBlurCanvasRGB( canvas, top_x, top_y, width, height, radius, iteratio
     this.close = function(){
         isOpened = false;
         self.unhandleScroll();
+        MouseTimer.off("mousewait", MOUSE_WAIT_TIMEOUT, hideArrows);
+        $(document).off("mousemove", showArrows);
         $view.fadeOut("slow");
         model.selectedPictureIndex = null;
         Fullscreen.close();
@@ -666,7 +707,7 @@ function boxBlurCanvasRGB( canvas, top_x, top_y, width, height, radius, iteratio
 
     function createCanvas(){
         var $canvas = $('<canvas class="blur"/>');
-        blurContainer.append($canvas);
+        $blurContainer.append($canvas);
         return $canvas;
     }
 
@@ -681,7 +722,6 @@ function boxBlurCanvasRGB( canvas, top_x, top_y, width, height, radius, iteratio
         self.updateDisplay();
     };
 
-    // Move from right to left
     this.displayNextPicture = function(){
         if (!self.hasPicturesToDisplay()) return;
         $viewList.find(".large-photo").stop();
@@ -693,7 +733,6 @@ function boxBlurCanvasRGB( canvas, top_x, top_y, width, height, radius, iteratio
 
     };
 
-    // Move from left to right
     this.displayPrevPicture = function(){
         if (!self.hasPicturesToDisplay()) return;
         $viewList.find(".large-photo").stop();
@@ -728,9 +767,11 @@ function boxBlurCanvasRGB( canvas, top_x, top_y, width, height, radius, iteratio
             var dimension = calculateDimension(picture);
             currentFrame.find(".large-photo").addClass("visible");
             setPosition(currentFrame, dimension);
+            repositionArrows();
             showLowResolution(currentFrame, picture);
             showHighResolution(currentFrame, picture);
             showBlur(currentFrame, picture);
+            
         }
     };
 
@@ -747,14 +788,14 @@ function boxBlurCanvasRGB( canvas, top_x, top_y, width, height, radius, iteratio
         var newHeight = Math.round(newWidth / picture.ratio);
         var x = 0;
         var y = Math.round((windowHeight - newHeight) / 2);
-        if (y < headerHeight){
-            newHeight = windowHeight - (headerHeight + (padding * 2));
+        if (y < 0){
+            newHeight = windowHeight - (padding * 2);
             newWidth = Math.round(newHeight * picture.ratio);
             y = 0;
             x = Math.round(($window.width() - newWidth) / 2);
         }
         x = (windowWidth - newWidth) / 2;
-        y = ((windowHeight - headerHeight - newHeight) / 2) + headerHeight;
+        y = (windowHeight - newHeight) / 2;
         return {newWidth: newWidth, newHeight: newHeight, x:x, y:y};
     }
 
@@ -805,7 +846,7 @@ function boxBlurCanvasRGB( canvas, top_x, top_y, width, height, radius, iteratio
     function showBlur(frame, picture){
         clearTimeout(self.blurTimeout);
         self.blurTimeout = setTimeout(function(){
-            blurContainer.children().fadeOut(2000, function(){
+            $blurContainer.children().fadeOut(2000, function(){
                 $(this).remove();
             });
             var $blur = createCanvas();
@@ -926,7 +967,66 @@ function AlbumHtmlDelegate(imgs){
         });
         resultHandler(result);
     };
-};function Resize(pictures, heightProportion){
+};function MouseTimer(){
+    timers = {};
+
+    listenersWait = {};
+
+    function init(){
+        setMouseMoveHandler();
+    }
+
+    function setMouseMoveHandler(){
+        $(document).mousemove(function(event) {
+            for (var time in timers){
+                var timer = timers[time];
+                clearTimeout(timer);
+                delete timers[time];
+                addTimer(time);
+            }
+        });
+    }
+
+    function addTimer(time){
+        if (!timers[time]) {
+            timers[time] = setTimeout(function(){
+                for (var i in listenersWait[time]){
+                    var handler = listenersWait[time][i];
+                    handler();
+                }
+            }, time);
+        }
+    }
+
+    function mousewait(time, handler){
+        if (!listenersWait[time]){
+            listenersWait[time] = [];
+        }
+        listenersWait[time].push(handler);
+        addTimer(time);
+    }
+
+    this.on = function(event, time, handler){
+        if (event.toLowerCase() == "mousewait"){
+            mousewait(time, handler);
+        }
+    };
+
+    this.off = function(event, time, handler){
+        if (event.toLowerCase() == "mousewait"){
+            if (!listenersWait[time]) return;
+            var pos = listenersWait[time].indexOf(handler);
+            if (pos >= 0){
+                listenersWait[time].splice(pos, 1);
+            }
+        }
+    };
+
+    init();
+}
+
+var MouseTimer = new MouseTimer();
+;function Resize(pictures, heightProportion){
     this.pictures = pictures;
     this.HEIGHT_PROPORTION = 0.45;
     if (heightProportion){
