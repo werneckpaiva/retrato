@@ -445,21 +445,39 @@ body{
 #highlight .btn-prev, #highlight .btn-next {
     position: absolute;
     z-index: 15;
-    height: 100px;
-    background: #000;
+    height: 40px;
+    width: 40px;
+    background: none;
     border: none;
     color: #fff;
     font-weight: bold;
     font-size: 15pt;
     opacity: 0.7;
+    cursor: pointer;
+    margin: 5px;
+}
+
+#highlight .btn-prev span, #highlight .btn-next span {
+    display: none;
+} 
+#highlight .btn-prev:focus, #highlight .btn-next:focus {
+    outline:0;
+}
+
+#highlight .btn-prev:hover, #highlight .btn-next:hover {
+    opacity: 1;
 }
 
 #highlight .btn-prev {
     top: 0;
     left: 0;
+    background: url("/static/media/prev.svg") no-repeat center;
+    background-size: 40px 40px;
 }
 
 #highlight .btn-next {
     top: 0;
     right: 0;
+    background: url("/static/media/next.svg") no-repeat center;
+    background-size: 40px 40px;
 }
