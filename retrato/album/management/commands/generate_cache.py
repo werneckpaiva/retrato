@@ -20,7 +20,7 @@ class Command(BaseCommand):
         print "Album: %s" % album.path
         for picture in album.get_pictures():
             try:
-                self.create_cache(picture)
+                self.create_cache(picture, [640, 1440])
             except Exception:
                 print "Errror generating cache for %s" % str(picture)
 
@@ -29,10 +29,11 @@ class Command(BaseCommand):
             sub_album = Album(settings.PHOTOS_ROOT_DIR, path)
             self.create_cache_for_album(sub_album)
 
-    def create_cache(self, picture):
+    def create_cache(self, picture, sizes):
         cache = PhotoCache(picture)
         cache.rotate_based_on_orientation()
-        cache.set_max_dimension(640)
-        if not cache.is_in_cache():
-            print "Creating cache %s" % cache.filename
-            cache.create_cache()
+        for size in sizes:
+            cache.set_max_dimension(size)
+            if not cache.is_in_cache():
+                print "Creating cache %s" % cache.filename
+                cache.create_cache()

@@ -78,6 +78,7 @@ class PhotoCache(object):
     def set_max_dimension(self, size):
         self.should_resize_to = size
         self._operations['size'] = size
+        self.filename = None
 
     def rotate_based_on_orientation(self):
         self.should_rotate = True

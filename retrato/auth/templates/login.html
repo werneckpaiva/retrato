@@ -48,7 +48,7 @@
     var posting = $.post('/login', data)
     posting.done(function(result){
        if (!result.success){
-           if (result.status='NOT_AUTHORIZED_PERIOD_EXPIRED'){
+           if (result.status=='NOT_AUTHORIZED_PERIOD_EXPIRED'){
                return loginFailed_notAuthorizedPeriodExpired();
            } else {
               return loginFailed();
