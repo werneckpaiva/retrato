@@ -672,6 +672,7 @@ function boxBlurCanvasRGB( canvas, top_x, top_y, width, height, radius, iteratio
     }
 
     function hideArrows(){
+        console.log("....")
         $btnPrev.fadeOut();
         $btnNext.fadeOut();
     }
