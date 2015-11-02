@@ -559,7 +559,9 @@ function boxBlurCanvasRGB( canvas, top_x, top_y, width, height, radius, iteratio
     var $blurContainer = null;
 
     var MOUSE_WAIT_TIMEOUT = 2000;
-    
+
+    var mouseOverNavArrows = false;
+
     var $btnPrev = null;
     var $btnNect = null;
 
@@ -623,15 +625,29 @@ function boxBlurCanvasRGB( canvas, top_x, top_y, width, height, radius, iteratio
         return $blurContainer;
     }
 
+    function navArrowsHoverInHandler(){
+        mouseOverNavArrows = true;
+    }
+
+    function navArrowsHoverOutHandler(){
+        mouseOverNavArrows = false;
+    }
+
     function createNavArrows(){
         $btnPrev = $("<button class='btn-prev'><span>&lt;</span></button>");
         $btnNext = $("<button class='btn-next'><span>&gt;</span></button>");
-        $btnPrev.click(function(){
-            self.displayPrevPicture();
-        });
-        $btnNext.click(function(){
-            self.displayNextPicture();
-        });
+        $btnPrev
+            .click(function(){
+                self.displayPrevPicture();
+            })
+            .hover(navArrowsHoverInHandler,
+                   navArrowsHoverOutHandler);
+        $btnNext
+            .click(function(){
+                self.displayNextPicture();
+            })
+            .hover(navArrowsHoverInHandler,
+                   navArrowsHoverOutHandler);
         $view.append($btnPrev);
         $view.append($btnNext);
     }
@@ -672,6 +688,7 @@ function boxBlurCanvasRGB( canvas, top_x, top_y, width, height, radius, iteratio
     }
 
     function hideArrows(){
+        if (mouseOverNavArrows) return;
         $btnPrev.fadeOut();
         $btnNext.fadeOut();
     }
