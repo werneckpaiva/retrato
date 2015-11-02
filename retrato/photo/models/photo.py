@@ -30,6 +30,9 @@ class Photo(object):
         folder = os.path.join(self.base_folder, self.album)
         self.real_filename = os.path.join(folder, self.filename)
 
+    def invalidate(self):
+        self.image = None
+
     def open_image(self):
         # is image already opened?
         if self.image:

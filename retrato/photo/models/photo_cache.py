@@ -55,6 +55,7 @@ class PhotoCache(object):
         return self.filename
 
     def create_cache(self):
+        self.photo.invalidate()
         if self.should_rotate:
             self.photo.rotate_based_on_orientation()
         if self.should_resize_to:
