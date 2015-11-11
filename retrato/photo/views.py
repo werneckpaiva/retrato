@@ -38,9 +38,7 @@ class PhotoView(BaseDetailView):
         size = self.request.GET.get('size', None)
         if size:
             cache.set_max_dimension(int(size))
-            filename = cache.get_file()
-        else:
-            filename = cache.get_original_file()
+        filename = cache.get_file()
 
         return self.output_file(filename, photo.filename)
 

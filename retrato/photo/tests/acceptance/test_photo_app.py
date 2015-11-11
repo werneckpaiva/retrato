@@ -23,7 +23,7 @@ class TestPhotoAppAcceptance(TestCase):
         size = image.size
         self.assertTrue(size[0] > size[1])
 
-    def test_get_portrait_image_rotated(self):
+    def test_get_original_image_portrait_rotated(self):
         response = self.client.get('/photo/album2/photo_1_portrait.JPG')
         self.assertEqual(response.status_code, 200)
         image = Image.open(StringIO(response.content))

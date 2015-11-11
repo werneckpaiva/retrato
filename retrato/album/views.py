@@ -139,7 +139,7 @@ class AlbumHomeView(AlbumView):
                 context['GOOGLE_ANALYTICS'] = settings.GOOGLE_ANALYTICS
             return self.render_to_response(context)
         except UnauthorizedUserException:
-            url = reverse('auth_login')
+            url = "/login"
             q = QueryDict('next=%s' % self.request.path)
             url += "?" + q.urlencode(safe='/')
             return redirect(url)
