@@ -179,6 +179,28 @@ class TestAlbumAdminAcceptance(TestCase):
         self.assertEquals(content['cover']["filename"], 'photo_1_portrait.JPG')
         self.assertIsNotNone(content['cover']["thumb"])
 
+    def test_get_defaul_album_cover2(self):
+        config_file = os.path.join(Album.get_virtual_base_folder(), "album2", Album.CONFIG_FILE)
+        if os.path.isfile(config_file):
+            os.unlink(config_file)
+        response = self.client.get('/album/api/album2/')
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertIsNotNone(content['cover'])
+        self.assertEquals(content['cover']["filename"], 'photo_1_portrait.JPG')
+        self.assertIsNotNone(content['cover']["thumb"])
+
+    def test_get_defaul_album_cover3(self):
+        config_file = os.path.join(Album.get_virtual_base_folder(), "album2", Album.CONFIG_FILE)
+        if os.path.isfile(config_file):
+            os.unlink(config_file)
+        response = self.client.get('/album/api/album2/')
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertIsNotNone(content['cover'])
+        self.assertEquals(content['cover']["filename"], 'photo_1_portrait.JPG')
+        self.assertIsNotNone(content['cover']["thumb"])
+
     def test_set_album_cover(self):
         config_file = os.path.join(Album.get_virtual_base_folder(), "album2", Album.CONFIG_FILE)
         if os.path.isfile(config_file):
