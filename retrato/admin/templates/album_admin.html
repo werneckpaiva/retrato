@@ -61,11 +61,13 @@
 
         var deepLinking = new AlbumDeepLinking(albumModel);
 
+        var heightProportion = ($("window").width() > 700)?0.35:1;
+
          var albumPhotos = new AlbumAdminPhotos(albumModel, {
             view: $("#photos"), 
             template: $("#photoTpl").html(),
             lazyLoad: true,
-            heightProportion: 0.35,
+            heightProportion: heightProportion,
             margin: 2
         });
 

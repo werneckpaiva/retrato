@@ -60,10 +60,13 @@
             {% if is_admin %}adminButton: $(".menu-container .admin"),{% endif %}
         })
 
+        var heightProportion = ($("window").width() > 700)?0.35:1;
+
          var albumPhotos = new AlbumPhotos(albumModel, {
             view: $("#photos"), 
             template: $("#photoTpl").html(),
             lazyLoad: true,
+            heightProportion: heightProportion,
             margin: 2
         });
 
