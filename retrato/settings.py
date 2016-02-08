@@ -59,12 +59,14 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = (
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.sessions',
-    'django.contrib.contenttypes',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
+     'django_admin_bootstrapped',
+     'django.core.management',
+     'django.contrib.admin',
+     'django.contrib.auth',
+     'django.contrib.sessions',
+     'django.contrib.contenttypes',
+     'django.contrib.messages',
+     'django.contrib.staticfiles',
 
     'retrato.album',
     'retrato.photo',
