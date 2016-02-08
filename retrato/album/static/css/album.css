@@ -74,6 +74,8 @@ body{
 
 #breadcrumb{
     margin-left: 10px;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 #breadcrumb a{
@@ -193,12 +195,6 @@ body{
 }
 
 @media (min-width: 700px) {
-    #main-content{
-        display: flex;
-        flex-direction: row;
-        flex-wrap: nowrap;
-        align-items: flex-start;
-    }
 
     #albuns{
         width:35%;
@@ -283,7 +279,8 @@ body{
     pointer-events: visible;
     background:#000;
     overflow: hidden;
-    left: 0px;
+    left: 0;
+    top: 0;
     position:fixed;
     display:none;
     z-index:10;
