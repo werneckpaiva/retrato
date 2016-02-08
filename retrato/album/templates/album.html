@@ -17,6 +17,7 @@
 <script type="text/javascript" src="{% static 'js/lib/watch.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/lib/headroom.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/lib/retrato-js.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/lib/jquery-touch-events.js' %}"></script>
 
 <script type="text/javascript" src="{% static 'js/album.js' %}"></script>
 <script type="text/javascript">
@@ -84,6 +85,14 @@
         modelStatic.loadAlbum('/', function(){
             deepLinking = new AlbumDeepLinking(albumModel)
         });
+        
+        $("#highlight .pictures")
+            .on("swiperight", function(e){
+                highlight.displayPrevPicture();
+            })
+            .on("swipeleft", function(e){
+                highlight.displayNextPicture();
+            });
     })
 
 </script>
@@ -126,7 +135,7 @@
                         </div>
                     </div>
                 {% endverbatim %}
-            </script>
+                </script>
             </div>
             <aside class="details">
                 <h3>Detalhes</h3>

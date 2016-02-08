@@ -13,7 +13,8 @@
   "license": "MIT",
   "dependencies": {
     "retrato-js": "~0.1.7",
-    "headroom.js": "~0.7.0"
+    "headroom.js": "~0.7.0",
+    "jquery-touch-events": "^1.0.1"
   },
   "ignore": [
     "**/.*",
