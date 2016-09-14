@@ -61,10 +61,12 @@ class Photo(object):
 
     def load_date_taken(self):
         self.load_exif()
-        str_date = self.exif.get(306, None) if self.exif else None 
-        if str_date:
+        str_date = self.exif.get(306, None) if self.exif else None
+        try:
             date = time.strptime(str_date, "%Y:%m:%d %H:%M:%S")
-        else:
+        except:
+            date = ""
+        if not date:
             date = time.gmtime(os.path.getmtime(self.real_filename))
         self.date_taken = date
 
