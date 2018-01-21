@@ -18,6 +18,7 @@ var/cache/photo/
 var/cache/album/
 var/fotos-sample/cache/**/*.JPG
 
+private/*
 
 db.sqlite3
 

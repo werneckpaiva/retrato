@@ -26,3 +26,10 @@ Requirements:
 Installation:
 -------------
 pip install -r requirements.txt
+
+
+Google Drive:
+-------------
+
+Find the root folder id. Open the folder in the google drive and look for the id on the path:
+https://drive.google.com/drive/u/0/folders/<folderid>

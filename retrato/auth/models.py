@@ -45,6 +45,8 @@ class FacebookUser(User):
         verbose_name = 'Facebook user'
         verbose_name_plural = 'Facebook users'
         db_table = 'facebook_user'
+        proxy = True
+        auto_created = True
 
     userID = models.CharField(max_length=50, unique=True)
     date_authorized = models.DateTimeField('date authorized', null=True)

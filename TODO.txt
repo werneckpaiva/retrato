@@ -1,0 +1,9 @@
+Google drive support
+
+1. List albuns
+
+2. List album photos
+
+3. Resize photos and store in Google Drive
+
+4. Show photo properties

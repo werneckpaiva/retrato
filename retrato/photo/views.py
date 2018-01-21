@@ -2,11 +2,12 @@ from django.conf import settings
 from django.http import HttpResponse
 from django.http.response import Http404, HttpResponseNotModified
 from django.views.generic.detail import BaseDetailView
+from django.views.static import was_modified_since
+
 from retrato.photo.models import Photo
 from retrato.photo.models.photo_cache import PhotoCache
 import os
 import time
-from rfc822 import parsedate
 
 
 class PhotoView(BaseDetailView):
@@ -53,9 +54,8 @@ class PhotoView(BaseDetailView):
     def check_modified_since(self, cache):
         modified_since_str = self.request.META.get("HTTP_IF_MODIFIED_SINCE", None)
         if modified_since_str:
-            modified_since = time.mktime(parsedate(modified_since_str))
-            file_time = time.mktime(cache.original_file_time())
-            if modified_since >= file_time:
+            file_time = cache.original_file_time()
+            if not was_modified_since(modified_since_str, mtime=file_time):
                 return HttpResponseNotModified()
 
     def output_file(self, filename, original_filename):
