@@ -1,8 +1,4 @@
-Django==1.8
-Pillow==2.3.0
-django.js==0.8.1
-mysql-connector-python==8.0.5
+Django==2.0.1
+django-admin-bootstrapped==2.5.7
 facebook-sdk==2.0.0
-django-admin-bootstrapped==2.3.6
-google-api-python-client==1.6.5
-oauth2client==4.1.2
+Pillow==5.0.0

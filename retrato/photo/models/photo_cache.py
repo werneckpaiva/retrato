@@ -25,9 +25,9 @@ class PhotoCache(object):
         self.should_resize_to = None
 
     def checksum(self, filename, blocksize=65536):
-        checksum = hashlib.md5()
+        checksum = hashlib.sha1()
         with open(filename, "r+b") as f:
-            for block in iter(lambda: f.read(blocksize), ""):
+            for block in iter(lambda: f.read(blocksize), b""):
                 checksum.update(block)
         return checksum.hexdigest()
 

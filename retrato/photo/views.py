@@ -8,6 +8,7 @@ from retrato.photo.models import Photo
 from retrato.photo.models.photo_cache import PhotoCache
 import os
 import time
+import calendar
 
 
 class PhotoView(BaseDetailView):
@@ -54,7 +55,7 @@ class PhotoView(BaseDetailView):
     def check_modified_since(self, cache):
         modified_since_str = self.request.META.get("HTTP_IF_MODIFIED_SINCE", None)
         if modified_since_str:
-            file_time = cache.original_file_time()
+            file_time = calendar.timegm(cache.original_file_time())
             if not was_modified_since(modified_since_str, mtime=file_time):
                 return HttpResponseNotModified()
 

@@ -1,7 +1,6 @@
-from django.conf.urls import patterns, url
+from django.urls import path
+
 from retrato.photo.views import PhotoView
 
 
-urlpatterns = patterns('',
-    url(r'^/(?P<photo>.*)$', PhotoView.as_view(), name='photo')
-)
+urlpatterns = [path('<path:photo>', PhotoView.as_view(), name='photo')]

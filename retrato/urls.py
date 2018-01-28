@@ -1,27 +1,24 @@
-from django.conf.urls import patterns, include, url
+from django.urls import path, re_path, include
 from django.views.generic.base import RedirectView
 from django.conf import settings
 
-# from django.contrib.auth.models import Group
-# admin.site.unregister(Group)
+from retrato.photo.views import PhotoView
 
-urlpatterns = patterns('',
-    url(r'^$', RedirectView.as_view(url='/album/', permanent=True)),
-    url(r'^album', include('retrato.album.urls')),
-    url(r'^photo', include('retrato.photo.urls')),
-)
-
-if 'retrato.admin' in settings.INSTALLED_APPS:
-    from django.contrib import admin
-    admin.autodiscover()
-    urlpatterns += patterns('',
-        url(r'^_admin/', include(admin.site.urls)),
-        url(r'^admin/$', RedirectView.as_view(url='/admin/album', permanent=True)),
-        url(r'^admin/album', include('retrato.admin.album.urls')),
-        url(r'^admin/photo', include('retrato.admin.photo.urls'))
-    )
-
+urlpatterns = [
+    path('', RedirectView.as_view(url='/album/', permanent=True)),
+    path('album/', include('retrato.album.urls')),
+    path('photo/', include('retrato.photo.urls')),
+]
+#
+# if 'retrato.admin' in settings.INSTALLED_APPS:
+#     from django.contrib import admin
+#     admin.autodiscover()
+#     urlpatterns += [
+#         path(r'^_admin/', include(admin.site.urls)),
+#         path(r'^admin/$', RedirectView.as_view(url='/admin/album', permanent=True)),
+#         path(r'^admin/album', include('retrato.admin.album.urls')),
+#         path(r'^admin/photo', include('retrato.admin.photo.urls'))
+#     ]
+#
 if settings.REQUIRE_AUTHENTICATION:
-    urlpatterns += patterns('',
-        url(r'', include('retrato.auth.urls'))
-    )
+    urlpatterns += [path('', include('retrato.auth.urls'))]

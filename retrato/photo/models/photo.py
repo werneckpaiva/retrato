@@ -103,7 +103,7 @@ class Photo(object):
         rotation = self.get_orientation_angle()
         if not rotation:
             return False
-        self.image = self.image.rotate(rotation)
+        self.image = self.image.rotate(rotation, expand=True)
         return True
 
     def resize_max_dimension(self, dimension):
