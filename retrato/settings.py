@@ -20,6 +20,8 @@ PHOTOS_ROOT_DIR = os.path.join(BASE_DIR, "var/sample/albuns")
 BASE_CACHE_DIR = os.path.join(BASE_DIR, "var/cache")
 REQUIRE_AUTHENTICATION = False
 
+GDRIVE_ROOT_FOLDER_ID = "1234"
+
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
@@ -62,6 +64,7 @@ INSTALLED_APPS = [
     'retrato.album',
     'retrato.photo',
     'retrato.auth',
+    'retrato.gdrive'
     # 'retrato.admin'
 ]
 
