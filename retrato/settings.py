@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     'retrato.album',
     'retrato.photo',
     'retrato.auth',
+    # 'retrato.admin'
 ]
 
 MIDDLEWARE = [

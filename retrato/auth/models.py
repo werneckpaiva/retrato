@@ -32,7 +32,7 @@ def is_album_token_valid(request, album=None):
 def check_album_token_valid_or_user_authenticated(request, album=None):
     if not settings.REQUIRE_AUTHENTICATION:
         return True
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         return True
     if is_album_token_valid(request, album):
         return True

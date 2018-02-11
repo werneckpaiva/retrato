@@ -34,14 +34,15 @@ class TestAlbumAdminAcceptance(TestCase):
 
     @classmethod
     def setUpClass(cls):
+        super().setUpClass()
         settings.INSTALLED_APPS += ('retrato.admin',)
         cls.admin_user = User.objects.create_superuser('admin-test', 'admin@example.com', '1234')
 
     @classmethod
     def tearDownClass(cls):
         settings.INSTALLED_APPS = tuple(x for x in settings.INSTALLED_APPS if x != 'retrato.admin')
-
         cls.admin_user.delete()
+        super().tearDownClass()
 
     def test_load_admin_page(self):
         response = self.client.get('/admin/album/')

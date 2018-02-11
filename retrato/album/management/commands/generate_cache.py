@@ -17,12 +17,12 @@ class Command(BaseCommand):
         self.create_cache_for_album(root_album)
 
     def create_cache_for_album(self, album):
-        print "Album: %s" % album.path
+        print("Album: %s" % album.path)
         for picture in album.get_pictures():
             try:
                 self.create_cache(picture, [640, 1440])
             except Exception:
-                print "Errror generating cache for %s" % str(picture)
+                print("Errror generating cache for %s" % str(picture))
 
         for sub_album_path in album.get_albuns():
             path = os.path.join(album.path, sub_album_path)
@@ -35,5 +35,5 @@ class Command(BaseCommand):
         for size in sizes:
             cache.set_max_dimension(size)
             if not cache.is_in_cache():
-                print "Creating cache %s" % cache.filename
+                print("Creating cache %s" % cache.filename)
                 cache.create_cache()

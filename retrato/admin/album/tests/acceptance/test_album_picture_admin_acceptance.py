@@ -16,6 +16,7 @@ class TestAlbumPictureAdminAcceptance(TestCase):
 
     @classmethod
     def setUpClass(cls):
+        super().setUpClass()
         settings.INSTALLED_APPS += ('retrato.admin',)
         cls.admin_user = User.objects.create_superuser('admin-test', 'admin@example.com', '1234')
 
@@ -23,6 +24,7 @@ class TestAlbumPictureAdminAcceptance(TestCase):
     def tearDownClass(cls):
         settings.INSTALLED_APPS = tuple(x for x in settings.INSTALLED_APPS if x != 'retrato.admin')
         cls.admin_user.delete()
+        super().tearDownClass()
 
     def test_public_album_all_pictures_are_public(self):
         virtual_folder = Album.get_virtual_base_folder()
