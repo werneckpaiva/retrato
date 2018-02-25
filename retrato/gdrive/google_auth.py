@@ -5,8 +5,9 @@ from oauth2client import tools
 import httplib2
 from apiclient import discovery
 import json
+from django.conf import settings
 
-auth_base_folder = '/Users/r.paiva/projects/WerneckPaiva/retrato/private/'
+auth_base_folder = path.join(settings.BASE_DIR, "private")
 client_secret_filename = path.join(auth_base_folder, 'client_secret.json')
 credential_file = path.join(auth_base_folder, "credentials.dat")
 
@@ -19,6 +20,11 @@ def refresh_token(credentials):
     save_credentials(credentials)
 
 def create_google_service():
+
+    credentials = None
+    if not path.exists(client_secret_filename):
+        raise Exception("Could not find file %s" % client_secret_filename)
+
     app_client_secret = json.load(open(client_secret_filename))["installed"]
     flow = OAuth2WebServerFlow(client_id=app_client_secret["client_id"],
                                client_secret=app_client_secret["client_secret"],

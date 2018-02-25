@@ -3,9 +3,10 @@ import os
 import time
 import rfc3339
 from datetime import datetime
+import json
 
 import PIL.Image
-from django.core.management import BaseCommand
+from django.core.management.base import BaseCommand
 from django.conf import settings
 from googleapiclient.http import MediaFileUpload
 
@@ -16,16 +17,39 @@ class Command(BaseCommand):
 
     help = 'Synchronize local folder with Google Drive'
 
+    def add_arguments(self, parser):
+        parser.add_argument('--rebuild-tree',
+                            action='store_true',
+                            help='Rebuild local file tree from Google drive')
+        parser.add_argument('--md5',
+                            action='store_true',
+                            help='Calculate md5 of each file to make the diff')
+        parser.add_argument('--skip-cache',
+                            action='store_true',
+                            help='Skip cache and load the remote content directly')
+
     def handle(self, *args, **options):
         gdrive_synchronizer = GdriveSynchonizer()
-        (folders_created, files_uploaded) = gdrive_synchronizer.sync_folders(settings.PHOTOS_ROOT_DIR, settings.GDRIVE_ROOT_FOLDER_ID)
-        print("Files uploaded: %s" % files_uploaded)
+        gdrive_synchronizer.skip_cache = options['skip_cache']
+        gdrive_synchronizer.md5_check = options['md5']
+        if options['rebuild_tree']:
+            gdrive_synchronizer.rebuild_cache_tree()
+        else:
+            (folders_created, files_uploaded) = gdrive_synchronizer.sync_folders(settings.PHOTOS_ROOT_DIR)
+            print("Files uploaded: %s" % files_uploaded)
 
 
 class GdriveSynchonizer:
 
+    skip_cache = False
+    md5_check = False
 
     MIME_FOLDER = 'application/vnd.google-apps.folder'
+
+    PRIVATE_DIR = os.path.join(settings.BASE_DIR, "private")
+    CACHE_TREE_FILE = os.path.join(PRIVATE_DIR, "gdrive_files.json")
+
+    ITEMS_PER_CALL = 100
 
     service = None
 
@@ -131,14 +155,26 @@ class GdriveSynchonizer:
                 checksum.update(block)
         return checksum.hexdigest()
 
-    def sync_folders(self, source_folder, google_folder_id):
+    def sync_folders(self, source_folder, gdrive_folder_node=None):
         print("Sync %s" % source_folder)
-        google_items = self.list_google_folder(google_folder_id)
+        if self.skip_cache:
+            if gdrive_folder_node is None or "id" not in gdrive_folder_node:
+                gdrive_folder_id = settings.GDRIVE_ROOT_FOLDER_ID
+            else:
+                gdrive_folder_id = gdrive_folder_node["id"]
+            google_items = self.list_google_folder(gdrive_folder_id)
+        else:
+            if gdrive_folder_node is None:
+                if not os.path.exists(self.CACHE_TREE_FILE):
+                    self.rebuild_cache_tree()
+                with open(self.CACHE_TREE_FILE, "r") as f:
+                    gdrive_folder_node = json.load(f)
+            google_items = sorted(gdrive_folder_node["files"], key=lambda item: item["name"])
         local_items = self.list_local_folder(source_folder)
 
         i_google = 0
-        files_uploaded = 0;
-        folders_created = 0;
+        files_uploaded = 0
+        folders_created = 0
         dirs_to_process = []
         for item in local_items:
             item_name = item["name"]
@@ -152,31 +188,86 @@ class GdriveSynchonizer:
             # Is the file missing?
             if i_google >= len(google_items) or item_name != google_items[i_google]["name"]:
                 if item["is_dir"]:
-                    new_folder_id = self.create_folder(google_folder_id, item_name)
-                    dirs_to_process.append((item["path"], new_folder_id))
+                    new_folder_id = self.create_folder(gdrive_folder_node["id"], item_name)
+                    dirs_to_process.append((item["path"], google_item))
                     folders_created += 1
                 else:
-                    self.upload_file(google_folder_id, item["path"])
+                    self.upload_file(gdrive_folder_node["id"], item["path"])
+
                     files_uploaded += 1
             else:
                 google_item = google_items[i_google]
                 if item["is_dir"]:
-                    dirs_to_process.append((item["path"], google_item["id"]))
-                else:
+                    dirs_to_process.append((item["path"], google_item))
+                elif self.md5_check:
                     # Did the file change?
                     md5sum = self.md5(item["path"])
-                    if (md5sum != google_item["md5Checksum"]):
-                        self.upload_file(google_folder_id, item["path"], file_id=google_item["id"])
+                    if (md5sum != google_item["sum"]):
+                        self.upload_file(gdrive_folder_node["id"], item["path"], file_id=google_item["id"])
                         files_uploaded += 1
-
 
         del google_items
         del local_items
 
-        for (subfolder, google_subfolder_id) in dirs_to_process:
-            (subfolders_created, subfiles_uploaded) = self.sync_folders(subfolder, google_subfolder_id)
+        for (subfolder, google_subfolder_node) in dirs_to_process:
+            (subfolders_created, subfiles_uploaded) = self.sync_folders(subfolder, google_subfolder_node)
             folders_created += subfolders_created
             files_uploaded += subfiles_uploaded
 
         return (folders_created, files_uploaded)
 
+    def rebuild_cache_tree(self):
+        files_tree=self.get_files_tree(settings.GDRIVE_ROOT_FOLDER_ID)
+        with open(self.CACHE_TREE_FILE, "w") as f:
+            json.dump(files_tree, f)
+
+    def get_files_tree(self, root_folder_id):
+        param = {}
+        all_files = []
+        root_folder = {"id": root_folder_id, "files": []}
+        all_folders = {root_folder_id: root_folder}
+        while True:
+            while True:
+                try:
+                    results = self.service.files().list(
+                        corpora="user",
+                        pageSize=self.ITEMS_PER_CALL,
+                        spaces='drive',
+                        fields="nextPageToken, files(id, name, parents, mimeType, md5Checksum)",
+                        **param).execute()
+                    break
+                except:
+                    print('!', end='', flush=True)
+            print('.', end='', flush=True)
+            items = results.get('files', [])
+            for item in items:
+                if item["mimeType"] == self.MIME_FOLDER:
+                    if item["id"] == root_folder_id:
+                        continue
+                    item["files"] = []
+                    all_folders[item["id"]] = item
+                if 'parents' not in item:
+                    continue
+                parent_id = item["parents"][0]
+                item["p"] = parent_id
+                del item['parents']
+                if "md5Checksum" in item:
+                    md5sum = item["md5Checksum"]
+                    item["sum"] = md5sum
+                    del item['md5Checksum']
+                del item['mimeType']
+                all_files.append(item)
+            if not items or len(items) < self.ITEMS_PER_CALL:
+                break
+            param['pageToken'] = results.get("nextPageToken")
+            if (not param['pageToken']):
+                break
+        print("")
+        for item in all_files:
+            parent_id = item["p"]
+            if parent_id not in all_folders:
+                continue
+            element = all_folders[parent_id]
+            del item["p"]
+            element["files"].append(item)
+        return root_folder
