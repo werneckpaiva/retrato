@@ -21,7 +21,6 @@ def refresh_token(credentials):
 
 def create_google_service():
 
-    credentials = None
     if not path.exists(client_secret_filename):
         raise Exception("Could not find file %s" % client_secret_filename)
 

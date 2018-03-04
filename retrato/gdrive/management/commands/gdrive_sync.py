@@ -1,6 +1,5 @@
 import hashlib
 import os
-import time
 import rfc3339
 from datetime import datetime
 import json
@@ -33,10 +32,9 @@ class Command(BaseCommand):
         gdrive_synchronizer.skip_cache = options['skip_cache']
         gdrive_synchronizer.md5_check = options['md5']
         if options['rebuild_tree']:
-            gdrive_synchronizer.rebuild_cache_tree()
+            gdrive_synchronizer.rebuild_files_tree_cache()
         else:
-            (folders_created, files_uploaded) = gdrive_synchronizer.sync_folders(settings.PHOTOS_ROOT_DIR)
-            print("Files uploaded: %s" % files_uploaded)
+            gdrive_synchronizer.sync_all_folders()
 
 
 class GdriveSynchonizer:
@@ -96,15 +94,15 @@ class GdriveSynchonizer:
         all_items = sorted(all_items, key=lambda x: x["name"])
         return all_items
 
-    def create_folder(self, google_folder_id, folder_name):
+    def create_folder(self, google_folder_node, folder_name):
+        print("Creating folder %s/%s" % (google_folder_node.get("name", ""), folder_name))
         file_metadata = {
                         'name': folder_name,
                         'mimeType': GdriveSynchonizer.MIME_FOLDER,
-                        'parents': [google_folder_id]
+                        'parents': [google_folder_node["id"]]
                     }
-        file = self.service.files().create(body=file_metadata, fields='id').execute()
-        folder_id = file.get('id')
-        return folder_id
+        file_node = self.service.files().create(body=file_metadata, fields='id, name').execute()
+        return file_node
 
     def get_taken_and_modified_time(self, file_path):
         try:
@@ -142,11 +140,10 @@ class GdriveSynchonizer:
         if (file_id is not None):
             self.service.files().delete(fileId=file_id).execute()
 
-        file = self.service.files().create(body=file_metadata,
+        file_node = self.service.files().create(body=file_metadata,
                                             media_body=media,
-                                            fields='id').execute()
-        file_id = file.get("id")
-        return file_id
+                                            fields='id, name, md5Checksum').execute()
+        return file_node
 
     def md5(self, filename, blocksize=65536):
         checksum = hashlib.md5()
@@ -155,20 +152,22 @@ class GdriveSynchonizer:
                 checksum.update(block)
         return checksum.hexdigest()
 
-    def sync_folders(self, source_folder, gdrive_folder_node=None):
+    def sync_all_folders(self):
+        if self.skip_cache:
+            gdrive_folder_node = {'id': settings.GDRIVE_ROOT_FOLDER_ID}
+        else:
+            gdrive_folder_node = self.load_files_tree_from_cache()
+        (folders_created, files_uploaded) = self.sync_folders(settings.PHOTOS_ROOT_DIR, gdrive_folder_node)
+        print("%s files uploaded" % files_uploaded)
+        if (folders_created + files_uploaded) > 0:
+            self.save_files_tree_to_cache(gdrive_folder_node)
+
+    def sync_folders(self, source_folder, gdrive_folder_node):
         print("Sync %s" % source_folder)
         if self.skip_cache:
-            if gdrive_folder_node is None or "id" not in gdrive_folder_node:
-                gdrive_folder_id = settings.GDRIVE_ROOT_FOLDER_ID
-            else:
-                gdrive_folder_id = gdrive_folder_node["id"]
-            google_items = self.list_google_folder(gdrive_folder_id)
+            google_items = self.list_google_folder(gdrive_folder_node["id"])
+            gdrive_folder_node["files"] = google_items
         else:
-            if gdrive_folder_node is None:
-                if not os.path.exists(self.CACHE_TREE_FILE):
-                    self.rebuild_cache_tree()
-                with open(self.CACHE_TREE_FILE, "r") as f:
-                    gdrive_folder_node = json.load(f)
             google_items = sorted(gdrive_folder_node["files"], key=lambda item: item["name"])
         local_items = self.list_local_folder(source_folder)
 
@@ -185,15 +184,16 @@ class GdriveSynchonizer:
             if not item["is_dir"] and os.path.getsize(item["path"]) <= 0:
                 continue
 
+            google_item = None
             # Is the file missing?
             if i_google >= len(google_items) or item_name != google_items[i_google]["name"]:
                 if item["is_dir"]:
-                    new_folder_id = self.create_folder(gdrive_folder_node["id"], item_name)
+                    new_folder_id = self.create_folder(gdrive_folder_node, item_name)
+                    google_item = {"id": new_folder_id, "name": item_name, 'files': []}
                     dirs_to_process.append((item["path"], google_item))
                     folders_created += 1
                 else:
-                    self.upload_file(gdrive_folder_node["id"], item["path"])
-
+                    google_item = self.upload_file(gdrive_folder_node["id"], item["path"])
                     files_uploaded += 1
             else:
                 google_item = google_items[i_google]
@@ -202,9 +202,11 @@ class GdriveSynchonizer:
                 elif self.md5_check:
                     # Did the file change?
                     md5sum = self.md5(item["path"])
-                    if (md5sum != google_item["sum"]):
-                        self.upload_file(gdrive_folder_node["id"], item["path"], file_id=google_item["id"])
+                    if (md5sum != google_item["md5Checksum"]):
+                        google_item = self.upload_file(gdrive_folder_node["id"], item["path"], file_id=google_item["id"])
                         files_uploaded += 1
+            if google_item is not None:
+                gdrive_folder_node['files'].append(google_item)
 
         del google_items
         del local_items
@@ -216,10 +218,22 @@ class GdriveSynchonizer:
 
         return (folders_created, files_uploaded)
 
-    def rebuild_cache_tree(self):
-        files_tree=self.get_files_tree(settings.GDRIVE_ROOT_FOLDER_ID)
+    def load_files_tree_from_cache(self):
+        if not os.path.exists(self.CACHE_TREE_FILE):
+            self.rebuild_files_tree_cache()
+        with open(self.CACHE_TREE_FILE, "r") as f:
+            gdrive_folder_node = json.load(f)
+        return gdrive_folder_node
+
+    def save_files_tree_to_cache(self, files_tree):
+        print("Saving file tree cache")
         with open(self.CACHE_TREE_FILE, "w") as f:
             json.dump(files_tree, f)
+
+    def rebuild_files_tree_cache(self):
+        print("Rebuilding files tree cache")
+        files_tree=self.get_files_tree(settings.GDRIVE_ROOT_FOLDER_ID)
+        self.save_files_tree_to_cache(files_tree)
 
     def get_files_tree(self, root_folder_id):
         param = {}
@@ -248,13 +262,6 @@ class GdriveSynchonizer:
                     all_folders[item["id"]] = item
                 if 'parents' not in item:
                     continue
-                parent_id = item["parents"][0]
-                item["p"] = parent_id
-                del item['parents']
-                if "md5Checksum" in item:
-                    md5sum = item["md5Checksum"]
-                    item["sum"] = md5sum
-                    del item['md5Checksum']
                 del item['mimeType']
                 all_files.append(item)
             if not items or len(items) < self.ITEMS_PER_CALL:
@@ -264,10 +271,10 @@ class GdriveSynchonizer:
                 break
         print("")
         for item in all_files:
-            parent_id = item["p"]
+            parent_id = item["parents"][0]
             if parent_id not in all_folders:
                 continue
             element = all_folders[parent_id]
-            del item["p"]
+            del item["parents"]
             element["files"].append(item)
         return root_folder
