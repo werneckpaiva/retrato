@@ -47,6 +47,10 @@ class TestAlbumAuth(TestCase):
     def test_user_with_valid_token(self):
         # save .retrato file
         album_folder = os.path.join(settings.BASE_CACHE_DIR, 'album', 'album2')
+        try:
+            os.mkdir(album_folder)
+        except:
+            pass
         retrato_file = os.path.join(album_folder, Album.CONFIG_FILE)
         with open(retrato_file, 'w') as json_file:
             json.dump({'token': 1234}, json_file)
@@ -63,6 +67,10 @@ class TestAlbumAuth(TestCase):
     def test_user_with_invalid_token(self):
         # save .retrato file
         album_folder = os.path.join(settings.BASE_CACHE_DIR, 'album', 'album2')
+        try:
+            os.mkdir(album_folder)
+        except:
+            pass
         retrato_file = os.path.join(album_folder, Album.CONFIG_FILE)
         with open(retrato_file, 'w') as json_file:
             json.dump({'token': 1234}, json_file)
