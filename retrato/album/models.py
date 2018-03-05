@@ -64,6 +64,7 @@ class Album(object):
             if isfile(realfile) and \
                 extension_re.search(f):
                 pictures_name.append(f)
+        pictures_name = sorted(pictures_name)
         return pictures_name
 
     def get_pictures(self):

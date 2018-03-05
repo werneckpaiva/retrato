@@ -80,7 +80,7 @@ class TestAlbumAdminAcceptance(TestCase):
         response = self.client.post('/admin/album/api/album2/', {'visibility': 'public'})
         self.assertEqual(response.status_code, 200)
         self.assertTrue(os.path.isdir(album_folder))
-        items = os.listdir(album_folder)
+        items = sorted(os.listdir(album_folder))
         self.assertTrue(len(items) > 0)
         photo_link = os.path.join(album_folder, items[1])  # 0 is the .retrato config file
         self.assertTrue(os.path.islink(photo_link))
