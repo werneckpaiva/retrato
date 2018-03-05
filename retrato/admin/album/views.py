@@ -3,7 +3,7 @@ import logging
 
 from django.conf import settings
 from django.http import HttpResponse
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from retrato.album.views import AlbumView
 from retrato.album.models import Album
@@ -58,7 +58,7 @@ class AlbumAdminView(AlbumView, AlbumCacheManager):
                 album.set_visibility(visibility)
                 context['visibility'] = album.get_visibility()
                 context['token'] = album.get_token()
-            except Exception:
+            except:
                 pass
             self.purge_album_cache_recursively(album.path)
 

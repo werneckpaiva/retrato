@@ -58,7 +58,7 @@ class TestAlbumPictureAdminAcceptance(TestCase):
         self.assertEqual(response3.status_code, 200)
         content = json.loads(response3.content)
         self.assertEquals(content['visibility'], Album.VISIBILITY_PRIVATE)
- 
+
     def test_make_picture_public(self):
         virtual_folder = Album.get_virtual_base_folder()
         album_folder = os.path.join(virtual_folder, "album2")

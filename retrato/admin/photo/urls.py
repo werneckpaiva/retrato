@@ -1,7 +1,7 @@
-from django.conf.urls import patterns, url
+from django.urls import path
 from retrato.admin.photo.views import PhotoAdminView
 
 
-urlpatterns = patterns('',
-    url(r'^/(?P<photo>.*)$', PhotoAdminView.as_view(), name='admin_photo')
-)
+urlpatterns = [
+    path('<path:photo>', PhotoAdminView.as_view(), name='admin_photo')
+]

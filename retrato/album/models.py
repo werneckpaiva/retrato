@@ -211,7 +211,11 @@ class Album(object):
             json.dump(config, f, indent=4)
 
     def generate_token(self):
-        return hashlib.sha224(str(uuid.uuid4())).hexdigest()
+        new_uuid = uuid.uuid4()
+        str_uuid = str(new_uuid).encode('utf-8')
+        sha_uuid = hashlib.sha224(str_uuid)
+        hex_uuid = sha_uuid.hexdigest()
+        return hex_uuid
 
     def get_token(self):
         config = self.config()
