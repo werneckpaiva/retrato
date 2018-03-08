@@ -27,10 +27,10 @@ def cache_album_context(context_func):
         key = self.kwargs['album_path']
         context = cache.get(key)
         if context:
-            logger.debug("Cache hit - key: '%s'" % key)
+            logger.debug("Page cache hit - key: '%s'" % key)
             return context
 
-        logger.debug("Cache miss - key: '%s'" % key)
+        logger.debug("Page cache miss - key: '%s'" % key)
         context = context_func(self, **kwargs)
         cache.set(key, context)
         return context

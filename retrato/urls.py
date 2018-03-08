@@ -8,6 +8,12 @@ urlpatterns = [
     path('photo/', include('retrato.photo.urls')),
 ]
 
+if 'retrato.gdrive' in settings.INSTALLED_APPS:
+    urlpatterns += [
+        path('gdrive/', include('retrato.gdrive.urls')),
+    ]
+
+
 if 'retrato.admin' in settings.INSTALLED_APPS:
     from django.contrib import admin
     admin.autodiscover()
