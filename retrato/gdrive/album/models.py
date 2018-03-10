@@ -1,6 +1,8 @@
+
 from googleapiclient.errors import HttpError
 
 from retrato.album.models import Album, AlbumNotFoundError
+from retrato.gdrive.photo.models import GdrivePhoto
 
 
 class GdriveAlbum(Album):
@@ -36,10 +38,10 @@ class GdriveAlbum(Album):
         while True:
             results = self._gdrive.files().list(
                 corpora="user",
-                q="parents='%s'" % self._album_id,
+                q="parents='%s' and (mimeType='image/jpeg' or mimeType='application/vnd.google-apps.folder')" % self._album_id,
                 pageSize=ITEMS_PER_CALL,
                 spaces='drive',
-                fields="nextPageToken, files(id, name, mimeType)",
+                fields="nextPageToken, files(id, name, mimeType, createdTime, imageMediaMetadata, thumbnailLink, webContentLink)",
                 **param).execute()
 
             items = results.get('files', [])
@@ -61,3 +63,8 @@ class GdriveAlbum(Album):
 
     def get_albuns(self):
         return [album["name"] for album in self._albuns]
+
+    def get_pictures(self):
+        pictures = [GdrivePhoto(p) for p in self._pictures]
+        pictures = self._sort_by_name(pictures)
+        return pictures

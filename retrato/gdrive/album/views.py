@@ -51,10 +51,25 @@ class GdriveAlbumView(AlbumView):
             'path': '/%s' % self.kwargs['album_path'],
             'title': self.kwargs['album_path'],
             'cover': '',
-            'pictures': [],
-            'albuns': album.get_albuns()
+            'pictures': self._load_pictures(album),
+            'albuns': self._load_albuns(album)
         }
         return context
+
+    def _picture_to_json(self, picture):
+        ratio = round(picture.ratio, 3)
+        data = {'name': picture.name,
+                'filename': picture.filename,
+                'width': picture.width,
+                'height': picture.height,
+                'ratio': ratio,
+                'date': picture.date_taken,
+                'url': picture.url,
+                'thumb': picture.thumb,
+                'thumb_width': round(640 if picture.width >= picture.height else (640 * ratio)),
+                'thumb_height': round(640 if picture.height > picture.width else (640 / ratio)),
+                'highlight': picture.highlight}
+        return data
 
     @cache_call
     def get_album_id_from_path(self, album_path):
