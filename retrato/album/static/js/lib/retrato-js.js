@@ -242,36 +242,41 @@ var mul_table = [ 1,57,41,21,203,34,97,73,227,91,149,62,105,45,39,137,241,107,3,
 
 var shg_table = [0,9,10,10,14,12,14,14,16,15,16,15,16,15,15,17,18,17,12,18,16,17,17,19,19,18,19,18,18,19,19,19,20,19,20,20,20,20,20,20,15,20,19,20,20,20,21,21,21,20,20,20,21,18,21,21,21,21,20,21,17,21,21,21,22,22,21,22,22,21,22,21,19,22,22,19,20,22,22,21,21,21,22,22,22,18,22,22,21,22,22,23,22,20,23,22,22,23,23,21,19,21,21,21,23,23,23,22,23,23,21,23,22,23,18,22,23,20,22,23,23,23,21,22,20,22,21,22,24,24,24,24,24,22,21,24,23,23,24,21,24,23,24,22,24,24,22,24,24,22,23,24,24,24,20,23,22,23,24,24,24,24,24,24,24,23,21,23,22,23,24,24,24,22,24,24,24,23,22,24,24,25,23,25,25,23,24,25,25,24,22,25,25,25,24,23,24,25,25,25,25,25,25,25,25,25,25,25,25,23,25,23,24,25,25,25,25,25,25,25,25,25,24,22,25,25,23,25,25,20,24,25,24,25,25,22,24,25,24,25,24,25,25,24,25,25,25,25,22,25,25,25,24,25,24,25,18];
 
-function boxBlurImage( img, canvas, radius, blurAlphaChannel, iterations){
+function boxBlurImage(originImg, canvas, radius, blurAlphaChannel, iterations){
 
     var w = canvas.width;
     var h = canvas.height;
 
-    var context = canvas.getContext("2d");
-    context.clearRect( 0, 0, canvas.width, canvas.height);
-    context.drawImage( img, 0, 0, canvas.width, canvas.height);
+    var img = new Image();
+    img.crossOrigin="Anonymous";
+    img.setAttribute('crossOrigin', '');
+    img.onload = function() {
+        var context = canvas.getContext("2d");
+        context.clearRect( 0, 0, canvas.width, canvas.height);
+        context.drawImage( img, 0, 0, canvas.width, canvas.height);
 
-    if ( isNaN(radius) || radius < 1 ) return;
+        if ( isNaN(radius) || radius < 1 ) return;
 
-    if ( blurAlphaChannel ) {
-        boxBlurCanvasRGBA( canvas, 0, 0, w, h, radius, iterations );
-    } else {
-        boxBlurCanvasRGB( canvas, 0, 0, w, h, radius, iterations );
+        if ( blurAlphaChannel ) {
+            boxBlurCanvasRGBA( canvas, 0, 0, w, h, radius, iterations );
+        } else {
+            boxBlurCanvasRGB( canvas, 0, 0, w, h, radius, iterations );
+        }
+        var widthCenter = Math.round(canvas.width / 2);
+        var heightCenter = Math.round(canvas.height / 2);
+        var grd=context.createRadialGradient(widthCenter,
+                heightCenter,
+                0,
+                widthCenter,
+                heightCenter,
+                widthCenter + 0);
+        grd.addColorStop(0,"rgba(0,0,0,0)");
+        grd.addColorStop(1,"rgba(0,0,0,0.6)");
+        // Fill with gradient
+        context.fillStyle=grd;
+        context.fillRect(0, 0, canvas.width, canvas.height);
     }
-    var widthCenter = Math.round(canvas.width / 2);
-    var heightCenter = Math.round(canvas.height / 2);
-    var grd=context.createRadialGradient(widthCenter, 
-            heightCenter,
-            0, 
-            widthCenter, 
-            heightCenter,
-            widthCenter + 0);
-    grd.addColorStop(0,"rgba(0,0,0,0)");
-    grd.addColorStop(1,"rgba(0,0,0,0.6)");
-    // Fill with gradient
-    context.fillStyle=grd;
-    context.fillRect(0, 0, canvas.width, canvas.height);
-    
+    img.src = originImg.src;
 }
 
 
