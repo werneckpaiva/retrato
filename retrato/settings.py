@@ -64,7 +64,7 @@ INSTALLED_APPS = [
     'retrato.album',
     'retrato.photo',
     'retrato.auth',
-    'retrato.gdrive',
+    #'retrato.gdrive',
     'retrato.admin'
 ]
 
