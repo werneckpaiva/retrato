@@ -64,7 +64,8 @@ class AlbumView(BaseDetailView):
                    'title': self.kwargs['album_path'].replace('/', ' | '),
                    'cover': self._load_album_cover(album),
                    'pictures': self._load_pictures(album),
-                   'albuns': self._load_albuns(album)
+                   'albuns': self._load_albuns(album),
+                   'base_url': '/album/'
         }
         return context
 
@@ -105,6 +106,7 @@ class AlbumView(BaseDetailView):
                      'ratio': ratio,
                      'date': time.strftime('%Y-%m-%d %H:%M:%S', picture.date_taken),
                      'url': url,
+                     'download_url': url + "?download",
                      'thumb': ("%s?size=640" % url),
                      'thumb_width': (640 if picture.width >= picture.height else (640 * ratio)),
                      'thumb_height': (640 if picture.height > picture.width else (640 / ratio)),

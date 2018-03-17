@@ -260,6 +260,8 @@ function AlbumMenu(model, conf){
     var downloadButton = null;
     var $adminButton = null;
 
+    var $downloadFrame = null;
+
     function init(){
         $view = conf.view;
         $detailsButton = conf.detailsButton;
@@ -343,7 +345,12 @@ function AlbumMenu(model, conf){
 
     function downloadPhoto(){
         if (model.selectedPictureIndex == null) return;
-        location.href=model.pictures[model.selectedPictureIndex].url+"?download";
+        var url = model.pictures[model.selectedPictureIndex].download_url;
+        if ($downloadFrame) {
+            $downloadFrame.attr('src', url);
+        } else {
+            $idown = $('<iframe>', { id:'idown', src:url }).hide().appendTo('body');
+        }
     }
 
     function openAdmin(){

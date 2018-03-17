@@ -24,8 +24,8 @@
 
     $(function(){
 
-        Settings.URL_PREFIX = "/gdrive/album/";
-        Settings.URL_DATA_PREFIX = "/gdrive/album/api/";
+        Settings.URL_PREFIX = "{{ base_url }}";
+        Settings.URL_DATA_PREFIX = "{{ base_url }}api/";
 
         var albumDelegate = new AlbumAjaxDelegateWithAuth();
         var albumModel = new AlbumModel(albumDelegate);

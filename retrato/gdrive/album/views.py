@@ -52,7 +52,8 @@ class GdriveAlbumView(AlbumView):
             'title': self.kwargs['album_path'],
             'cover': '',
             'pictures': self._load_pictures(album),
-            'albuns': self._load_albuns(album)
+            'albuns': self._load_albuns(album),
+            'base_url': '/gdrive/album/'
         }
         return context
 
@@ -65,6 +66,7 @@ class GdriveAlbumView(AlbumView):
                 'ratio': ratio,
                 'date': picture.date_taken,
                 'url': picture.url,
+                'download_url': picture.url,
                 'thumb': picture.thumb,
                 'thumb_width': round(640 if picture.width >= picture.height else (640 * ratio)),
                 'thumb_height': round(640 if picture.height > picture.width else (640 / ratio)),
