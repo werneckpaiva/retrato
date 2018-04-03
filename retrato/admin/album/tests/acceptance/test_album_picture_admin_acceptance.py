@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.conf import settings
 import json
 import os
-from retrato.album.models import Album
+from retrato.album.models import Album, BaseAlbum
 from django.contrib.auth.models import User
 
 
@@ -38,7 +38,7 @@ class TestAlbumPictureAdminAcceptance(TestCase):
         self.assertEqual(response.status_code, 200)
         content = json.loads(response.content)
         for picture in content['pictures']:
-            self.assertEquals(picture['visibility'], Album.VISIBILITY_PUBLIC)
+            self.assertEquals(picture['visibility'], BaseAlbum.VISIBILITY_PUBLIC)
 
     def test_make_picture_private(self):
         virtual_folder = Album.get_virtual_base_folder()
@@ -51,13 +51,13 @@ class TestAlbumPictureAdminAcceptance(TestCase):
         response2 = self.client.get('/admin/album/api/album2/')
         self.assertEqual(response2.status_code, 200)
         content = json.loads(response2.content)
-        self.assertEquals(content['pictures'][0]['visibility'], Album.VISIBILITY_PUBLIC)
+        self.assertEquals(content['pictures'][0]['visibility'], BaseAlbum.VISIBILITY_PUBLIC)
 
         url = '/admin/photo/album2/%s' % content['pictures'][0]['filename']
         response3 = self.client.post(url, {'visibility': 'private'})
         self.assertEqual(response3.status_code, 200)
         content = json.loads(response3.content)
-        self.assertEquals(content['visibility'], Album.VISIBILITY_PRIVATE)
+        self.assertEquals(content['visibility'], BaseAlbum.VISIBILITY_PRIVATE)
 
     def test_make_picture_public(self):
         virtual_folder = Album.get_virtual_base_folder()
@@ -74,7 +74,7 @@ class TestAlbumPictureAdminAcceptance(TestCase):
         response3 = self.client.post(url, {'visibility': 'public'})
         self.assertEqual(response3.status_code, 200)
         content = json.loads(response3.content)
-        self.assertEquals(content['visibility'], Album.VISIBILITY_PUBLIC)
+        self.assertEquals(content['visibility'], BaseAlbum.VISIBILITY_PUBLIC)
 
         response2 = self.client.get('/admin/album/api/album2/')
         self.assertEqual(response2.status_code, 200)
@@ -83,4 +83,4 @@ class TestAlbumPictureAdminAcceptance(TestCase):
         for f in content['pictures']:
             if f['filename'] == 'photo_2.JPG':
                 photo = f
-        self.assertEquals(photo['visibility'], Album.VISIBILITY_PUBLIC)
+        self.assertEquals(photo['visibility'], BaseAlbum.VISIBILITY_PUBLIC)

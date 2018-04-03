@@ -5,6 +5,7 @@ import uuid
 import hashlib
 import logging
 import os
+from abc import abstractmethod, ABC
 from os import listdir
 from os.path import isfile, join, isdir
 from django.conf import settings
@@ -22,10 +23,41 @@ class AlbumNotFoundError(AlbumError):
     pass
 
 
-class Album(object):
+class BaseAlbum(ABC):
 
     VISIBILITY_PUBLIC = "public"
     VISIBILITY_PRIVATE = "private"
+
+    @abstractmethod
+    def get_pictures(self):
+        pass
+
+    @abstractmethod
+    def get_albuns(self):
+        pass
+
+    @abstractmethod
+    def get_visibility(self):
+        pass
+
+    def set_visibility(self, visibility):
+        if visibility == BaseAlbum.VISIBILITY_PUBLIC:
+            self.make_it_public()
+        elif visibility == BaseAlbum.VISIBILITY_PRIVATE:
+            self.make_it_private()
+        else:
+            raise Exception('Undefined visibility')
+
+    @abstractmethod
+    def make_it_private(self):
+        pass
+
+    @abstractmethod
+    def make_it_public(self):
+        pass
+
+
+class Album(BaseAlbum):
 
     CONFIG_FILE = ".retrato"
 
@@ -111,20 +143,19 @@ class Album(object):
     def get_visibility(self):
         virtual_folder = self.get_virtual_album()
         if os.path.isdir(virtual_folder):
-            return Album.VISIBILITY_PUBLIC
+            return BaseAlbum.VISIBILITY_PUBLIC
         else:
-            return Album.VISIBILITY_PRIVATE
+            return BaseAlbum.VISIBILITY_PRIVATE
 
     def set_visibility(self, visibility):
-        if visibility == Album.VISIBILITY_PUBLIC:
+        if visibility == BaseAlbum.VISIBILITY_PUBLIC:
             self.make_all_photos_public()
-        elif visibility == Album.VISIBILITY_PRIVATE:
+        elif visibility == BaseAlbum.VISIBILITY_PRIVATE:
             self.make_it_private()
         else:
             raise Exception('Undefined visibility')
 
     def make_all_photos_public(self):
-        self.make_it_public()
         pictures_name = self.get_all_pictures_name()
         virtual_folder = self.get_virtual_album()
         for picture in pictures_name:
@@ -149,6 +180,7 @@ class Album(object):
         if not os.path.isdir(virtual_folder):
             os.makedirs(virtual_folder)
         self.create_config()
+        self.make_all_photos_public()
 
     def make_it_private(self):
         virtual_folder = self.get_virtual_album()
@@ -170,20 +202,20 @@ class Album(object):
         virtual_folder = self.get_virtual_album()
         virtual_file = os.path.join(virtual_folder, picture)
         if os.path.islink(virtual_file):
-            return Album.VISIBILITY_PUBLIC
+            return BaseAlbum.VISIBILITY_PUBLIC
         else:
-            return Album.VISIBILITY_PRIVATE
+            return BaseAlbum.VISIBILITY_PRIVATE
 
     def set_photo_visibility(self, photo_filename, visibility):
         virtual_folder = self.get_virtual_album()
         virtual_file = os.path.join(virtual_folder, photo_filename)
         link_exists = os.path.islink(virtual_file)
 
-        if visibility == Album.VISIBILITY_PUBLIC and not link_exists:
+        if visibility == BaseAlbum.VISIBILITY_PUBLIC and not link_exists:
             self.make_it_public()
             photo_file = os.path.join(self._realpath, photo_filename)
             os.symlink(photo_file, virtual_file)
-        elif visibility == Album.VISIBILITY_PRIVATE and link_exists:
+        elif visibility == BaseAlbum.VISIBILITY_PRIVATE and link_exists:
             os.unlink(virtual_file)
 
     def config(self):
