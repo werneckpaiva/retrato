@@ -56,6 +56,7 @@ class AlbumAdminView(AlbumView, AlbumCacheManager):
         if visibility:
             try:
                 album.set_visibility(visibility)
+                album.make_all_photos_public()
                 context['visibility'] = album.get_visibility()
                 context['token'] = album.get_token()
             except:

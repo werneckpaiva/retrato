@@ -147,14 +147,6 @@ class Album(BaseAlbum):
         else:
             return BaseAlbum.VISIBILITY_PRIVATE
 
-    def set_visibility(self, visibility):
-        if visibility == BaseAlbum.VISIBILITY_PUBLIC:
-            self.make_all_photos_public()
-        elif visibility == BaseAlbum.VISIBILITY_PRIVATE:
-            self.make_it_private()
-        else:
-            raise Exception('Undefined visibility')
-
     def make_all_photos_public(self):
         pictures_name = self.get_all_pictures_name()
         virtual_folder = self.get_virtual_album()
@@ -180,7 +172,6 @@ class Album(BaseAlbum):
         if not os.path.isdir(virtual_folder):
             os.makedirs(virtual_folder)
         self.create_config()
-        self.make_all_photos_public()
 
     def make_it_private(self):
         virtual_folder = self.get_virtual_album()
