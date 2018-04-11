@@ -30,7 +30,7 @@ class GdrivePhoto:
             self.height = media_data["width"]
 
         self.ratio = float(self.width) / float(self.height)
-        self.date_taken = media_data["time"]
+        self.date_taken = media_data.get("time", None)
 
         self.url = photo["webContentLink"]
         self.thumb = self.build_thumb(photo["thumbnailLink"])
