@@ -5,6 +5,7 @@ import traceback
 import sys
 from django.conf import settings
 from django.http import HttpResponse
+from django.shortcuts import render_to_response
 from django.urls import reverse
 
 from retrato.gdrive.album.views import GdriveAlbumView
@@ -69,3 +70,11 @@ class GdriveAlbumAdminView(GdriveAlbumView):
     #     config = album.config()
     #     config['token'] = album.generate_token()
     #     album.save_config(config)
+
+
+
+
+class GdriveAlbumAdminHomeView(GdriveAlbumView):
+
+    def render_to_response(self, context):
+        return render_to_response('album_admin.html', context)
