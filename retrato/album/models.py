@@ -56,6 +56,25 @@ class BaseAlbum(ABC):
     def make_it_public(self):
         pass
 
+    @abstractmethod
+    def save_config(self, config):
+        pass
+
+    def generate_token(self):
+        new_uuid = uuid.uuid4()
+        str_uuid = str(new_uuid).encode('utf-8')
+        sha_uuid = hashlib.sha224(str_uuid)
+        hex_uuid = sha_uuid.hexdigest()
+        return hex_uuid
+
+    def get_token(self):
+        config = self.config()
+        return config['token'] if config is not None and 'token' in config else None
+
+    @abstractmethod
+    def config(self):
+        pass
+
 
 class Album(BaseAlbum):
 
@@ -233,17 +252,6 @@ class Album(BaseAlbum):
         config_filename = join(virtual_folder, self.CONFIG_FILE)
         with open(config_filename, 'w') as f:
             json.dump(config, f, indent=4)
-
-    def generate_token(self):
-        new_uuid = uuid.uuid4()
-        str_uuid = str(new_uuid).encode('utf-8')
-        sha_uuid = hashlib.sha224(str_uuid)
-        hex_uuid = sha_uuid.hexdigest()
-        return hex_uuid
-
-    def get_token(self):
-        config = self.config()
-        return config['token'] if config is not None and 'token' in config else None
 
     def get_cover(self):
         config = self.config()

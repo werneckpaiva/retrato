@@ -17,7 +17,7 @@ class GdriveAlbum(BaseAlbum):
     _album_id = None
 
     _folder_details = None
-    _content = None
+    _parent_folder_id = None
 
     _config = None
     _config_file_id = None
@@ -27,6 +27,13 @@ class GdriveAlbum(BaseAlbum):
     def __init__(self, gdrive_service, album_id):
         self._gdrive = gdrive_service
         self._album_id = album_id
+
+    def load_folder_details(self):
+        self._folder_details = self._gdrive.files().get(
+            fileId=self._album_id,
+            fields="id, name, parents"
+        ).execute()
+        self._parent_folder_id = self._folder_details.get("parents", [None])[0]
 
     def load_content(self):
         ITEMS_PER_CALL = 100
@@ -71,7 +78,7 @@ class GdriveAlbum(BaseAlbum):
         pictures = sorted(pictures, key=lambda p: str(p).lower())
         return pictures
 
-    def get_config(self):
+    def config(self):
         if self._config_file_id is None:
             self.load_config()
         return self._config
@@ -117,35 +124,52 @@ class GdriveAlbum(BaseAlbum):
         self._config = config
 
     def get_visibility(self):
-        config = self.get_config()
+        config = self.config()
         if config:
             return config["visibility"]
         else:
             return BaseAlbum.VISIBILITY_PRIVATE
 
     def make_it_public(self):
-        config = self.get_config()
+        config = self.config()
         config["visibility"] = BaseAlbum.VISIBILITY_PUBLIC
 
         self.load_content()
         config["pictures"] = []
         for picture in self._pictures:
-            config["pictures"].append({
-                "name": picture["name"],
-                "id": picture["id"]
-            })
+            config["pictures"].append(picture["id"])
 
         self.save_config(config)
+
+        self.load_folder_details()
+        parent_album = GdriveAlbum(self._gdrive, self._parent_folder_id)
+        parent_album.set_child_album_visibility(BaseAlbum.VISIBILITY_PUBLIC, self._album_id)
 
     def make_it_private(self):
-        config = self.get_config()
+        config = self.config()
         config["visibility"] = BaseAlbum.VISIBILITY_PRIVATE
         config["pictures"] = []
+
         self.save_config(config)
 
-    def get_token(self):
-        return "1234"
+        self.load_folder_details()
+        parent_album = GdriveAlbum(self._gdrive, self._parent_folder_id)
+        parent_album.set_child_album_visibility(BaseAlbum.VISIBILITY_PRIVATE, self._album_id)
+
+
+    def set_child_album_visibility(self, visibility, child_album_id):
+        config = self.config()
+        albuns = set(config.get("albuns", []))
+        if (visibility == BaseAlbum.VISIBILITY_PUBLIC):
+            albuns.add(child_album_id)
+        else:
+            if child_album_id in albuns:
+                albuns.remove(child_album_id)
+            else:
+                return
+        config["albuns"] = list(albuns)
+        self.save_config(config)
+
 
     def get_photo_visibility(self, picture):
         return BaseAlbum.VISIBILITY_PUBLIC
-
