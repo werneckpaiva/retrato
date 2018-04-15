@@ -46,7 +46,7 @@ class GdriveAlbum(BaseAlbum):
                 q="parents='%s' and (mimeType='image/jpeg' or mimeType='application/vnd.google-apps.folder')" % self._album_id,
                 pageSize=ITEMS_PER_CALL,
                 spaces='drive',
-                fields="nextPageToken, files(id, name, mimeType, createdTime, imageMediaMetadata, thumbnailLink, webContentLink)",
+                fields="nextPageToken, files(id, name, mimeType, createdTime, imageMediaMetadata, thumbnailLink, webContentLink, appProperties)",
                 **param).execute()
 
             items = results.get('files', [])
@@ -68,6 +68,11 @@ class GdriveAlbum(BaseAlbum):
 
     def get_albuns(self):
         return [album["name"] for album in self._albuns]
+
+    def get_public_albuns(self):
+        public_albuns = [album["name"] for album in self._albuns if
+                   album.get("appProperties", {}).get("visibility", {}) == BaseAlbum.VISIBILITY_PUBLIC]
+        return public_albuns
 
     def get_pictures(self):
         pictures = [GdrivePhoto(p) for p in self._pictures]
@@ -124,11 +129,9 @@ class GdriveAlbum(BaseAlbum):
         self._config = config
 
     def get_visibility(self):
-        config = self.config()
-        if config:
-            return config["visibility"]
-        else:
-            return BaseAlbum.VISIBILITY_PRIVATE
+        config = self.config() or {}
+        return config.get("visibility", BaseAlbum.VISIBILITY_PRIVATE)
+
 
     def make_it_public(self):
         config = self.config()
@@ -141,6 +144,8 @@ class GdriveAlbum(BaseAlbum):
 
         self.save_config(config)
 
+        self.set_gdrive_property({'visibility': BaseAlbum.VISIBILITY_PUBLIC})
+
         self.load_folder_details()
         parent_album = GdriveAlbum(self._gdrive, self._parent_folder_id)
         parent_album.set_child_album_visibility(BaseAlbum.VISIBILITY_PUBLIC, self._album_id)
@@ -152,10 +157,20 @@ class GdriveAlbum(BaseAlbum):
 
         self.save_config(config)
 
+        self.set_gdrive_property({'visibility': BaseAlbum.VISIBILITY_PRIVATE})
+
         self.load_folder_details()
         parent_album = GdriveAlbum(self._gdrive, self._parent_folder_id)
         parent_album.set_child_album_visibility(BaseAlbum.VISIBILITY_PRIVATE, self._album_id)
 
+    def set_gdrive_property(self, properties):
+        body = {'appProperties': properties}
+        updated_file = self._gdrive.files().update(
+            body=body,
+            fileId=self._album_id,
+            fields='id, appProperties'
+        ).execute()
+        return updated_file
 
     def set_child_album_visibility(self, visibility, child_album_id):
         config = self.config()

@@ -57,6 +57,9 @@ class GdriveAlbumView(AlbumView):
         }
         return context
 
+    def _load_albuns(self, album):
+        return album.get_public_albuns()
+
     def _picture_to_json(self, picture):
         ratio = round(picture.ratio, 3)
         data = {'name': picture.name,
