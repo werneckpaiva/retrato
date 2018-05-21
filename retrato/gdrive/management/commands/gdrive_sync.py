@@ -188,8 +188,8 @@ class GdriveSynchonizer:
             # Is the file missing?
             if i_google >= len(google_items) or item_name != google_items[i_google]["name"]:
                 if item["is_dir"]:
-                    new_folder_id = self.create_folder(gdrive_folder_node, item_name)
-                    google_item = {"id": new_folder_id, "name": item_name, 'files': []}
+                    new_folder = self.create_folder(gdrive_folder_node, item_name)
+                    google_item = {"id": new_folder['id'], "name": item_name, 'files': []}
                     dirs_to_process.append((item["path"], google_item))
                     folders_created += 1
                 else:
@@ -226,7 +226,7 @@ class GdriveSynchonizer:
         return gdrive_folder_node
 
     def save_files_tree_to_cache(self, files_tree):
-        print("Saving file tree cache")
+        print("Saving file tree cache to file %s" % self.CACHE_TREE_FILE)
         with open(self.CACHE_TREE_FILE, "w") as f:
             json.dump(files_tree, f)
 
