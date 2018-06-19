@@ -2,7 +2,7 @@ import hashlib
 import os
 import rfc3339
 from datetime import datetime
-import json
+import pickle
 
 import PIL.Image
 from django.core.management.base import BaseCommand
@@ -45,7 +45,7 @@ class GdriveSynchonizer:
     MIME_FOLDER = 'application/vnd.google-apps.folder'
 
     PRIVATE_DIR = os.path.join(settings.BASE_DIR, "private")
-    CACHE_TREE_FILE = os.path.join(PRIVATE_DIR, "gdrive_files.json")
+    CACHE_TREE_FILE = os.path.join(PRIVATE_DIR, "gdrive_files.pickle")
 
     ITEMS_PER_CALL = 100
 
@@ -221,14 +221,14 @@ class GdriveSynchonizer:
     def load_files_tree_from_cache(self):
         if not os.path.exists(self.CACHE_TREE_FILE):
             self.rebuild_files_tree_cache()
-        with open(self.CACHE_TREE_FILE, "r") as f:
-            gdrive_folder_node = json.load(f)
+        with open(self.CACHE_TREE_FILE, "rb") as f:
+            gdrive_folder_node = pickle.load(f)
         return gdrive_folder_node
 
     def save_files_tree_to_cache(self, files_tree):
         print("Saving file tree cache to file %s" % self.CACHE_TREE_FILE)
-        with open(self.CACHE_TREE_FILE, "w") as f:
-            json.dump(files_tree, f)
+        with open(self.CACHE_TREE_FILE, "wb") as f:
+            pickle.dump(files_tree, f, pickle.HIGHEST_PROTOCOL)
 
     def rebuild_files_tree_cache(self):
         print("Rebuilding files tree cache")
