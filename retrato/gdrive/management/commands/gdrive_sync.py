@@ -163,7 +163,7 @@ class GdriveSynchonizer:
             self.save_files_tree_to_cache(gdrive_folder_node)
 
     def sync_folders(self, source_folder, gdrive_folder_node):
-        print("Sync %s" % source_folder)
+        # print("Sync %s" % source_folder)
         if self.skip_cache:
             google_items = self.list_google_folder(gdrive_folder_node["id"])
             gdrive_folder_node["files"] = google_items
@@ -222,6 +222,7 @@ class GdriveSynchonizer:
         if not os.path.exists(self.CACHE_TREE_FILE):
             self.rebuild_files_tree_cache()
         with open(self.CACHE_TREE_FILE, "rb") as f:
+            print("Loading pickle file '%s'" % self.CACHE_TREE_FILE)
             gdrive_folder_node = pickle.load(f)
         return gdrive_folder_node
 
