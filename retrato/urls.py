@@ -26,4 +26,4 @@ if 'retrato.admin' in settings.INSTALLED_APPS:
     ]
 
 if settings.REQUIRE_AUTHENTICATION:
-    urlpatterns += [path('', include('retrato.auth.urls'))]
+    urlpatterns += [path('', include('retrato.auth.urls')),]

@@ -2,13 +2,13 @@ Google drive support
 
 Admin
 
-- Make album public (recursively)
-
+- Make album public (recursively) (done)
+- Public by token (done)
 - Make photo public
 
 Public
 
-- List album by token
+- List public albums
 
 UI
 

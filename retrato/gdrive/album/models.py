@@ -145,23 +145,22 @@ class GdriveAlbum(BaseAlbum):
     def make_it_public(self):
         config = self.config()
         config["visibility"] = BaseAlbum.VISIBILITY_PUBLIC
+        if 'token' not in config:
+            config['token'] = self.generate_token()
         self.save_config(config)
-
         self.change_visibility_recursively(BaseAlbum.VISIBILITY_PUBLIC)
 
     def make_it_private(self):
         config = self.config()
-        config["pictures"] = []
-
+        config["visibility"] = BaseAlbum.VISIBILITY_PRIVATE
+        config.pop("token")
         self.save_config(config)
-
         self.change_visibility_recursively(BaseAlbum.VISIBILITY_PRIVATE)
 
     def change_visibility_recursively(self, visibility):
-        if self._album_id == settings.GDRIVE_ROOT_FOLDER_ID:
+        parent_album = self.get_parent()
+        if parent_album is None:
             return
-        self.load_folder_details()
-        parent_album = GdriveAlbum(self._gdrive, self._parent_folder_id)
         parent_album.set_child_album_visibility(visibility, self._album_id)
         parent_album.set_visibility(visibility)
 
@@ -189,3 +188,9 @@ class GdriveAlbum(BaseAlbum):
 
     def get_photo_visibility(self, picture):
         return BaseAlbum.VISIBILITY_PUBLIC
+
+    def get_parent(self):
+        if self._album_id == settings.GDRIVE_ROOT_FOLDER_ID:
+            return None
+        self.load_folder_details()
+        return GdriveAlbum(self._gdrive, self._parent_folder_id)
