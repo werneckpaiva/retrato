@@ -21,7 +21,7 @@ class GdriveAlbum(BaseAlbum):
 
     _config = None
     _config_file_id = None
-    _albuns = []
+    _albums = []
     _pictures = []
 
     def __init__(self, gdrive_service, album_id):
@@ -64,15 +64,15 @@ class GdriveAlbum(BaseAlbum):
             if (not param['pageToken']):
                 break
         self._pictures = sorted(files, key=lambda x: x["name"])
-        self._albuns = sorted(folders, key=lambda x: x["name"])
+        self._albums = sorted(folders, key=lambda x: x["name"])
 
-    def get_albuns(self):
-        return [album["name"] for album in self._albuns]
+    def get_albums(self):
+        return [album["name"] for album in self._albums]
 
-    def get_public_albuns(self):
-        public_albuns = [album["name"] for album in self._albuns if
+    def get_public_albums(self):
+        public_albums = [album["name"] for album in self._albums if
                    album.get("appProperties", {}).get("visibility", {}) == BaseAlbum.VISIBILITY_PUBLIC]
-        return public_albuns
+        return public_albums
 
     def get_pictures(self):
         pictures = [GdrivePhoto(p) for p in self._pictures]
@@ -84,7 +84,7 @@ class GdriveAlbum(BaseAlbum):
         return pictures
 
     def config(self):
-        if self._config_file_id is None:
+        if self._config_file_id is None or self._config is None:
             self.load_config()
         return self._config
 
@@ -107,7 +107,12 @@ class GdriveAlbum(BaseAlbum):
         while True:
             _, done = downloader.next_chunk()
             if done: break
-        self._config = json.loads(fh.getvalue())
+        config = json.loads(fh.getvalue())
+        if "albuns" not in config:
+            config["albuns"] = []
+        if "pictures" not in config:
+            config["pictures"] = []
+        self._config = config
 
     def save_config(self, config):
         fh = BytesIO(str.encode(json.dumps(config)))
@@ -134,34 +139,32 @@ class GdriveAlbum(BaseAlbum):
 
 
     def make_it_public(self):
+
         config = self.config()
         config["visibility"] = BaseAlbum.VISIBILITY_PUBLIC
-
-        self.load_content()
-        config["pictures"] = []
-        for picture in self._pictures:
-            config["pictures"].append(picture["id"])
-
         self.save_config(config)
 
-        self.set_gdrive_property({'visibility': BaseAlbum.VISIBILITY_PUBLIC})
-
-        self.load_folder_details()
-        parent_album = GdriveAlbum(self._gdrive, self._parent_folder_id)
-        parent_album.set_child_album_visibility(BaseAlbum.VISIBILITY_PUBLIC, self._album_id)
+        self.change_visibility_recursively(BaseAlbum.VISIBILITY_PUBLIC)
 
     def make_it_private(self):
+
         config = self.config()
-        config["visibility"] = BaseAlbum.VISIBILITY_PRIVATE
         config["pictures"] = []
+
+        # Make it
+        if len(config.get("albuns", [])) == 0:
+
 
         self.save_config(config)
 
-        self.set_gdrive_property({'visibility': BaseAlbum.VISIBILITY_PRIVATE})
+        self.change_visibility_recursively(BaseAlbum.VISIBILITY_PRIVATE)
 
+    def change_visibility_recursively(self, visibility):
         self.load_folder_details()
         parent_album = GdriveAlbum(self._gdrive, self._parent_folder_id)
-        parent_album.set_child_album_visibility(BaseAlbum.VISIBILITY_PRIVATE, self._album_id)
+        parent_album.set_child_album_visibility(visibility, self._album_id)
+        parent_album.set_visibility(visibility)
+
 
     def set_gdrive_property(self, properties):
         body = {'appProperties': properties}
@@ -174,15 +177,15 @@ class GdriveAlbum(BaseAlbum):
 
     def set_child_album_visibility(self, visibility, child_album_id):
         config = self.config()
-        albuns = set(config.get("albuns", []))
-        if (visibility == BaseAlbum.VISIBILITY_PUBLIC):
-            albuns.add(child_album_id)
+        albums = set(config.get("albums", []))
+        if visibility == BaseAlbum.VISIBILITY_PUBLIC:
+            albums.add(child_album_id)
         else:
-            if child_album_id in albuns:
-                albuns.remove(child_album_id)
+            if child_album_id in albums:
+                albums.remove(child_album_id)
             else:
                 return
-        config["albuns"] = list(albuns)
+        config["albums"] = list(albums)
         self.save_config(config)
 
 

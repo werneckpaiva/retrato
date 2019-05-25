@@ -7,7 +7,7 @@ from retrato.photo.models.photo_cache import PhotoCache
 
 class Command(BaseCommand):
 
-    help = 'Generate image caches for all albuns'
+    help = 'Generate image caches for all albums'
 
     def handle(self, *args, **options):
         path = '/'
@@ -24,7 +24,7 @@ class Command(BaseCommand):
             except Exception:
                 print("Errror generating cache for %s" % str(picture))
 
-        for sub_album_path in album.get_albuns():
+        for sub_album_path in album.get_albums():
             path = os.path.join(album.path, sub_album_path)
             sub_album = Album(settings.PHOTOS_ROOT_DIR, path)
             self.create_cache_for_album(sub_album)

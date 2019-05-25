@@ -1,9 +1,15 @@
 Google drive support
 
-1. List albuns
+Admin
 
-2. List album photos
+- Make album public
 
-3. Resize photos and store in Google Drive
+- Make photo public
 
-4. Show photo properties
+Public
+
+- List album by token
+
+UI
+
+- Fix last right image broken

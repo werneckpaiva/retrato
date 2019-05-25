@@ -46,7 +46,7 @@ class Photo(object):
         self.image = None
 
     def load_exif(self):
-        if (self.exif):
+        if self.exif:
             return
         self.open_image()
         self.exif = self.image._getexif()
@@ -111,11 +111,11 @@ class Photo(object):
         size = self.image.size
         ratio = float(size[0]) / float(size[1])
         if ratio > 0:
-            newWidth = dimension
-            self.image = self.image.resize((newWidth, int(newWidth / ratio)), Image.ANTIALIAS)
+            new_width = dimension
+            self.image = self.image.resize((new_width, int(new_width / ratio)), Image.ANTIALIAS)
         else:
-            newHeight = dimension
-            self.image = self.image.resize((newHeight, int(newHeight / ratio)), Image.ANTIALIAS)
+            new_height = dimension
+            self.image = self.image.resize((new_height, int(new_height / ratio)), Image.ANTIALIAS)
 
     def get_orientation_angle(self):
         self.load_exif()

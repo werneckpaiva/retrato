@@ -9,7 +9,7 @@ class TestAlbumModelIntegration(TestCase):
         PHOTOS_ROOT_DIR = getattr(settings, 'PHOTOS_ROOT_DIR', '/')
         album = Album(PHOTOS_ROOT_DIR, '/')
         self.assertEquals(album.get_pictures(), [])
-        self.assertEquals(len(album.get_albuns()), 2)
+        self.assertEquals(len(album.get_albums()), 2)
 
     def test_sanitize_path__remove_first_slash(self):
         path = "/album"

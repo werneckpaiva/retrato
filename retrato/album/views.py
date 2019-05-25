@@ -64,7 +64,7 @@ class AlbumView(BaseDetailView):
                    'title': self.kwargs['album_path'].replace('/', ' | '),
                    'cover': self._load_album_cover(album),
                    'pictures': self._load_pictures(album),
-                   'albuns': self._load_albuns(album),
+                   'albums': self._load_albums(album),
                    'base_url': '/album/'
         }
         return context
@@ -118,8 +118,8 @@ class AlbumView(BaseDetailView):
         url = reverse('photo', args=(relative_url,))
         return url
 
-    def _load_albuns(self, album):
-        return album.get_albuns()
+    def _load_albums(self, album):
+        return album.get_albums()
 
     def _load_album_cover(self, album):
         cover = album.get_cover()

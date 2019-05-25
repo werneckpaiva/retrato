@@ -71,8 +71,8 @@ class GdriveAlbumAdminView(GdriveAlbumView):
     #     config['token'] = album.generate_token()
     #     album.save_config(config)
 
-    def _load_albuns(self, album):
-        return album.get_albuns()
+    def _load_albums(self, album):
+        return album.get_albums()
 
 
 class GdriveAlbumAdminHomeView(GdriveAlbumView):

@@ -52,13 +52,13 @@ class GdriveAlbumView(AlbumView):
             'title': self.kwargs['album_path'],
             'cover': '',
             'pictures': self._load_pictures(album),
-            'albuns': self._load_albuns(album),
-            'base_url': '/gdrive/album/'
+            'albums': self._load_albums(album),
+            'base_url': '/album/'
         }
         return context
 
-    def _load_albuns(self, album):
-        return album.get_public_albuns()
+    def _load_albums(self, album):
+        return album.get_public_albums()
 
     def _picture_to_json(self, picture):
         ratio = round(picture.ratio, 3)

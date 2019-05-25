@@ -17,7 +17,7 @@ class TestAlbumAppAcceptanceWithoutAuth(TestCase):
         content = json.loads(response.content)
         self.assert_(content)
         self.assertEquals(content['path'], '/')
-        self.assertTrue(len(content['albuns']) >= 2)
+        self.assertTrue(len(content['albums']) >= 2)
         self.assertEquals(content['pictures'], [])
 
     def test_load_test_album__no_pictures(self):
@@ -28,7 +28,7 @@ class TestAlbumAppAcceptanceWithoutAuth(TestCase):
         content = json.loads(response.content)
         self.assert_(content)
         self.assertEquals(content['path'], '/album1/')
-        self.assertEquals(len(content['albuns']), 0)
+        self.assertEquals(len(content['albums']), 0)
         self.assertEquals(len(content['pictures']), 0)
 
     def test_load_test_album__4_pictures(self):
@@ -39,7 +39,7 @@ class TestAlbumAppAcceptanceWithoutAuth(TestCase):
         content = json.loads(response.content)
         self.assert_(content)
         self.assertEquals(content['path'], '/album2/')
-        self.assertEquals(len(content['albuns']), 0)
+        self.assertEquals(len(content['albums']), 0)
         self.assertEquals(len(content['pictures']), 4)
 
         pictures = content['pictures']

@@ -910,7 +910,7 @@ function boxBlurCanvasRGB( canvas, top_x, top_y, width, height, radius, iteratio
     var self = this;
 
     this.path = null;
-    this.albuns = null;
+    this.albums = null;
     this.pictures = null;
     this.visibility = null;
     this.token = null;

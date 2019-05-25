@@ -35,7 +35,7 @@
         });
 
         var navigator = new AlbumNavigator(albumModel, {
-            view: $("#albuns"),
+            view: $("#albums"),
             listClass: "list",
             template: $("#albumTpl").html()
         });
@@ -151,8 +151,8 @@
             </aside>
         </section>
         <div id="main-content">
-            <section id="albuns">
-                <h2>albuns</h2>
+            <section id="albums">
+                <h2>albums</h2>
                 <ul class="list">
                     <script id="albumTpl" type="text/html">{% verbatim %}<li><a href="{{url}}">{{name}}</li>{% endverbatim %}</script>
                 </ul>

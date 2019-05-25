@@ -16,7 +16,7 @@ import os
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Custom config
-PHOTOS_ROOT_DIR = os.path.join(BASE_DIR, "var/sample/albuns")
+PHOTOS_ROOT_DIR = os.path.join(BASE_DIR, "var/sample/albums")
 BASE_CACHE_DIR = os.path.join(BASE_DIR, "var/cache")
 REQUIRE_AUTHENTICATION = False
 
@@ -52,7 +52,7 @@ SECRET_KEY = 'xioz)2p9s$)w67*z$r)zt@cryi6ut(#0ovn18r#^#i6a%_8u*a'
 # Application definition
 
 INSTALLED_APPS = [
-    'django_admin_bootstrapped',
+    'django_extensions',
     'django.core.management',
     'django.contrib.admin',
     'django.contrib.auth',

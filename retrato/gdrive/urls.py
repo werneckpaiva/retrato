@@ -11,7 +11,7 @@ if 'retrato.admin' in settings.INSTALLED_APPS:
     from django.contrib import admin
     admin.autodiscover()
     urlpatterns += [
-        path('admin/', RedirectView.as_view(url='/gdrive/admin/album', permanent=True)),
+        path('admin/', RedirectView.as_view(url='/admin/album', permanent=True)),
         path('admin/album/', include('retrato.gdrive.admin.album.urls')),
         path('admin/photo/', include('retrato.gdrive.admin.photo.urls'))
     ]

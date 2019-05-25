@@ -33,7 +33,7 @@ class BaseAlbum(ABC):
         pass
 
     @abstractmethod
-    def get_albuns(self):
+    def get_albums(self):
         pass
 
     @abstractmethod
@@ -137,17 +137,17 @@ class Album(BaseAlbum):
         pictures = sorted(pictures, key=lambda p: str(p).lower())
         return pictures
 
-    def get_albuns(self):
+    def get_albums(self):
         if not isdir(self._realpath):
             return []
-        albuns = []
+        albums = []
         for f in listdir(self._realpath):
             if f[0] == '.':
                 continue
             if isdir(join(self._realpath, f)):
-                albuns.append(f)
-        albuns = sorted(albuns)
-        return albuns
+                albums.append(f)
+        albums = sorted(albums)
+        return albums
 
     @classmethod
     def sanitize_path(clazz, path):

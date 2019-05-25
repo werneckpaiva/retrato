@@ -9,8 +9,9 @@ urlpatterns = [
 ]
 
 if 'retrato.gdrive' in settings.INSTALLED_APPS:
-    urlpatterns += [
-        path('gdrive/', include('retrato.gdrive.urls')),
+    urlpatterns = [
+        path('', RedirectView.as_view(url='/album/', permanent=True)),
+        path('', include('retrato.gdrive.urls')),
     ]
 
 

@@ -56,7 +56,7 @@ class TestAlbumAdminAcceptance(TestCase):
         content = json.loads(response.content)
         self.assert_(content)
         self.assertEquals(content['path'], '/')
-        self.assertEquals(len(content['albuns']), 2)
+        self.assertEquals(len(content['albums']), 2)
         self.assertEquals(content['pictures'], [])
 
     def test_make_album_public(self):
@@ -104,7 +104,7 @@ class TestAlbumAdminAcceptance(TestCase):
         content = json.loads(response2.content)
         self.assert_(content)
         self.assertEquals(content['path'], '/album2/')
-        self.assertEquals(len(content['albuns']), 0)
+        self.assertEquals(len(content['albums']), 0)
         self.assertEquals(len(content['pictures']), 4)
 
     def test_make_album_public_should_create_token(self):
@@ -144,7 +144,7 @@ class TestAlbumAdminAcceptance(TestCase):
     def test_make_parent_album_private(self):
         new_album = 'album3/first/second/'
 
-        # create album3 with subalbuns
+        # create album3 with subalbums
         new_real_folder = os.path.join(settings.PHOTOS_ROOT_DIR, new_album)
         try:
             os.makedirs(new_real_folder)

@@ -173,9 +173,9 @@ body{
 }
 
 
-/* Albuns */
+/* albums */
 
-#albuns{
+#albums{
     background: #4169E1;
     padding: 0 30px 30px 30px;
     display:none;
@@ -190,26 +190,26 @@ body{
     transform: translateX(0);
 }
 
-#albuns.visible {
+#albums.visible {
     display: block; 
 }
 
 @media (min-width: 700px) {
 
-    #albuns{
+    #albums{
         width:35%;
         min-height: 100%;
         padding-right: 15px;
         text-align: right;
     }
 
-    #albuns ul{
+    #albums ul{
         margin-left: 0px;
     }
     
 }
 
-#albuns h2{
+#albums h2{
     padding:0px;
     margin: 0px;
     margin-top: 40px;
@@ -218,11 +218,11 @@ body{
     line-height: 2em;
 }
 
-#albuns ul{
+#albums ul{
     margin: 0px 10px 10px 30px;
     padding: 0px;
 }
-#albuns li{
+#albums li{
     list-style: none;
     margin:0px;
     padding: 0px;
@@ -230,11 +230,11 @@ body{
     line-height: 2em;
 }
 
-#albuns li a{
+#albums li a{
     color: #fff;
     text-decoration: none;
 }
-#albuns li a:hover{
+#albums li a:hover{
     text-decoration: underline;
 }
 

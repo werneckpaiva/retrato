@@ -27,8 +27,8 @@ function AlbumNavigator(model, conf){
         $viewList = (conf.listClass)? $view.find("."+conf.listClass) : $view;
         animate = (conf.listClass)? conf.listClass : true;
 
-        watch(model, "albuns", function(){
-            displayAlbuns();
+        watch(model, "albums", function(){
+            displayAlbums();
         });
         
     }
@@ -39,15 +39,15 @@ function AlbumNavigator(model, conf){
         return url;
     }
 
-    function displayAlbuns(){
-        if(!model.albuns || model.albuns.length === 0){
+    function displayAlbums(){
+        if(!model.albums || model.albums.length === 0){
             $view.removeClass("visible");
             return;
         }
         $view.addClass("visible");
         content = "";
-        for (var i=0; i<model.albuns.length; i++){
-            var albumName = model.albuns[i];
+        for (var i=0; i<model.albums.length; i++){
+            var albumName = model.albums[i];
             content += Mustache.render(template, {
                 url: getAlbumUrl(albumName), 
                 name: StringUtil.humanizeName(albumName)});
