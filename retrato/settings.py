@@ -35,9 +35,9 @@ STATIC_ROOT = os.path.join(BASE_DIR, "public/static")
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-TEMPLATE_DEBUG = True
+TEMPLATE_DEBUG = False
 
 ALLOWED_HOSTS = ['0.0.0.0', 'localhost']
 
