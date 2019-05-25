@@ -157,12 +157,14 @@ class GdriveSynchonizer:
             gdrive_folder_node = {'id': settings.GDRIVE_ROOT_FOLDER_ID}
         else:
             gdrive_folder_node = self.load_files_tree_from_cache()
-        (folders_created, files_uploaded) = self.sync_folders(settings.PHOTOS_ROOT_DIR, gdrive_folder_node)
+        (folders_created, files_uploaded) = self.sync_folders(settings.PHOTOS_ROOT_DIR,
+                                                              gdrive_folder_node,
+                                                              gdrive_folder_node)
         print("%s files uploaded" % files_uploaded)
         if (folders_created + files_uploaded) > 0:
             self.save_files_tree_to_cache(gdrive_folder_node)
 
-    def sync_folders(self, source_folder, gdrive_folder_node):
+    def sync_folders(self, source_folder, gdrive_folder_node, gdrive_root_node):
         # print("Sync %s" % source_folder)
         if self.skip_cache:
             google_items = self.list_google_folder(gdrive_folder_node["id"])
@@ -211,8 +213,13 @@ class GdriveSynchonizer:
         del google_items
         del local_items
 
+        if files_uploaded > 0:
+            self.save_files_tree_to_cache(gdrive_root_node)
+
         for (subfolder, google_subfolder_node) in dirs_to_process:
-            (subfolders_created, subfiles_uploaded) = self.sync_folders(subfolder, google_subfolder_node)
+            (subfolders_created, subfiles_uploaded) = self.sync_folders(subfolder,
+                                                                        google_subfolder_node,
+                                                                        gdrive_root_node)
             folders_created += subfolders_created
             files_uploaded += subfiles_uploaded
 
