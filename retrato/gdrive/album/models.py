@@ -2,10 +2,12 @@ import io
 import json
 
 from googleapiclient.http import MediaIoBaseDownload, MediaIoBaseUpload
-from io import StringIO, BytesIO
+from googleapiclient.errors import Error
+from io import BytesIO
 
-from retrato.album.models import Album, AlbumNotFoundError, BaseAlbum
+from retrato.album.models import BaseAlbum
 from retrato.gdrive.photo.models import GdrivePhoto
+from django.conf import settings
 
 
 class GdriveAlbum(BaseAlbum):
@@ -61,7 +63,7 @@ class GdriveAlbum(BaseAlbum):
                 break
 
             param['pageToken'] = results.get("nextPageToken")
-            if (not param['pageToken']):
+            if not param['pageToken']:
                 break
         self._pictures = sorted(files, key=lambda x: x["name"])
         self._albums = sorted(folders, key=lambda x: x["name"])
@@ -89,11 +91,14 @@ class GdriveAlbum(BaseAlbum):
         return self._config
 
     def load_config(self):
-        results = self._gdrive.files().list(
-            corpora="user",
-            q="parents='%s' and name='%s'" % (self._album_id, GdriveAlbum.CONFIG_FILE),
-            pageSize=1,
-            spaces='drive').execute()
+        try:
+            results = self._gdrive.files().list(
+                corpora="user",
+                q="parents='%s' and name='%s'" % (self._album_id, GdriveAlbum.CONFIG_FILE),
+                pageSize=1,
+                spaces='drive').execute()
+        except Error:
+            results = {}
         items = results.get('files', [])
         if len(items) == 0:
             self._config_file_id = ''
@@ -108,8 +113,8 @@ class GdriveAlbum(BaseAlbum):
             _, done = downloader.next_chunk()
             if done: break
         config = json.loads(fh.getvalue())
-        if "albuns" not in config:
-            config["albuns"] = []
+        if "albums" not in config:
+            config["albums"] = []
         if "pictures" not in config:
             config["pictures"] = []
         self._config = config
@@ -137,9 +142,7 @@ class GdriveAlbum(BaseAlbum):
         config = self.config() or {}
         return config.get("visibility", BaseAlbum.VISIBILITY_PRIVATE)
 
-
     def make_it_public(self):
-
         config = self.config()
         config["visibility"] = BaseAlbum.VISIBILITY_PUBLIC
         self.save_config(config)
@@ -147,24 +150,20 @@ class GdriveAlbum(BaseAlbum):
         self.change_visibility_recursively(BaseAlbum.VISIBILITY_PUBLIC)
 
     def make_it_private(self):
-
         config = self.config()
         config["pictures"] = []
-
-        # Make it
-        if len(config.get("albuns", [])) == 0:
-
 
         self.save_config(config)
 
         self.change_visibility_recursively(BaseAlbum.VISIBILITY_PRIVATE)
 
     def change_visibility_recursively(self, visibility):
+        if self._album_id == settings.GDRIVE_ROOT_FOLDER_ID:
+            return
         self.load_folder_details()
         parent_album = GdriveAlbum(self._gdrive, self._parent_folder_id)
         parent_album.set_child_album_visibility(visibility, self._album_id)
         parent_album.set_visibility(visibility)
-
 
     def set_gdrive_property(self, properties):
         body = {'appProperties': properties}
@@ -187,7 +186,6 @@ class GdriveAlbum(BaseAlbum):
                 return
         config["albums"] = list(albums)
         self.save_config(config)
-
 
     def get_photo_visibility(self, picture):
         return BaseAlbum.VISIBILITY_PUBLIC

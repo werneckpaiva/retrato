@@ -2,7 +2,7 @@ Google drive support
 
 Admin
 
-- Make album public
+- Make album public (recursively)
 
 - Make photo public
 
