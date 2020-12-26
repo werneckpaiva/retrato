@@ -1,12 +1,16 @@
 import hashlib
 import os
+from argparse import ArgumentParser
+
 import rfc3339
 from datetime import datetime
 import pickle
+import json
 
 import PIL.Image
 from django.core.management.base import BaseCommand
 from django.conf import settings
+from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaFileUpload
 
 from retrato.gdrive.google_auth import create_google_service
@@ -16,7 +20,7 @@ class Command(BaseCommand):
 
     help = 'Synchronize local folder with Google Drive'
 
-    def add_arguments(self, parser):
+    def add_arguments(self, parser: ArgumentParser):
         parser.add_argument('--rebuild-tree',
                             action='store_true',
                             help='Rebuild local file tree from Google drive')
@@ -28,13 +32,33 @@ class Command(BaseCommand):
                             help='Skip cache and load the remote content directly')
 
     def handle(self, *args, **options):
-        gdrive_synchronizer = GdriveSynchonizer()
+        cache_mngmt = CacheManagement()
+        gdrive_synchronizer = GdriveSynchonizer(cache_mngmt)
         gdrive_synchronizer.skip_cache = options['skip_cache']
         gdrive_synchronizer.md5_check = options['md5']
         if options['rebuild_tree']:
             gdrive_synchronizer.rebuild_files_tree_cache()
         else:
             gdrive_synchronizer.sync_all_folders()
+
+
+class CacheManagement:
+
+    PRIVATE_DIR = os.path.join(settings.BASE_DIR, "private")
+    CACHE_TREE_FILE = os.path.join(PRIVATE_DIR, "gdrive_files.pickle")
+
+    def load_files_tree_from_cache(self):
+        if not os.path.exists(self.CACHE_TREE_FILE):
+            self.rebuild_files_tree_cache()
+        with open(self.CACHE_TREE_FILE, "rb") as f:
+            print("Loading pickle file '%s'" % self.CACHE_TREE_FILE)
+            gdrive_folder_node = pickle.load(f)
+        return gdrive_folder_node
+
+    def save_files_tree_to_cache(self, files_tree):
+        print("Saving file tree cache to file %s" % self.CACHE_TREE_FILE)
+        with open(self.CACHE_TREE_FILE, "wb") as f:
+            pickle.dump(files_tree, f, pickle.HIGHEST_PROTOCOL)
 
 
 class GdriveSynchonizer:
@@ -44,15 +68,14 @@ class GdriveSynchonizer:
 
     MIME_FOLDER = 'application/vnd.google-apps.folder'
 
-    PRIVATE_DIR = os.path.join(settings.BASE_DIR, "private")
-    CACHE_TREE_FILE = os.path.join(PRIVATE_DIR, "gdrive_files.pickle")
-
     ITEMS_PER_CALL = 100
 
     service = None
+    cache_mngmt = None
 
-    def __init__(self):
+    def __init__(self, cache_mngmt:CacheManagement):
         self.service = create_google_service()
+        self.cache_mngmt = cache_mngmt
 
     def list_google_folder(self, folder_id):
         ITEMS_PER_CALL = 100
@@ -116,7 +139,7 @@ class GdriveSynchonizer:
             dt_taken = datetime.fromtimestamp(os.path.getctime(file_path))
 
         dt_modified = datetime.fromtimestamp(os.path.getmtime(file_path))
-        return (dt_taken, dt_modified)
+        return dt_taken, dt_modified
 
     def upload_file(self, google_folder_id, path, file_id=None):
         print("Uploading file %s" % path)
@@ -135,14 +158,16 @@ class GdriveSynchonizer:
             mimetype = None
         media = MediaFileUpload(path,
                                 mimetype=mimetype,
-                                resumable=True)
+                                resumable=False)
 
-        if (file_id is not None):
+        if file_id is not None:
             self.service.files().delete(fileId=file_id).execute()
 
-        file_node = self.service.files().create(body=file_metadata,
-                                            media_body=media,
-                                            fields='id, name, md5Checksum').execute()
+        file_node = self.service \
+            .files() \
+            .create(body=file_metadata,
+                    media_body=media,
+                    fields='id, name, md5Checksum').execute()
         return file_node
 
     def md5(self, filename, blocksize=65536):
@@ -156,16 +181,15 @@ class GdriveSynchonizer:
         if self.skip_cache:
             gdrive_folder_node = {'id': settings.GDRIVE_ROOT_FOLDER_ID}
         else:
-            gdrive_folder_node = self.load_files_tree_from_cache()
+            gdrive_folder_node = self.cache_mngmt.load_files_tree_from_cache()
         (folders_created, files_uploaded) = self.sync_folders(settings.PHOTOS_ROOT_DIR,
                                                               gdrive_folder_node,
                                                               gdrive_folder_node)
         print("%s files uploaded" % files_uploaded)
         if (folders_created + files_uploaded) > 0:
-            self.save_files_tree_to_cache(gdrive_folder_node)
+            self.cache_mngmt.save_files_tree_to_cache(gdrive_folder_node)
 
     def sync_folders(self, source_folder, gdrive_folder_node, gdrive_root_node):
-        # print("Sync %s" % source_folder)
         if self.skip_cache:
             google_items = self.list_google_folder(gdrive_folder_node["id"])
             gdrive_folder_node["files"] = google_items
@@ -182,7 +206,7 @@ class GdriveSynchonizer:
             while i_google < len(google_items) and item_name > google_items[i_google]["name"]:
                 i_google += 1
 
-            # Is file empty?
+            # Skip empty files
             if not item["is_dir"] and os.path.getsize(item["path"]) <= 0:
                 continue
 
@@ -204,44 +228,49 @@ class GdriveSynchonizer:
                 elif self.md5_check:
                     # Did the file change?
                     md5sum = self.md5(item["path"])
-                    if (md5sum != google_item["md5Checksum"]):
+                    if md5sum != google_item["md5Checksum"]:
                         google_item = self.upload_file(gdrive_folder_node["id"], item["path"], file_id=google_item["id"])
                         files_uploaded += 1
             if google_item is not None:
                 gdrive_folder_node['files'].append(google_item)
 
+            if files_uploaded % 10 == 9:
+                self.cache_mngmt.save_files_tree_to_cache(gdrive_root_node)
+
         del google_items
         del local_items
 
         if files_uploaded > 0:
-            self.save_files_tree_to_cache(gdrive_root_node)
+            self.cache_mngmt.save_files_tree_to_cache(gdrive_root_node)
 
-        for (subfolder, google_subfolder_node) in dirs_to_process:
-            (subfolders_created, subfiles_uploaded) = self.sync_folders(subfolder,
-                                                                        google_subfolder_node,
-                                                                        gdrive_root_node)
+        for subfolder, google_subfolder_node in dirs_to_process:
+            sync_tries = 0
+            while sync_tries < 2:
+                try:
+                    subfolders_created, subfiles_uploaded = self.sync_folders(subfolder,
+                                                                              google_subfolder_node,
+                                                                              gdrive_root_node)
+                    break
+                except HttpError as e:
+                    sync_tries += 1
+                    error_response = json.loads(e.content)
+                    # Create directory if it fails because it doesn't exist anymore
+                    if error_response.get("error", {}).get("code") == 404:
+                        new_folder = self.create_folder(gdrive_folder_node, google_subfolder_node["name"])
+                        # Now the directory has a new id
+                        google_subfolder_node['id'] = new_folder["id"]
+                        # Remove any file that was created previously
+                        google_subfolder_node['files'] = []
+
             folders_created += subfolders_created
             files_uploaded += subfiles_uploaded
 
-        return (folders_created, files_uploaded)
-
-    def load_files_tree_from_cache(self):
-        if not os.path.exists(self.CACHE_TREE_FILE):
-            self.rebuild_files_tree_cache()
-        with open(self.CACHE_TREE_FILE, "rb") as f:
-            print("Loading pickle file '%s'" % self.CACHE_TREE_FILE)
-            gdrive_folder_node = pickle.load(f)
-        return gdrive_folder_node
-
-    def save_files_tree_to_cache(self, files_tree):
-        print("Saving file tree cache to file %s" % self.CACHE_TREE_FILE)
-        with open(self.CACHE_TREE_FILE, "wb") as f:
-            pickle.dump(files_tree, f, pickle.HIGHEST_PROTOCOL)
+        return folders_created, files_uploaded
 
     def rebuild_files_tree_cache(self):
         print("Rebuilding files tree cache")
         files_tree=self.get_files_tree(settings.GDRIVE_ROOT_FOLDER_ID)
-        self.save_files_tree_to_cache(files_tree)
+        self.cache_mngmt.save_files_tree_to_cache(files_tree)
 
     def get_files_tree(self, root_folder_id):
         param = {}
@@ -275,7 +304,7 @@ class GdriveSynchonizer:
             if not items or len(items) < self.ITEMS_PER_CALL:
                 break
             param['pageToken'] = results.get("nextPageToken")
-            if (not param['pageToken']):
+            if not param['pageToken']:
                 break
         print("")
         for item in all_files:
