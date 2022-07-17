@@ -3,6 +3,7 @@
 *.pyc
 local_settings.py
 prod_settings.py
+gdrive_settings.py
 
 run.sh
 
