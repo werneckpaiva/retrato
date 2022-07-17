@@ -3,16 +3,21 @@ from django.core.management.base import BaseCommand
 from django.conf import settings
 from retrato.album.models import Album
 from retrato.photo.models.photo_cache import PhotoCache
+from argparse import ArgumentParser
 
 
 class Command(BaseCommand):
 
     help = 'Generate image caches for all albums'
 
+    def add_arguments(self, parser: ArgumentParser):
+        parser.add_argument('--path',
+            help='Provide relative album path')
+
     def handle(self, *args, **options):
         path = '/'
-        if len(args) > 0:
-            path = args[0]
+        if options.get("path", None):
+            path = options['path']
         root_album = Album(settings.PHOTOS_ROOT_DIR, path)
         self.create_cache_for_album(root_album)
 
