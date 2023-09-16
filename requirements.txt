@@ -6,4 +6,3 @@ google-api-python-client==1.12.8
 rfc3339==6.0
 django-extensions==2.1.7
 # mysqlclient==1.4.2.post1
-gunicorn==21.2.0
