@@ -33,3 +33,11 @@ Google Drive:
 
 Find the root folder id. Open the folder in the google drive and look for the id on the path:
 https://drive.google.com/drive/u/0/folders/<folderid>
+
+Docker
+------
+```
+docker build -t retrato-app .
+docker run -d -p 8000:8000 retrato-app
+```
+
