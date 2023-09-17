@@ -8,8 +8,8 @@ RUN pip3 install gunicorn
 COPY requirements.txt .
 RUN pip3 install --no-cache-dir -r requirements.txt
 
-COPY . /app
-WORKDIR /app
+COPY . .
+# WORKDIR /app
 
 RUN python3 manage.py collectstatic --noinput
 
