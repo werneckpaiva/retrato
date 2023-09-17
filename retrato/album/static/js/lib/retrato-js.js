@@ -30,7 +30,7 @@ var Fullscreen = {
     },
 
     close: function close() {
-        if (document.exitFullscreen) {
+        if (document.fullscreenElement && document.exitFullscreen) {
             document.exitFullscreen();
         } else if (document.webkitExitFullscreen) {
             document.webkitExitFullscreen();
