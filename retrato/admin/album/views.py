@@ -8,6 +8,7 @@ from django.urls import reverse
 from retrato.album.views import AlbumView
 from retrato.album.models import Album
 from retrato.photo.models import Photo
+from django.shortcuts import render_to_response
 
 logger = logging.getLogger(__name__)
 
@@ -88,3 +89,9 @@ class AlbumAdminView(AlbumView, AlbumCacheManager):
         config = album.config()
         config['token'] = album.generate_token()
         album.save_config(config)
+
+
+class AlbumAdminHomeView(AlbumView):
+
+    def render_to_response(self, context):
+        return render_to_response('album_admin.html', context)
