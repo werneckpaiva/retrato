@@ -9,6 +9,7 @@ from django.shortcuts import render_to_response
 from django.urls import reverse
 
 from retrato.gdrive.album.views import GdriveAlbumView
+from retrato.gdrive.photo.models import GdrivePhoto
 
 logger = logging.getLogger(__name__)
 
@@ -20,18 +21,25 @@ class GdriveAlbumAdminView(GdriveAlbumView):
         context = super(GdriveAlbumAdminView, self).get_album_context()
         context['visibility'] = album.get_visibility()
         context['token'] = album.get_token()
-        self._get_pictures_visibility(context)
         return context
 
     def _get_photo_url(self, photo):
         relative_url = photo.relative_url()
         url = reverse('admin_photo', args=(relative_url,))
         return url
+        # 'api_url': reverse("gdrive_photo", kwargs={"photo": photo.relative_url()}),
 
-    def _get_pictures_visibility(self, context):
-        album = self.object
-        for picture in context["pictures"]:
-            picture["visibility"] = album.get_photo_visibility(picture["filename"])
+    @staticmethod
+    def _get_photo_api_url(photo: GdrivePhoto):
+        relative_url = photo.relative_url()
+        url = reverse('gdrive_photo', kwargs={"photo": relative_url})
+        return url
+
+    def _picture_to_json(self, photo:GdrivePhoto):
+        data = super()._picture_to_json(photo)
+        data["api_url"] = self._get_photo_api_url(photo)
+        data["visibility"] = self.object.get_photo_visibility(photo.filename)
+        return data
 
     def post(self, request, *args, **kwargs):
         album = self.get_object()

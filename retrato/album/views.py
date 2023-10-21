@@ -60,8 +60,8 @@ class AlbumView(BaseDetailView):
     def get_album_context(self):
         album = self.object
         context = {
-                   'path': '/%s' % self.kwargs['album_path'],
-                   'title': self.kwargs['album_path'].replace('/', ' | '),
+                   'path': f"/{album.path}",
+                   'title': album.title,
                    'cover': self._load_album_cover(album),
                    'pictures': self._load_pictures(album),
                    'albums': self._load_albums(album),

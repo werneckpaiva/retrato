@@ -7,7 +7,7 @@ from django.urls import reverse
 
 from retrato.album.views import AlbumView
 from retrato.album.models import Album
-
+from retrato.photo.models import Photo
 
 logger = logging.getLogger(__name__)
 
@@ -37,10 +37,16 @@ class AlbumAdminView(AlbumView, AlbumCacheManager):
         root_folder = getattr(settings, 'PHOTOS_ROOT_DIR', '/')
         return root_folder
 
-    def _get_photo_url(self, photo):
-        relative_url = photo.relative_url()
-        url = reverse('admin_photo', args=(relative_url,))
-        return url
+    def _get_photo_url(self, photo: Photo):
+        return reverse('admin_photo', args=(photo.relative_url(),))
+
+    def _get_photo_api_url(self, photo: Photo):
+        return self._get_photo_url(photo)
+
+    def _picture_to_json(self, photo):
+        data = super()._picture_to_json(photo)
+        data["api_url"] = self._get_photo_api_url(photo)
+        return data
 
     def _get_pictures_visibility(self, context):
         album = self.object

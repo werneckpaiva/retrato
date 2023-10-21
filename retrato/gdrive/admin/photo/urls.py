@@ -1,7 +1,7 @@
 from django.urls import path
-from retrato.admin.photo.views import PhotoAdminView
 
+from retrato.gdrive.admin.photo.views import GdrivePhotoAdminView
 
 urlpatterns = [
-    path('<path:photo>', PhotoAdminView.as_view(), name='admin_photo')
+    path('<path:photo>', GdrivePhotoAdminView.as_view(), name='gdrive_admin_photo')
 ]

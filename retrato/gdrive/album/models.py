@@ -5,7 +5,7 @@ from googleapiclient.http import MediaIoBaseDownload, MediaIoBaseUpload
 from googleapiclient.errors import Error
 from io import BytesIO
 
-from retrato.album.models import BaseAlbum
+from retrato.album.models import BaseAlbum, Album
 from retrato.gdrive.photo.models import GdrivePhoto
 from django.conf import settings
 
@@ -17,6 +17,7 @@ class GdriveAlbum(BaseAlbum):
 
     _gdrive = None
     _album_id = None
+    _album_path = None
 
     _folder_details = None
     _parent_folder_id = None
@@ -26,15 +27,17 @@ class GdriveAlbum(BaseAlbum):
     _albums = []
     _pictures = []
 
-    def __init__(self, gdrive_service, album_id):
+    def __init__(self, gdrive_service, album_id, path):
         self._gdrive = gdrive_service
         self._album_id = album_id
+        self._album_path = Album.sanitize_path(path)
 
     def load_folder_details(self):
         self._folder_details = self._gdrive.files().get(
             fileId=self._album_id,
             fields="id, name, parents"
         ).execute()
+        print(self._folder_details)
         self._parent_folder_id = self._folder_details.get("parents", [None])[0]
 
     def load_content(self):
@@ -77,7 +80,7 @@ class GdriveAlbum(BaseAlbum):
         return public_albums
 
     def get_pictures(self):
-        pictures = [GdrivePhoto(p) for p in self._pictures]
+        pictures = [GdrivePhoto(self, p) for p in self._pictures]
         pictures = self.sort_by_name(pictures)
         return pictures
 
@@ -194,3 +197,13 @@ class GdriveAlbum(BaseAlbum):
             return None
         self.load_folder_details()
         return GdriveAlbum(self._gdrive, self._parent_folder_id)
+
+    @property
+    def path(self):
+        return self._album_path
+
+    @property
+    def title(self):
+        return self.path.replace('/', ' | ')
+    def __str__(self):
+        return self.path

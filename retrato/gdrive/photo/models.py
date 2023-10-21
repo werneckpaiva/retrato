@@ -1,8 +1,9 @@
-
 import re
+from typing import Dict, Any
+
 
 class GdrivePhoto:
-
+    album = None
 
     name = None
     filename = None
@@ -15,7 +16,8 @@ class GdrivePhoto:
     thumb = None
     highlight = None
 
-    def __init__(self, photo):
+    def __init__(self, album, photo: Dict[str, Any]):
+        self.album = album
         self.id = photo["id"]
         self.filename = photo["name"]
         self.name = self.sanitize_name(self.filename)
@@ -36,6 +38,10 @@ class GdrivePhoto:
         self.thumb = self.build_thumb(photo["thumbnailLink"])
         self.highlight = self.build_highlight(photo["thumbnailLink"])
 
+    @property
+    def path(self):
+        return self._path
+
     def sanitize_name(self, filename):
         name = re.sub('.jpg', '', self.filename, flags=re.IGNORECASE)
         name = re.sub('_', ' ', name)
@@ -51,3 +57,7 @@ class GdrivePhoto:
 
     def __str__(self):
         return self.name
+
+    def relative_url(self):
+        relative_url = f'{self.album.path}/{self.filename}'
+        return relative_url

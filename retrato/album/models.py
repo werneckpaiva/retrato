@@ -281,3 +281,7 @@ class Album(BaseAlbum):
         if parent_path == '' or parent_path == '/':
             return None
         return Album(self.root_folder, parent_path)
+
+    @property
+    def title(self):
+        return self.path.replace('/', ' | ')
