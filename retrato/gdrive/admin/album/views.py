@@ -1,9 +1,8 @@
 import json
 import logging
+import sys
 import traceback
 
-import sys
-from django.conf import settings
 from django.http import HttpResponse
 from django.shortcuts import render_to_response
 from django.urls import reverse
@@ -32,7 +31,7 @@ class GdriveAlbumAdminView(GdriveAlbumView):
     @staticmethod
     def _get_photo_api_url(photo: GdrivePhoto):
         relative_url = photo.relative_url()
-        url = reverse('gdrive_photo', kwargs={"photo": relative_url})
+        url = reverse('gdrive_admin_photo', kwargs={"photo": relative_url})
         return url
 
     def _picture_to_json(self, photo:GdrivePhoto):

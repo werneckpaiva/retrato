@@ -16,7 +16,7 @@ function AlbumAdminModel(albumDelegate){
     }
 
     model.changePictureVisibility = function(pictureIndex, visibility){
-        albumDelegate.changePictureVisibility(model.pictures[pictureIndex].url, visibility, 
+        albumDelegate.changePictureVisibility(model.pictures[pictureIndex].api_url, visibility,
                 function(result){
                     model.loading = false
                     model.pictures[pictureIndex].visibility = result.visibility;

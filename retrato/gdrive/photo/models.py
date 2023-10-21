@@ -18,25 +18,25 @@ class GdrivePhoto:
 
     def __init__(self, album, photo: Dict[str, Any]):
         self.album = album
-        self.id = photo["id"]
+        self.id = photo.get("id")
         self.filename = photo["name"]
         self.name = self.sanitize_name(self.filename)
-        media_data = photo["imageMediaMetadata"]
+        media_data = photo.get("imageMediaMetadata", {})
 
         rotation = media_data.get("rotation", 0)
         if rotation == 0 or rotation == 2:
-            self.width = media_data["width"]
-            self.height = media_data["height"]
+            self.width = media_data.get("width", 1)
+            self.height = media_data.get("height", 1)
         else:
-            self.width = media_data["height"]
-            self.height = media_data["width"]
+            self.width = media_data.get("height", 1)
+            self.height = media_data.get("width", 1)
 
         self.ratio = float(self.width) / float(self.height)
         self.date_taken = media_data.get("time", None)
 
-        self.url = photo["webContentLink"]
-        self.thumb = self.build_thumb(photo["thumbnailLink"])
-        self.highlight = self.build_highlight(photo["thumbnailLink"])
+        self.url = photo.get("webContentLink", "")
+        self.thumb = self.build_thumb(photo.get("thumbnailLink", ""))
+        self.highlight = self.build_highlight(photo.get("thumbnailLink", ""))
 
     @property
     def path(self):

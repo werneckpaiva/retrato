@@ -5,6 +5,7 @@ Admin
 - Make album public (recursively) (done)
 - Public by token (done)
 - Make photo public
+    - The API is calling the picturePath and the URL is empty. URL should contain gdrive link and picturePath the API
 
 Public
 

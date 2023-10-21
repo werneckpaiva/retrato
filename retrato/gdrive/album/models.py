@@ -1,17 +1,22 @@
 import io
 import json
+import logging
 
 from googleapiclient.http import MediaIoBaseDownload, MediaIoBaseUpload
 from googleapiclient.errors import Error
 from io import BytesIO
 
-from retrato.album.models import BaseAlbum, Album
+from retrato.album.models import BaseAlbum, Album, AlbumNotFoundError
 from retrato.gdrive.photo.models import GdrivePhoto
 from django.conf import settings
 
+from django.core.cache import cache as django_cache
+
+
+logger = logging.getLogger(__name__)
+
 
 class GdriveAlbum(BaseAlbum):
-
     MIME_FOLDER = 'application/vnd.google-apps.folder'
     CONFIG_FILE = ".retrato"
 
@@ -76,7 +81,7 @@ class GdriveAlbum(BaseAlbum):
 
     def get_public_albums(self):
         public_albums = [album["name"] for album in self._albums if
-                   album.get("appProperties", {}).get("visibility", {}) == BaseAlbum.VISIBILITY_PUBLIC]
+                         album.get("appProperties", {}).get("visibility", {}) == BaseAlbum.VISIBILITY_PUBLIC]
         return public_albums
 
     def get_pictures(self):
@@ -105,16 +110,17 @@ class GdriveAlbum(BaseAlbum):
         items = results.get('files', [])
         if len(items) == 0:
             self._config_file_id = ''
-            self._config = {} # TODO new config with default values
+            self._config = {}  # TODO new config with default values
             return
         config_item = items[0]
-        self._config_file_id=config_item["id"]
+        self._config_file_id = config_item["id"]
         request = self._gdrive.files().get_media(fileId=self._config_file_id)
         fh = io.BytesIO()
         downloader = MediaIoBaseDownload(fh, request)
         while True:
             _, done = downloader.next_chunk()
-            if done: break
+            if done:
+                break
         config = json.loads(fh.getvalue())
         if "albums" not in config:
             config["albums"] = []
@@ -127,17 +133,17 @@ class GdriveAlbum(BaseAlbum):
         media = MediaIoBaseUpload(fh, mimetype='plain/text', chunksize=1024 * 1024, resumable=True)
         if self._config_file_id:
             self._gdrive.files().update(body={},
-                                         media_body=media,
-                                         fields='id',
-                                         fileId=self._config_file_id).execute()
+                                        media_body=media,
+                                        fields='id',
+                                        fileId=self._config_file_id).execute()
         else:
             file_metadata = {
                 'name': GdriveAlbum.CONFIG_FILE,
                 'parents': [self._album_id]
             }
             result = self._gdrive.files().create(body=file_metadata,
-                                        media_body=media,
-                                        fields='id').execute()
+                                                 media_body=media,
+                                                 fields='id').execute()
             self._config_file_id = result.get('id')
         self._config = config
 
@@ -189,8 +195,14 @@ class GdriveAlbum(BaseAlbum):
         config["albums"] = list(albums)
         self.save_config(config)
 
-    def get_photo_visibility(self, picture):
+    def get_photo_visibility(self, photo):
         return BaseAlbum.VISIBILITY_PUBLIC
+
+    def set_photo_visibility(self, photo, visibility):
+        config = self.config()
+        pictures = set(config.get("pictures", {}))
+
+        pass
 
     def get_parent(self):
         if self._album_id == settings.GDRIVE_ROOT_FOLDER_ID:
@@ -205,5 +217,34 @@ class GdriveAlbum(BaseAlbum):
     @property
     def title(self):
         return self.path.replace('/', ' | ')
+
     def __str__(self):
         return self.path
+
+    @classmethod
+    def get_album_from_path(cls, gdrive_service, album_path):
+        album_path = Album.sanitize_path(album_path)
+        album = django_cache.get(album_path)
+        if album:
+            logger.debug(f"Page cache hit - album: '{album_path}'")
+            return album
+        album_id = settings.GDRIVE_ROOT_FOLDER_ID
+        album_parts = album_path.split("/")
+        for album_name in album_parts:
+            if not album_name:
+                continue
+            results = gdrive_service.files().list(
+                corpora="user",
+                q="parents='%s' and name='%s'" % (album_id, album_name),
+                pageSize=1,
+                spaces='drive',
+                fields="files(id, name, mimeType)").execute()
+            items = results.get('files', [])
+            if len(items) == 0:
+                raise AlbumNotFoundError()
+            album_id = items[0]["id"]
+
+        album = GdriveAlbum(gdrive_service, album_id, album_path)
+        logger.debug(f"Page cache hit - album: '{album_path}'")
+        django_cache.set(album_path, album)
+        return album

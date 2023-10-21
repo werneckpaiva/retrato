@@ -16,6 +16,7 @@ from django.shortcuts import render_to_response
 from django.shortcuts import redirect
 from django.http.request import QueryDict
 
+from retrato.utils.cache import cache
 
 logger = logging.getLogger(__name__)
 
