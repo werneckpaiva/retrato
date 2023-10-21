@@ -25,7 +25,7 @@ class PhotoAdminView(PhotoView, AlbumCacheManager):
         cover = request.POST.get('cover', None)
 
         if visibility is not None:
-            partial_context = self._change_album_visibility(visibility)
+            partial_context = self._change_photo_visibility(visibility)
             context.update(partial_context)
         elif cover is not None:
             partial_context = self._set_album_cover()
@@ -35,7 +35,7 @@ class PhotoAdminView(PhotoView, AlbumCacheManager):
 
         return HttpResponse(json.dumps(context), content_type="application/photo")
 
-    def _change_album_visibility(self, visibility):
+    def _change_photo_visibility(self, visibility):
         photo = self.object
         context = {}
         album = Album(settings.PHOTOS_ROOT_DIR, photo.album)
