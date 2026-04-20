@@ -106,7 +106,7 @@ class Album(BaseAlbum):
         if not isdir(self._realpath):
             return []
 
-        extension_re = re.compile('\.jpg$', re.IGNORECASE)
+        extension_re = re.compile(r'\.jpg$', re.IGNORECASE)
         pictures_name = []
         for f in listdir(self._realpath):
             if f[0] == '.':
@@ -155,8 +155,8 @@ class Album(BaseAlbum):
             return ''
         if path[0] == '/':
             path = path[1:]
-        path = re.sub('\.+\./', '', path, flags=re.IGNORECASE)
-        path = re.sub('/+/', '/', path, flags=re.IGNORECASE)
+        path = re.sub(r'\.+\./', '', path, flags=re.IGNORECASE)
+        path = re.sub(r'/+/', '/', path, flags=re.IGNORECASE)
         return path
 
     def get_visibility(self):

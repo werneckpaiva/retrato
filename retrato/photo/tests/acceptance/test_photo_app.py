@@ -47,7 +47,7 @@ class TestPhotoAppAcceptance(TestCase):
         self.assertEqual(response.status_code, 200)
         image = Image.open(BytesIO(response.content))
         size = image.size
-        self.assertEquals(size[0], 1000)
+        self.assertEqual(size[0], 1000)
 
     def test_image_not_modified(self):
         time_cache = datetime.now() + timedelta(0, 60)

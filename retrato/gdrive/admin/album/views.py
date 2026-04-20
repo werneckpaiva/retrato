@@ -4,7 +4,7 @@ import sys
 import traceback
 
 from django.http import HttpResponse
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.urls import reverse
 
 from retrato.gdrive.album.views import GdriveAlbumView
@@ -85,4 +85,4 @@ class GdriveAlbumAdminView(GdriveAlbumView):
 class GdriveAlbumAdminHomeView(GdriveAlbumView):
 
     def render_to_response(self, context):
-        return render_to_response('album_admin.html', context)
+        return render(self.request, 'album_admin.html', context)

@@ -46,7 +46,7 @@ class PhotoCache(object):
         filename = "%s.%s" % (filename, self.photo.filename)
         filename = "%s/%s" % (photo_dir, filename)
         filename = re.sub('/+/', '/', filename)
-        filename = re.sub('\.+\./', '', filename)
+        filename = re.sub(r'\.+\./', '', filename)
         self.filename = filename
 
     def get_filename(self):

@@ -38,7 +38,7 @@ class TestPhotoCacheIntegration(TestCase):
         BASE_CACHE_DIR = getattr(settings, 'BASE_CACHE_DIR', '/')
         photos_cache_dir = os.path.join(BASE_CACHE_DIR, "photo")
         self.assertTrue(cache_file.startswith(photos_cache_dir))
-        self.assertNotEquals(photo.real_filename, cache_file)
+        self.assertNotEqual(photo.real_filename, cache_file)
 
     def test_load_from_cache(self):
         root_folder = getattr(settings, 'PHOTOS_ROOT_DIR', '/')
@@ -61,7 +61,7 @@ class TestPhotoCacheIntegration(TestCase):
         root_folder = getattr(settings, 'PHOTOS_ROOT_DIR', '/')
         photo = Photo(root_folder, "album2", 'photo_first.JPG')
         img = Image.open(photo.real_filename)
-        self.assertEquals(img.size[0], 3008)
+        self.assertEqual(img.size[0], 3008)
 
         cache = PhotoCache(photo)
 
@@ -73,7 +73,7 @@ class TestPhotoCacheIntegration(TestCase):
 
         img = Image.open(cache_file)
         size = img.size
-        self.assertEquals(size[0], 800)
+        self.assertEqual(size[0], 800)
 
     def test_load_rotated_image(self):
         root_folder = getattr(settings, 'PHOTOS_ROOT_DIR', '/')

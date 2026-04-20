@@ -25,5 +25,5 @@ class TestPhotoModelIntegration(TestCase):
         }
         gdrive_photo = GdrivePhoto(album, photo)
 
-        self.assertEquals(gdrive_photo.filename, 'photo_first.JPG')
-        self.assertEquals(gdrive_photo.relative_url(), 'category/album/photo_first.JPG')
+        self.assertEqual(gdrive_photo.filename, 'photo_first.JPG')
+        self.assertEqual(gdrive_photo.relative_url(), 'category/album/photo_first.JPG')

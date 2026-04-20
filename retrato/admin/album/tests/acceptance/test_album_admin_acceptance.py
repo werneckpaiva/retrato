@@ -54,10 +54,10 @@ class TestAlbumAdminAcceptance(TestCase):
         self.assertEqual(response.status_code, 200)
 
         content = json.loads(response.content)
-        self.assert_(content)
-        self.assertEquals(content['path'], '/')
-        self.assertEquals(len(content['albums']), 2)
-        self.assertEquals(content['pictures'], [])
+        self.assertTrue(content)
+        self.assertEqual(content['path'], '/')
+        self.assertEqual(len(content['albums']), 2)
+        self.assertEqual(content['pictures'], [])
 
     def test_make_album_public(self):
         virtual_folder = Album.get_virtual_base_folder()
@@ -102,10 +102,10 @@ class TestAlbumAdminAcceptance(TestCase):
         response2 = self.client.get('/album/api/album2/')
         self.assertEqual(response2.status_code, 200)
         content = json.loads(response2.content)
-        self.assert_(content)
-        self.assertEquals(content['path'], '/album2/')
-        self.assertEquals(len(content['albums']), 0)
-        self.assertEquals(len(content['pictures']), 4)
+        self.assertTrue(content)
+        self.assertEqual(content['path'], '/album2/')
+        self.assertEqual(len(content['albums']), 0)
+        self.assertEqual(len(content['pictures']), 4)
 
     def test_make_album_public_should_create_token(self):
         virtual_folder = Album.get_virtual_base_folder()
@@ -124,7 +124,7 @@ class TestAlbumAdminAcceptance(TestCase):
         config = json.loads(content_file)
 
         content = json.loads(response.content)
-        self.assertEquals(content['token'], config['token'])
+        self.assertEqual(content['token'], config['token'])
 
     def test_make_album_private(self):
         virtual_folder = Album.get_virtual_base_folder()
@@ -181,7 +181,7 @@ class TestAlbumAdminAcceptance(TestCase):
         self.assertEqual(response.status_code, 200)
         content = json.loads(response.content)
         self.assertIsNotNone(content['cover'])
-        self.assertEquals(content['cover']["filename"], 'photo_1_portrait.JPG')
+        self.assertEqual(content['cover']["filename"], 'photo_1_portrait.JPG')
         self.assertIsNotNone(content['cover']["thumb"])
 
     def test_set_album_cover(self):
@@ -196,4 +196,4 @@ class TestAlbumAdminAcceptance(TestCase):
 
         response = self.client.get('/album/api/album2/')
         content = json.loads(response.content)
-        self.assertEquals(content['cover']['filename'], 'photo_2.JPG')
+        self.assertEqual(content['cover']['filename'], 'photo_2.JPG')

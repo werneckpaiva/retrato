@@ -1,5 +1,5 @@
 from django.views.generic.base import View
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.conf import settings
 from django.http.response import HttpResponse
 import json
@@ -23,7 +23,7 @@ class LoginView(View):
             'FACEBOOK_ID': settings.FACEBOOK_ID,
             'REDIRECT_TO': request.GET.get('next', None)
         }
-        return render_to_response('login.html', context)
+        return render(request, 'login.html', context)
 
     def post(self, request, *args, **kwargs):
         facebookAccessToken = request.POST.get('accessToken')
@@ -33,7 +33,7 @@ class LoginView(View):
         try:
             if user is not None and user.is_active:
                 login(request, user)
-                if user.is_authenticated():
+                if user.is_authenticated:
                     context = {'success': True,
                                'first_name': user.first_name,
                                'last_name': user.last_name}

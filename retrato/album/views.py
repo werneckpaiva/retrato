@@ -12,11 +12,11 @@ from django.http.response import Http404
 from retrato.album.models import Album, AlbumNotFoundError
 from retrato.auth.models import check_album_token_valid_or_user_authenticated,\
     UnauthorizedUserException
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.shortcuts import redirect
 from django.http.request import QueryDict
 
-from retrato.utils.cache import cache
+
 
 logger = logging.getLogger(__name__)
 
@@ -148,4 +148,4 @@ class AlbumHomeView(AlbumView):
             return redirect(url)
 
     def render_to_response(self, context):
-        return render_to_response('album.html', context)
+        return render(self.request, 'album.html', context)

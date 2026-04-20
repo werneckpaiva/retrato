@@ -8,7 +8,7 @@ from django.urls import reverse
 from retrato.album.views import AlbumView
 from retrato.album.models import Album
 from retrato.photo.models import Photo
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 
 logger = logging.getLogger(__name__)
 
@@ -94,4 +94,4 @@ class AlbumAdminView(AlbumView, AlbumCacheManager):
 class AlbumAdminHomeView(AlbumView):
 
     def render_to_response(self, context):
-        return render_to_response('album_admin.html', context)
+        return render(self.request, 'album_admin.html', context)

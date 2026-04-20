@@ -112,10 +112,10 @@ class Photo(object):
         ratio = float(size[0]) / float(size[1])
         if ratio > 0:
             new_width = dimension
-            self.image = self.image.resize((new_width, int(new_width / ratio)), Image.ANTIALIAS)
+            self.image = self.image.resize((new_width, int(new_width / ratio)), Image.LANCZOS)
         else:
             new_height = dimension
-            self.image = self.image.resize((new_height, int(new_height / ratio)), Image.ANTIALIAS)
+            self.image = self.image.resize((new_height, int(new_height / ratio)), Image.LANCZOS)
 
     def get_orientation_angle(self):
         self.load_exif()

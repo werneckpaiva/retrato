@@ -3,7 +3,7 @@ from typing import Dict
 
 from django.conf import settings
 from django.http import Http404, QueryDict
-from django.shortcuts import render_to_response, redirect
+from django.shortcuts import render, redirect
 
 from retrato.album.models import AlbumNotFoundError
 from retrato.album.views import AlbumView
@@ -77,4 +77,4 @@ class GdriveAlbumHomeView(GdriveAlbumView):
             return redirect(url)
 
     def render_to_response(self, context):
-        return render_to_response('album.html', context)
+        return render(self.request, 'album.html', context)
