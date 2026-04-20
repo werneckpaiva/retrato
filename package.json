@@ -8,8 +8,7 @@
   "scripts": {
     "clean": "rimraf retrato/album/static/js/lib",
     "build:lib": "mkdir -p retrato/album/static/js/lib && copyfiles -f node_modules/headroom.js/dist/headroom.js retrato/album/static/js/lib/ && copyfiles -f node_modules/jquery-touch-events/index.js retrato/album/static/js/lib/ && mv retrato/album/static/js/lib/index.js retrato/album/static/js/lib/jquery-touch-events.js && copyfiles -f node_modules/jquery/dist/jquery.js retrato/album/static/js/lib/ && copyfiles -f node_modules/mustache/mustache.js retrato/album/static/js/lib/ && mv retrato/album/static/js/lib/mustache.js retrato/album/static/js/lib/mustache.js.js && copyfiles -f node_modules/watchjs/src/watch.js retrato/album/static/js/lib/ && copyfiles -f node_modules/retrato-js/dist/retrato-js.js retrato/album/static/js/lib/",
-    "build": "npm run clean && npm run build:lib",
-    "test": "python manage.py test"
+    "build": "npm run clean && npm run build:lib"
   },
   "repository": {
     "type": "git",
