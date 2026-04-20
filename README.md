@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/werneckpaiva/retrato.svg?branch=master)](https://travis-ci.org/werneckpaiva/retrato)
+[![CI](https://github.com/werneckpaiva/retrato/actions/workflows/ci.yml/badge.svg)](https://github.com/werneckpaiva/retrato/actions/workflows/ci.yml)
 
 Retrato
 =======
@@ -23,9 +23,18 @@ Requirements:
 - Pillow==2.3.0
 - django-jasmine==0.4.1
 
-Installation:
+Installation & Build:
 -------------
+1. Install Python dependencies:
+```bash
 pip install -r requirements.txt
+```
+
+2. Install and build frontend assets:
+```bash
+npm install
+npm run build
+```
 
 
 Google Drive:

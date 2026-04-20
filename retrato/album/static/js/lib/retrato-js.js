@@ -30,7 +30,7 @@ var Fullscreen = {
     },
 
     close: function close() {
-        if (document.fullscreenElement && document.exitFullscreen) {
+        if (document.exitFullscreen) {
             document.exitFullscreen();
         } else if (document.webkitExitFullscreen) {
             document.webkitExitFullscreen();
@@ -87,7 +87,9 @@ function AlbumPhotos(model, conf){
     function setConfiguration(){
         // Required
         $view = conf.view;
-        template = conf.template;
+        template = (conf.template)?
+                        conf.template:
+                        '<img src="{{src}}" width="{{width}}" height="{{height}}"/>';
 
         // Optional
         $viewList = (conf.listClass)? $view.find("."+conf.listClass) : $view;
@@ -95,6 +97,12 @@ function AlbumPhotos(model, conf){
         lazyLoad = (conf.lazyLoad)? conf.lazyLoad : false;
         margin = (conf.margin)?  conf.margin : 0;
     }
+
+    this.calculatePicturesSizes = function(width, height) {
+        var resize = new Resize(model.pictures, heightProportion);
+        var picturesSizes = resize.doResize(width, height);
+        return picturesSizes;
+    };
 
     this.displayPictures = function(picturesChanged){
         if (picturesChanged===false){
@@ -108,23 +116,24 @@ function AlbumPhotos(model, conf){
         }
         $view.show();
 
-        var resize = new Resize(model.pictures, heightProportion);
         currentWidth = $view.width();
-        var newPictures = resize.doResize(currentWidth, $(window).height());
-
+        var picturesSizes = self.calculatePicturesSizes(currentWidth, $(window).height());
+        var totalHeight = picturesSizes.totalHeight;
+        var newPictures = picturesSizes.pictures;
         var content = "";
         for (var i=0; i<newPictures.length; i++){
             var p = newPictures[i];
-            var params = {
+            var params = $.extend(model.pictures[i], {
                     width: p.newWidth-margin,
                     height: p.newHeight-margin
-            };
+            });
             if (!lazyLoad){
                 params.src = model.pictures[i].thumb;
             }
             content += Mustache.render(template, params);
         }
         $viewList.html(content);
+        $viewList.height(totalHeight);
         $viewList.find("img")
             .each(function(i, el){
                 $(el).data("index", i);
@@ -143,8 +152,9 @@ function AlbumPhotos(model, conf){
         var newWidth = $view.width();
         if (newWidth == currentWidth) return;
         currentWidth = $view.width();
-        var resize = new Resize(model.pictures, heightProportion);
-        var newPictures = resize.doResize(currentWidth, $(window).height());
+        var resizedCalc = self.calculatePicturesSizes(currentWidth, $(window).height());
+        var newPictures = resizedCalc.pictures;
+        var totalHeight = resizedCalc.totalHeight;
         $viewList.children().each(function(index, item){
             var p = newPictures[index];
             var width = (p.newWidth-margin);
@@ -152,6 +162,7 @@ function AlbumPhotos(model, conf){
             $(this).css("width", width).css("height", height);
             $(this).find("img").attr("width", width).attr("height", height);
         });
+        $viewList.height(totalHeight);
         self.revealImages();
     };
 
@@ -190,7 +201,6 @@ function AlbumPhotos(model, conf){
         var bottom = scrollTop + positionTop + $viewList.parent().height() - 30;
         $viewList.find("img[src='']").each(function(index, item){
             $item = $(item);
-            if ($item.attr('src')) return;
             if ($item.parent().position().top <= bottom){
                 $item.hide().attr("src", $item.data("img-src")).fadeIn(1000);
             }
@@ -198,7 +208,8 @@ function AlbumPhotos(model, conf){
     };
 
     init();
-};/*
+}
+/*
 
 Superfast Blur - a fast Box Blur For Canvas
 
@@ -242,41 +253,36 @@ var mul_table = [ 1,57,41,21,203,34,97,73,227,91,149,62,105,45,39,137,241,107,3,
 
 var shg_table = [0,9,10,10,14,12,14,14,16,15,16,15,16,15,15,17,18,17,12,18,16,17,17,19,19,18,19,18,18,19,19,19,20,19,20,20,20,20,20,20,15,20,19,20,20,20,21,21,21,20,20,20,21,18,21,21,21,21,20,21,17,21,21,21,22,22,21,22,22,21,22,21,19,22,22,19,20,22,22,21,21,21,22,22,22,18,22,22,21,22,22,23,22,20,23,22,22,23,23,21,19,21,21,21,23,23,23,22,23,23,21,23,22,23,18,22,23,20,22,23,23,23,21,22,20,22,21,22,24,24,24,24,24,22,21,24,23,23,24,21,24,23,24,22,24,24,22,24,24,22,23,24,24,24,20,23,22,23,24,24,24,24,24,24,24,23,21,23,22,23,24,24,24,22,24,24,24,23,22,24,24,25,23,25,25,23,24,25,25,24,22,25,25,25,24,23,24,25,25,25,25,25,25,25,25,25,25,25,25,23,25,23,24,25,25,25,25,25,25,25,25,25,24,22,25,25,23,25,25,20,24,25,24,25,25,22,24,25,24,25,24,25,25,24,25,25,25,25,22,25,25,25,24,25,24,25,18];
 
-function boxBlurImage(originImg, canvas, radius, blurAlphaChannel, iterations){
+function boxBlurImage( img, canvas, radius, blurAlphaChannel, iterations){
 
     var w = canvas.width;
     var h = canvas.height;
 
-    var img = new Image();
-    img.crossOrigin="Anonymous";
-    img.setAttribute('crossOrigin', '');
-    img.onload = function() {
-        var context = canvas.getContext("2d");
-        context.clearRect( 0, 0, canvas.width, canvas.height);
-        context.drawImage( img, 0, 0, canvas.width, canvas.height);
+    var context = canvas.getContext("2d");
+    context.clearRect( 0, 0, canvas.width, canvas.height);
+    context.drawImage( img, 0, 0, canvas.width, canvas.height);
 
-        if ( isNaN(radius) || radius < 1 ) return;
+    if ( isNaN(radius) || radius < 1 ) return;
 
-        if ( blurAlphaChannel ) {
-            boxBlurCanvasRGBA( canvas, 0, 0, w, h, radius, iterations );
-        } else {
-            boxBlurCanvasRGB( canvas, 0, 0, w, h, radius, iterations );
-        }
-        var widthCenter = Math.round(canvas.width / 2);
-        var heightCenter = Math.round(canvas.height / 2);
-        var grd=context.createRadialGradient(widthCenter,
-                heightCenter,
-                0,
-                widthCenter,
-                heightCenter,
-                widthCenter + 0);
-        grd.addColorStop(0,"rgba(0,0,0,0)");
-        grd.addColorStop(1,"rgba(0,0,0,0.6)");
-        // Fill with gradient
-        context.fillStyle=grd;
-        context.fillRect(0, 0, canvas.width, canvas.height);
+    if ( blurAlphaChannel ) {
+        boxBlurCanvasRGBA( canvas, 0, 0, w, h, radius, iterations );
+    } else {
+        boxBlurCanvasRGB( canvas, 0, 0, w, h, radius, iterations );
     }
-    img.src = originImg.src;
+    var widthCenter = Math.round(canvas.width / 2);
+    var heightCenter = Math.round(canvas.height / 2);
+    var grd=context.createRadialGradient(widthCenter, 
+            heightCenter,
+            0, 
+            widthCenter, 
+            heightCenter,
+            widthCenter + 0);
+    grd.addColorStop(0,"rgba(0,0,0,0)");
+    grd.addColorStop(1,"rgba(0,0,0,0.6)");
+    // Fill with gradient
+    context.fillStyle=grd;
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    
 }
 
 
@@ -546,7 +552,8 @@ function boxBlurCanvasRGB( canvas, top_x, top_y, width, height, radius, iteratio
         }
     }
     context.putImageData( imageData, top_x, top_y );
-};function Highlight(model, conf){
+}
+function Highlight(model, conf){
     var self = this;
 
     var $view = null;
@@ -611,8 +618,9 @@ function boxBlurCanvasRGB( canvas, top_x, top_y, width, height, radius, iteratio
     function setConfiguration(){
         // Required
         $view = conf.view;
-        template = conf.template;
-
+        template = (conf.template)?
+                        conf.template:
+                        '<div class="photo-frame"><div class="large-photo"><img class="low-res" /><img class="high-res"/></div></div>';
         // Optional
         $viewList = (conf.listClass)? $view.find("."+conf.listClass) : createFramesContainer();
         $detailsView = (conf.detailsView)? conf.detailsView : [];
@@ -672,13 +680,13 @@ function boxBlurCanvasRGB( canvas, top_x, top_y, width, height, radius, iteratio
         self.displayPicture();
         $blurContainer.empty();
     }
-    
+
     function disableScroll(e){
         if (e.target.id == 'el') return;
         e.preventDefault();
         e.stopPropagation();
     }
-    
+
     this.handleScroll = function(){
         $('body').on('mousewheel', disableScroll);
     };
@@ -706,9 +714,9 @@ function boxBlurCanvasRGB( canvas, top_x, top_y, width, height, radius, iteratio
     }
 
     this.hasPicturesToDisplay = function(){
-        return (model.selectedPictureIndex !== null && 
-                model.selectedPictureIndex >= 0 && 
-                model.pictures && 
+        return (model.selectedPictureIndex !== null &&
+                model.selectedPictureIndex >= 0 &&
+                model.pictures &&
                 model.pictures.length>=0);
     };
 
@@ -793,7 +801,7 @@ function boxBlurCanvasRGB( canvas, top_x, top_y, width, height, radius, iteratio
             showLowResolution(currentFrame, picture);
             showHighResolution(currentFrame, picture);
             showBlur(currentFrame, picture);
-            
+
         }
     };
 
@@ -894,6 +902,7 @@ function boxBlurCanvasRGB( canvas, top_x, top_y, width, height, radius, iteratio
     }
 
     function updateDetailValues(){
+        if ($detailsView.length === 0) return;
         var picture = model.pictures[model.selectedPictureIndex];
         if (!picture) return;
         $detailsView.find(".file-name").html(picture.filename);
@@ -904,13 +913,14 @@ function boxBlurCanvasRGB( canvas, top_x, top_y, width, height, radius, iteratio
 
     init();
 }
-;function AlbumModel(albumDelegate){
+
+function AlbumModel(albumDelegate){
 
     var delegate = albumDelegate;
     var self = this;
 
     this.path = null;
-    this.albums = null;
+    this.albuns = null;
     this.pictures = null;
     this.visibility = null;
     this.token = null;
@@ -977,19 +987,21 @@ function AlbumHtmlDelegate(imgs){
             $el = $(element);
             var ratio = parseFloat($el.attr("width")) / parseFloat($el.attr("height"));
             ratio = Math.round(ratio * 1000) / 1000;
-            var picture = {
+            var picture = $el.data();
+            $.extend(picture, {
                     width: $el.attr("width"),
                     height: $el.attr("height"),
                     thumb: $el.attr("src"),
                     url: $el.data("photo"),
                     highlight: $el.data("photo"),
                     ratio: ratio
-            };
+            });
             result.pictures.push(picture);
         });
         resultHandler(result);
     };
-};function MouseTimer(){
+}
+function MouseTimer(){
     timers = {};
 
     listenersWait = {};
@@ -1048,7 +1060,8 @@ function AlbumHtmlDelegate(imgs){
 }
 
 var MouseTimer = new MouseTimer();
-;function Resize(pictures, heightProportion){
+
+function Resize(pictures, heightProportion){
     this.pictures = pictures;
     this.HEIGHT_PROPORTION = 0.45;
     if (heightProportion){
@@ -1058,19 +1071,12 @@ var MouseTimer = new MouseTimer();
 
 Resize.prototype.doResize = function(viewWidth, viewHeight){
     viewWidth = Math.floor(viewWidth);
-//    viewWidth--;
     var idealHeight = parseInt(viewHeight * this.HEIGHT_PROPORTION);
 
     var sumWidths = this.sumWidth(idealHeight);
     var rows = Math.ceil(sumWidths / viewWidth);
 
-//    if (rows <= 1){
-//        // fallback to standard size
-//        console.log("1 row")
-//        this.resizeToSameHeight(idealHeight)
-//    } else {
-      return this.resizeUsingLinearPartitions(rows, viewWidth);
-//    }
+    return this.resizeUsingLinearPartitions(rows, viewWidth);
 };
 
 Resize.prototype.sumWidth = function(height){
@@ -1103,6 +1109,7 @@ Resize.prototype.resizeUsingLinearPartitions = function(rows, viewWidth){
     var partitions = linearPartition(weights, rows);
     var index = 0;
     var newDimensions = [];
+    var totalHeight = 0;
     for(i in partitions){
         partition = partitions[i];
         var rowList = [];
@@ -1116,6 +1123,7 @@ Resize.prototype.resizeUsingLinearPartitions = function(rows, viewWidth){
             summedRatios += p.ratio;
         }
         var rowHeight = (viewWidth / summedRatios);
+        totalHeight += rowHeight;
         var rowWidth = 0;
         for (j in rowList){
             p = rowList[j];
@@ -1126,7 +1134,7 @@ Resize.prototype.resizeUsingLinearPartitions = function(rows, viewWidth){
             newDimensions.push(dimension);
         }
     }
-    return newDimensions;
+    return {pictures: newDimensions, totalHeight: totalHeight};
 };
 
 function linearPartition(seq, k){

@@ -6,22 +6,30 @@
     "test": "spec"
   },
   "scripts": {
-    "test": "grunt test"
+    "clean": "rimraf retrato/album/static/js/lib",
+    "build:lib": "mkdir -p retrato/album/static/js/lib && copyfiles -f node_modules/headroom.js/dist/headroom.js retrato/album/static/js/lib/ && copyfiles -f node_modules/jquery-touch-events/index.js retrato/album/static/js/lib/ && mv retrato/album/static/js/lib/index.js retrato/album/static/js/lib/jquery-touch-events.js && copyfiles -f node_modules/jquery/dist/jquery.js retrato/album/static/js/lib/ && copyfiles -f node_modules/mustache/mustache.js retrato/album/static/js/lib/ && mv retrato/album/static/js/lib/mustache.js retrato/album/static/js/lib/mustache.js.js && copyfiles -f node_modules/watchjs/src/watch.js retrato/album/static/js/lib/ && copyfiles -f node_modules/retrato-js/dist/retrato-js.js retrato/album/static/js/lib/",
+    "build": "npm run clean && npm run build:lib",
+    "test": "python manage.py test"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/werneckpaiva/retrato-js.git"
+    "url": "git://github.com/werneckpaiva/retrato.git"
   },
   "author": "Ricardo Paiva",
   "bugs": {
-    "url": "https://github.com/werneckpaiva/retrato-js/issues"
+    "url": "https://github.com/werneckpaiva/retrato/issues"
   },
-  "homepage": "https://github.com/werneckpaiva/retrato-js",
+  "homepage": "https://github.com/werneckpaiva/retrato",
   "devDependencies": {
-    "grunt": "^0.4.5",
-    "grunt-contrib-copy": "^0.5.0",
-    "grunt-contrib-clean": "^0.5.0",
-    "grunt-bower": "^0.14.0"
+    "copyfiles": "^2.4.1",
+    "rimraf": "^5.0.5"
   },
-  "dependencies": {}
+  "dependencies": {
+    "headroom.js": "^0.12.0",
+    "jquery": "^3.7.1",
+    "jquery-touch-events": "^1.0.7",
+    "mustache": "^4.2.0",
+    "retrato-js": "github:werneckpaiva/retrato-js",
+    "watchjs": "^0.0.0"
+  }
 }
